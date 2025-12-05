@@ -191,13 +191,15 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            <div className="animate-scale-in relative">
+            <div className="animate-scale-in relative flex items-center justify-center">
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl"></div>
-              <img
-                src={ecommerceHero}
-                alt="Ecommerce Website Design Services - Professional online store interface showcasing modern web design"
-                className="relative rounded-2xl shadow-2xl w-full"
-              />
+              <div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl">
+                <img
+                  src={ecommerceHero}
+                  alt="Ecommerce Website Design Services - Professional online store interface showcasing modern web design"
+                  className="relative rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[4/3]"
+                />
+              </div>
             </div>
           </div>
         </div>
