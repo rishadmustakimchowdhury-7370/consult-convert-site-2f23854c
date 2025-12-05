@@ -8,19 +8,22 @@ import {
   Image,
   Settings,
   LogOut,
-  PenSquare,
   Search,
   ChevronLeft,
   ChevronRight,
+  FolderOpen,
+  Quote,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-  { icon: FileText, label: 'Blogs', path: '/admin/blogs' },
-  { icon: PenSquare, label: 'New Blog', path: '/admin/blogs/new' },
+  { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
+  { icon: FileText, label: 'Blog Posts', path: '/admin/blogs' },
+  { icon: FolderOpen, label: 'Categories', path: '/admin/categories' },
   { icon: Files, label: 'Pages', path: '/admin/pages' },
+  { icon: Quote, label: 'Testimonials', path: '/admin/testimonials' },
   { icon: Image, label: 'Media', path: '/admin/media' },
   { icon: Search, label: 'SEO Tools', path: '/admin/seo' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
@@ -84,7 +87,20 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-2 border-t border-border">
+      <div className="p-2 border-t border-border space-y-1">
+        <Link
+          to="/"
+          target="_blank"
+          className={cn(
+            'flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-muted-foreground',
+            'hover:bg-muted hover:text-foreground',
+            collapsed && 'justify-center px-2'
+          )}
+          title={collapsed ? 'View Site' : undefined}
+        >
+          <ExternalLink className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span className="font-medium">View Site</span>}
+        </Link>
         <Button
           variant="ghost"
           className={cn(

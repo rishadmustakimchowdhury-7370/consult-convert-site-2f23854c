@@ -100,6 +100,15 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
+              to="/blog"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                isActive("/blog") ? "text-primary" : "text-foreground"
+              )}
+            >
+              Blog
+            </Link>
+            <Link
               to="/contact"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
@@ -172,6 +181,16 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
                 {service.name}
               </Link>
             ))}
+            <Link
+              to="/blog"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={cn(
+                "block py-2 text-sm font-medium transition-colors hover:text-primary",
+                isActive("/blog") ? "text-primary" : "text-foreground"
+              )}
+            >
+              Blog
+            </Link>
             <Link
               to="/contact"
               onClick={() => setIsMobileMenuOpen(false)}
