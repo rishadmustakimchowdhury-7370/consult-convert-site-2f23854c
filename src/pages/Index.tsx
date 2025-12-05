@@ -587,22 +587,22 @@ const Index = () => {
             </div>
             
             {/* Trust indicators */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/15">
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white mb-1">10+</div>
-                <div className="text-sm text-white/75">Years Experience</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">10+</div>
+                <div className="text-sm text-white/80 font-medium">Years Experience</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white mb-1">500+</div>
-                <div className="text-sm text-white/75">Projects Delivered</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">500+</div>
+                <div className="text-sm text-white/80 font-medium">Projects Delivered</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white mb-1">98%</div>
-                <div className="text-sm text-white/75">Client Satisfaction</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">98%</div>
+                <div className="text-sm text-white/80 font-medium">Client Satisfaction</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white mb-1">24/7</div>
-                <div className="text-sm text-white/75">Support Available</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">24/7</div>
+                <div className="text-sm text-white/80 font-medium">Support Available</div>
               </div>
             </div>
           </div>
