@@ -17,6 +17,7 @@ import BrandStrategy from "./pages/services/BrandStrategy";
 import UIUXDesign from "./pages/services/UIUXDesign";
 import SEOServices from "./pages/services/SEOServices";
 import ContentCreation from "./pages/services/ContentCreation";
+import ThankYou from "./pages/ThankYou";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/services/uiux-design" element={<UIUXDesign />} />
             <Route path="/services/seo-services" element={<SEOServices />} />
             <Route path="/services/content-creation" element={<ContentCreation />} />
+            <Route path="/thank-you" element={<ThankYou />} />
 
             {/* Admin Auth */}
             <Route path="/admin/login" element={<AdminAuth />} />

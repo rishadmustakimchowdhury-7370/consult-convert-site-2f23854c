@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -45,6 +47,7 @@ interface ConsultationDialogProps {
 
 export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,33 +65,34 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // In production, you would send this data to your backend or WhatsApp API
-    const message = `New Consultation Request:
-Name: ${values.fullName}
-Email: ${values.email}
-WhatsApp: ${values.whatsapp}
-Service: ${values.service}
-Date: ${values.availableDate}
-Time: ${values.availableTime}
-Budget: ${values.budget}`;
-    
-    // Open WhatsApp with pre-filled message (you can configure this)
-    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
-    
-    toast.success("Thank you! We will contact you shortly.", {
-      description: "Redirecting to WhatsApp...",
-    });
-    
-    setTimeout(() => {
-      window.open(whatsappUrl, "_blank");
+    try {
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'consultation',
+          data: {
+            name: values.fullName,
+            email: values.email,
+            phone: values.whatsapp,
+            service: values.service,
+            availableDate: values.availableDate,
+            availableTime: values.availableTime,
+            budget: values.budget,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Thank you! We will contact you shortly.");
       form.reset();
       onOpenChange(false);
-    }, 1000);
-    
-    setIsSubmitting(false);
+      navigate('/thank-you');
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

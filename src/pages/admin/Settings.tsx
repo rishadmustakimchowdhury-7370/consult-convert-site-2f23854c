@@ -7,11 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Globe, Share2, Code } from 'lucide-react';
+import { Save, Loader2, Globe, Share2, Code, Mail, Image } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface SiteSettings {
   id: string;
   logo_url: string | null;
+  favicon_url: string | null;
+  logo_width: number | null;
+  logo_height: number | null;
   site_title: string | null;
   site_description: string | null;
   global_meta_title: string | null;
@@ -22,6 +26,11 @@ interface SiteSettings {
   pinterest_url: string | null;
   instagram_url: string | null;
   whatsapp_url: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  contact_phone_secondary: string | null;
+  contact_address: string | null;
+  admin_email: string | null;
 }
 
 export default function Settings() {
@@ -55,19 +64,7 @@ export default function Settings() {
     setSaving(true);
     const { error } = await supabase
       .from('site_settings')
-      .update({
-        logo_url: settings.logo_url,
-        site_title: settings.site_title,
-        site_description: settings.site_description,
-        global_meta_title: settings.global_meta_title,
-        global_meta_description: settings.global_meta_description,
-        google_analytics_script: settings.google_analytics_script,
-        facebook_url: settings.facebook_url,
-        linkedin_url: settings.linkedin_url,
-        pinterest_url: settings.pinterest_url,
-        instagram_url: settings.instagram_url,
-        whatsapp_url: settings.whatsapp_url,
-      })
+      .update(settings)
       .eq('id', settings.id);
 
     setSaving(false);
@@ -79,7 +76,7 @@ export default function Settings() {
     }
   };
 
-  const updateField = (field: keyof SiteSettings, value: string) => {
+  const updateField = (field: keyof SiteSettings, value: string | number | null) => {
     if (settings) {
       setSettings({ ...settings, [field]: value });
     }
@@ -124,9 +121,17 @@ export default function Settings() {
             <Globe className="w-4 h-4" />
             General
           </TabsTrigger>
+          <TabsTrigger value="branding" className="gap-2">
+            <Image className="w-4 h-4" />
+            Branding
+          </TabsTrigger>
           <TabsTrigger value="seo" className="gap-2">
             <Code className="w-4 h-4" />
             SEO & Analytics
+          </TabsTrigger>
+          <TabsTrigger value="contact" className="gap-2">
+            <Mail className="w-4 h-4" />
+            Contact
           </TabsTrigger>
           <TabsTrigger value="social" className="gap-2">
             <Share2 className="w-4 h-4" />
@@ -142,29 +147,12 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="logo">Logo URL</Label>
-                <Input
-                  id="logo"
-                  value={settings.logo_url || ''}
-                  onChange={(e) => updateField('logo_url', e.target.value)}
-                  placeholder="https://example.com/logo.png"
-                />
-                {settings.logo_url && (
-                  <img
-                    src={settings.logo_url}
-                    alt="Logo preview"
-                    className="h-16 object-contain mt-2"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="site-title">Site Title</Label>
                 <Input
                   id="site-title"
                   value={settings.site_title || ''}
                   onChange={(e) => updateField('site_title', e.target.value)}
-                  placeholder="My Awesome Website"
+                  placeholder="Manhateck"
                 />
               </div>
 
@@ -176,6 +164,62 @@ export default function Settings() {
                   onChange={(e) => updateField('site_description', e.target.value)}
                   placeholder="A brief description of your website"
                   rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="branding">
+          <Card>
+            <CardHeader>
+              <CardTitle>Branding</CardTitle>
+              <CardDescription>Logo and favicon settings. Recommended logo size: 180x60px for optimal display.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Logo</Label>
+                <ImageUpload
+                  value={settings.logo_url || ''}
+                  onChange={(url) => updateField('logo_url', url)}
+                  folder="branding"
+                  aspectRatio="auto"
+                  recommendedSize="180 x 60px (3:1 ratio)"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="logo-width">Logo Width (px)</Label>
+                  <Input
+                    id="logo-width"
+                    type="number"
+                    value={settings.logo_width || 180}
+                    onChange={(e) => updateField('logo_width', parseInt(e.target.value) || 180)}
+                    placeholder="180"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="logo-height">Logo Height (px)</Label>
+                  <Input
+                    id="logo-height"
+                    type="number"
+                    value={settings.logo_height || 60}
+                    onChange={(e) => updateField('logo_height', parseInt(e.target.value) || 60)}
+                    placeholder="60"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Favicon</Label>
+                <p className="text-sm text-muted-foreground mb-2">Recommended size: 32x32px or 64x64px (square)</p>
+                <ImageUpload
+                  value={settings.favicon_url || ''}
+                  onChange={(url) => updateField('favicon_url', url)}
+                  folder="branding"
+                  aspectRatio="square"
+                  recommendedSize="32 x 32px or 64 x 64px (1:1 ratio)"
                 />
               </div>
             </CardContent>
@@ -226,9 +270,71 @@ export default function Settings() {
                   rows={6}
                   className="font-mono text-sm"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Paste your complete Google Analytics tracking script here
-                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="contact">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>Your business contact details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contact-email">Contact Email</Label>
+                  <Input
+                    id="contact-email"
+                    type="email"
+                    value={settings.contact_email || ''}
+                    onChange={(e) => updateField('contact_email', e.target.value)}
+                    placeholder="info@manhateck.com"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="admin-email">Admin Email (for notifications)</Label>
+                  <Input
+                    id="admin-email"
+                    type="email"
+                    value={settings.admin_email || ''}
+                    onChange={(e) => updateField('admin_email', e.target.value)}
+                    placeholder="admin@manhateck.com"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact-phone">Primary Phone</Label>
+                  <Input
+                    id="contact-phone"
+                    value={settings.contact_phone || ''}
+                    onChange={(e) => updateField('contact_phone', e.target.value)}
+                    placeholder="+447426468550"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact-phone-secondary">Secondary Phone</Label>
+                  <Input
+                    id="contact-phone-secondary"
+                    value={settings.contact_phone_secondary || ''}
+                    onChange={(e) => updateField('contact_phone_secondary', e.target.value)}
+                    placeholder="+8801839697370"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact-address">Address</Label>
+                <Textarea
+                  id="contact-address"
+                  value={settings.contact_address || ''}
+                  onChange={(e) => updateField('contact_address', e.target.value)}
+                  placeholder="Suite A, 82 James Carter Road, Mildenhall..."
+                  rows={3}
+                />
               </div>
             </CardContent>
           </Card>
@@ -288,7 +394,7 @@ export default function Settings() {
                     id="whatsapp"
                     value={settings.whatsapp_url || ''}
                     onChange={(e) => updateField('whatsapp_url', e.target.value)}
-                    placeholder="+1234567890"
+                    placeholder="+447426468550"
                   />
                 </div>
               </div>
