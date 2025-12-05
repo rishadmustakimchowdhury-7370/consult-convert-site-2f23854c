@@ -21,7 +21,7 @@ export const ServiceCard = ({ title, description, icon: Icon, link }: ServiceCar
           <CardTitle className="text-xl group-hover:text-primary transition-colors">
             {title}
           </CardTitle>
-          <CardDescription className="text-sm leading-relaxed">
+          <CardDescription className="text-sm leading-relaxed line-clamp-3 break-words overflow-hidden">
             {description}
           </CardDescription>
           <div className="flex items-center text-primary font-medium text-sm group-hover:translate-x-2 transition-transform">
