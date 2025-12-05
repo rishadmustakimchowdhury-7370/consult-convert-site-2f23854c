@@ -67,7 +67,8 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
   const addImage = () => {
     const url = window.prompt('Enter image URL:');
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      const alt = window.prompt('Enter image alt text (for SEO):') || '';
+      editor.chain().focus().setImage({ src: url, alt }).run();
     }
   };
 
