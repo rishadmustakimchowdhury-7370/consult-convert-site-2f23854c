@@ -10,6 +10,7 @@ import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -28,6 +29,7 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address").max(255),
   subject: z.string().min(5, "Subject must be at least 5 characters").max(200),
   message: z.string().min(10, "Message must be at least 10 characters").max(1000),
+  notRobot: z.boolean().refine(val => val === true, "Please confirm you are not a robot"),
 });
 
 const Contact = () => {
@@ -42,6 +44,7 @@ const Contact = () => {
       email: "",
       subject: "",
       message: "",
+      notRobot: false,
     },
   });
 
@@ -156,6 +159,27 @@ const Contact = () => {
                                 {...field}
                               />
                             </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="notRobot"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/30">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel className="cursor-pointer">
+                                I am not a robot
+                              </FormLabel>
+                            </div>
                             <FormMessage />
                           </FormItem>
                         )}
