@@ -203,8 +203,100 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Services Section */}
+      <section className="py-20 md:py-28 bg-section-bg relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <Zap className="w-4 h-4" />
+              Our Services
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+              Comprehensive Digital Solutions for Your Business
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              From web development to digital marketing, we offer end-to-end services to help your business thrive in the digital landscape.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                icon: Code,
+                title: "Web Development",
+                description: "Custom websites and web applications built with cutting-edge technologies for optimal performance.",
+                link: "/services/web-development"
+              },
+              {
+                icon: Megaphone,
+                title: "Digital Marketing",
+                description: "Strategic marketing campaigns that drive traffic, engagement, and conversions for your brand.",
+                link: "/services/digital-marketing"
+              },
+              {
+                icon: Lightbulb,
+                title: "Brand Strategy",
+                description: "Comprehensive branding solutions that establish your unique identity and market positioning.",
+                link: "/services/brand-strategy"
+              },
+              {
+                icon: Palette,
+                title: "UI/UX Design",
+                description: "User-centered design that creates intuitive, engaging experiences across all platforms.",
+                link: "/services/ui-ux-design"
+              },
+              {
+                icon: TrendingUp,
+                title: "SEO Services",
+                description: "Data-driven SEO strategies that improve visibility and drive organic traffic to your site.",
+                link: "/services/seo-services"
+              },
+              {
+                icon: PenTool,
+                title: "Content Creation",
+                description: "Compelling content that tells your story and connects with your target audience.",
+                link: "/services/content-creation"
+              }
+            ].map((service, index) => (
+              <a
+                key={service.title}
+                href={service.link}
+                className="group block p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-300 animate-fade-in-up relative overflow-hidden"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <service.icon className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{service.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">{service.description}</p>
+                  <div className="flex items-center text-primary font-semibold text-sm group-hover:translate-x-2 transition-transform duration-300">
+                    Learn More
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <div className="mt-16 text-center">
+            <p className="text-muted-foreground mb-6">Need a custom solution tailored to your specific needs?</p>
+            <Button
+              size="lg"
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all group"
+            >
+              Get a Custom Quote
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Why Choose Manha Tech Section */}
-      <section id="why-choose" className="py-20 md:py-28 bg-section-bg">
+      <section id="why-choose" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
