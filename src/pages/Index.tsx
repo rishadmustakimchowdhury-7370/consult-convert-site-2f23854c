@@ -10,7 +10,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { 
   Code, Megaphone, Lightbulb, Palette, TrendingUp, PenTool, 
   CheckCircle, Users, Clock, Shield, ShoppingCart, Search, 
-  Smartphone, Zap, Award, Globe, ArrowRight, Star
+  Smartphone, Zap, Award, Globe, ArrowRight, Star, Youtube,
+  Video, Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Autoplay from "embla-carousel-autoplay";
@@ -223,43 +224,91 @@ const Index = () => {
               From web development to digital marketing, we offer end-to-end services to help your business thrive in the digital landscape.
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[
               {
                 icon: Code,
-                title: "Web Development",
-                description: "Custom websites and web applications built with cutting-edge technologies for optimal performance.",
+                title: "WordPress Web Design",
+                description: "Custom WordPress websites with stunning designs, powerful functionality, and easy content management.",
                 link: "/services/web-development"
               },
               {
-                icon: Megaphone,
-                title: "Digital Marketing",
-                description: "Strategic marketing campaigns that drive traffic, engagement, and conversions for your brand.",
-                link: "/services/digital-marketing"
-              },
-              {
-                icon: Lightbulb,
-                title: "Brand Strategy",
-                description: "Comprehensive branding solutions that establish your unique identity and market positioning.",
-                link: "/services/brand-strategy"
+                icon: ShoppingCart,
+                title: "Shopify Web Design",
+                description: "Professional Shopify stores optimized for conversions, seamless checkout, and brand consistency.",
+                link: "/services/web-development"
               },
               {
                 icon: Palette,
-                title: "UI/UX Design",
-                description: "User-centered design that creates intuitive, engaging experiences across all platforms.",
-                link: "/services/ui-ux-design"
+                title: "Wix Web Design",
+                description: "Beautiful, responsive Wix websites that are easy to maintain and perfect for growing businesses.",
+                link: "/services/web-development"
               },
               {
-                icon: TrendingUp,
-                title: "SEO Services",
-                description: "Data-driven SEO strategies that improve visibility and drive organic traffic to your site.",
+                icon: Globe,
+                title: "Webflow Design & Development",
+                description: "Cutting-edge Webflow sites with advanced animations, interactions, and CMS capabilities.",
+                link: "/services/web-development"
+              },
+              {
+                icon: Search,
+                title: "Affordable Local SEO",
+                description: "Dominate local search results with targeted SEO strategies that bring customers to your door.",
                 link: "/services/seo-services"
               },
               {
-                icon: PenTool,
-                title: "Content Creation",
-                description: "Compelling content that tells your story and connects with your target audience.",
+                icon: Youtube,
+                title: "YouTube SEO Agency",
+                description: "Optimize your videos for maximum visibility, engagement, and subscriber growth on YouTube.",
+                link: "/services/seo-services"
+              },
+              {
+                icon: Megaphone,
+                title: "Google Ads Management",
+                description: "Expert Google Ads campaigns that maximize ROI and drive qualified traffic to your business.",
+                link: "/services/digital-marketing"
+              },
+              {
+                icon: Video,
+                title: "Video Editing",
+                description: "Professional video editing services that transform raw footage into compelling visual stories.",
                 link: "/services/content-creation"
+              },
+              {
+                icon: Gauge,
+                title: "Website Speed Optimization",
+                description: "Boost your site performance with expert speed optimization for better UX and SEO rankings.",
+                link: "/services/web-development"
+              },
+              {
+                icon: ShieldCheck,
+                title: "WordPress Malware Removal",
+                description: "Complete malware cleanup and security hardening to protect your WordPress site from threats.",
+                link: "/services/web-development"
+              },
+              {
+                icon: Pin,
+                title: "Pinterest Marketing",
+                description: "Strategic Pinterest campaigns that drive traffic, increase brand awareness, and boost sales.",
+                link: "/services/digital-marketing"
+              },
+              {
+                icon: Mail,
+                title: "Email Marketing Automation",
+                description: "Automated email campaigns that nurture leads, drive conversions, and build customer loyalty.",
+                link: "/services/digital-marketing"
+              },
+              {
+                icon: Bot,
+                title: "AI Automation Agent",
+                description: "Intelligent AI agents that automate workflows, save time, and streamline business operations.",
+                link: "/services/brand-strategy"
+              },
+              {
+                icon: MessageCircle,
+                title: "AI Chatbot Solutions",
+                description: "Custom AI chatbots that provide 24/7 customer support and enhance user engagement.",
+                link: "/services/brand-strategy"
               }
             ].map((service, index) => (
               <a
