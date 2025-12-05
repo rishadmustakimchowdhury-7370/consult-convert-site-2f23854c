@@ -71,6 +71,16 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
     setRecaptchaToken(token);
   };
 
+  const onRecaptchaError = () => {
+    console.error("reCAPTCHA error - check domain configuration");
+    toast.error("reCAPTCHA failed to load. Please refresh the page.");
+  };
+
+  const onRecaptchaExpired = () => {
+    setRecaptchaToken(null);
+    toast.warning("reCAPTCHA expired. Please verify again.");
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!recaptchaToken) {
       toast.error("Please complete the reCAPTCHA verification");
@@ -264,6 +274,8 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
                 ref={recaptchaRef}
                 sitekey={RECAPTCHA_SITE_KEY}
                 onChange={onRecaptchaChange}
+                onErrored={onRecaptchaError}
+                onExpired={onRecaptchaExpired}
               />
             </div>
 
