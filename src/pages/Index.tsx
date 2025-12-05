@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { ServiceCard } from "@/components/ServiceCard";
 import { TestimonialCard } from "@/components/TestimonialCard";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Code, Megaphone, Lightbulb, Palette, TrendingUp, PenTool, CheckCircle, Users, Clock, Shield } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import Autoplay from "embla-carousel-autoplay";
 import heroImage from "@/assets/hero-image.jpg";
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  company: string | null;
+  content: string;
+  rating: number | null;
+  image_url: string | null;
+}
 
 const services = [
   {
@@ -47,30 +60,6 @@ const services = [
   },
 ];
 
-const testimonials = [
-  {
-    name: "Sarah Johnson",
-    role: "CEO",
-    company: "TechStart Inc",
-    content: "Working with this agency transformed our online presence. The team delivered beyond our expectations and on time.",
-    rating: 5,
-  },
-  {
-    name: "Michael Chen",
-    role: "Marketing Director",
-    company: "GrowthCo",
-    content: "Their strategic approach to digital marketing increased our conversion rate by 150%. Highly recommend their services.",
-    rating: 5,
-  },
-  {
-    name: "Emily Rodriguez",
-    role: "Founder",
-    company: "Bloom Wellness",
-    content: "The UI/UX design they created for our platform is stunning. User engagement has never been higher.",
-    rating: 5,
-  },
-];
-
 const whyChooseUs = [
   {
     icon: Users,
@@ -96,6 +85,24 @@ const whyChooseUs = [
 
 const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('id, name, role, company, content, rating, image_url')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (!error && data) {
+        setTestimonials(data);
+      }
+      setIsLoading(false);
+    };
+    fetchTestimonials();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -188,13 +195,51 @@ const Index = () => {
               Don't just take our word for it
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={testimonial.name} className="animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-                <TestimonialCard {...testimonial} />
-              </div>
-            ))}
-          </div>
+          
+          {isLoading ? (
+            <div className="flex justify-center">
+              <div className="animate-pulse text-muted-foreground">Loading testimonials...</div>
+            </div>
+          ) : testimonials.length === 0 ? (
+            <p className="text-center text-muted-foreground">No testimonials yet.</p>
+          ) : (
+            <div className="px-12">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[
+                  Autoplay({
+                    delay: 4000,
+                    stopOnInteraction: false,
+                    stopOnMouseEnter: true,
+                  }),
+                ]}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-4">
+                  {testimonials.map((testimonial) => (
+                    <CarouselItem 
+                      key={testimonial.id} 
+                      className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                    >
+                      <TestimonialCard
+                        name={testimonial.name}
+                        role={testimonial.role || undefined}
+                        company={testimonial.company || undefined}
+                        content={testimonial.content}
+                        rating={testimonial.rating || 5}
+                        image_url={testimonial.image_url}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex" />
+                <CarouselNext className="hidden sm:flex" />
+              </Carousel>
+            </div>
+          )}
         </div>
       </section>
 

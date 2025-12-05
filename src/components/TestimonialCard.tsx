@@ -1,16 +1,17 @@
 import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface TestimonialCardProps {
   name: string;
-  role: string;
-  company: string;
+  role?: string;
+  company?: string;
   content: string;
-  rating: number;
+  rating?: number;
+  image_url?: string | null;
 }
 
-export const TestimonialCard = ({ name, role, company, content, rating }: TestimonialCardProps) => {
+export const TestimonialCard = ({ name, role, company, content, rating = 5, image_url }: TestimonialCardProps) => {
   const initials = name
     .split(" ")
     .map(n => n[0])
@@ -28,20 +29,23 @@ export const TestimonialCard = ({ name, role, company, content, rating }: Testim
         </div>
 
         {/* Content */}
-        <p className="text-foreground/80 leading-relaxed italic">"{content}"</p>
+        <p className="text-foreground/80 leading-relaxed italic line-clamp-4">"{content}"</p>
 
         {/* Author */}
         <div className="flex items-center space-x-3 pt-4">
           <Avatar className="w-12 h-12 bg-primary/10">
+            {image_url && <AvatarImage src={image_url} alt={name} />}
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div>
             <p className="font-semibold text-foreground">{name}</p>
-            <p className="text-sm text-muted-foreground">
-              {role} at {company}
-            </p>
+            {(role || company) && (
+              <p className="text-sm text-muted-foreground">
+                {role}{role && company && " at "}{company}
+              </p>
+            )}
           </div>
         </div>
       </CardContent>
