@@ -85,7 +85,7 @@ export default function Blog() {
               {blogs.map((blog) => (
                 <Link key={blog.id} to={`/blog/${blog.slug}`}>
                   <Card className="group h-full overflow-hidden hover:shadow-xl transition-all duration-300 border-border/50">
-                    <div className="relative h-48 overflow-hidden bg-muted">
+                    <div className="relative aspect-video overflow-hidden bg-muted">
                       {blog.cover_image ? (
                         <img
                           src={blog.cover_image}

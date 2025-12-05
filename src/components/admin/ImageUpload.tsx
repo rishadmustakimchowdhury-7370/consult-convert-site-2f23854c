@@ -13,6 +13,7 @@ interface ImageUploadProps {
   folder?: string;
   aspectRatio?: 'square' | 'video' | 'auto';
   className?: string;
+  recommendedSize?: string;
 }
 
 export default function ImageUpload({
@@ -22,6 +23,7 @@ export default function ImageUpload({
   folder = 'uploads',
   aspectRatio = 'auto',
   className = '',
+  recommendedSize,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -195,6 +197,11 @@ export default function ImageUpload({
               <p className="text-xs text-muted-foreground">
                 JPG, PNG, GIF, WebP, SVG (max 5MB)
               </p>
+              {recommendedSize && (
+                <p className="text-xs text-primary font-medium">
+                  Recommended: {recommendedSize}
+                </p>
+              )}
             </>
           )}
         </div>

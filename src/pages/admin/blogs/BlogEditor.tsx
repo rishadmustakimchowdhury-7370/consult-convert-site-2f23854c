@@ -293,6 +293,7 @@ export default function BlogEditor() {
                 label="Cover Image"
                 folder="blog-covers"
                 aspectRatio="video"
+                recommendedSize="1200 x 675px (16:9)"
               />
 
               <div className="space-y-2">
