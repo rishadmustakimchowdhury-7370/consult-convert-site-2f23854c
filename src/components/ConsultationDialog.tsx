@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,6 +39,7 @@ const formSchema = z.object({
   availableDate: z.string().min(1, "Please select a date"),
   availableTime: z.string().min(1, "Please select a time"),
   budget: z.string().min(1, "Please select your budget range"),
+  notRobot: z.boolean().refine(val => val === true, "Please confirm you are not a robot"),
 });
 
 interface ConsultationDialogProps {
@@ -59,6 +61,7 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
       availableDate: "",
       availableTime: "",
       budget: "",
+      notRobot: false,
     },
   });
 
@@ -227,13 +230,35 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-popover">
-                      <SelectItem value="under-5k">Under $5,000</SelectItem>
-                      <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
-                      <SelectItem value="10k-25k">$10,000 - $25,000</SelectItem>
-                      <SelectItem value="25k-50k">$25,000 - $50,000</SelectItem>
-                      <SelectItem value="above-50k">Above $50,000</SelectItem>
+                      <SelectItem value="0-500">£0 - £500</SelectItem>
+                      <SelectItem value="500-1000">£500 - £1,000</SelectItem>
+                      <SelectItem value="1000-2500">£1,000 - £2,500</SelectItem>
+                      <SelectItem value="2500-5000">£2,500 - £5,000</SelectItem>
+                      <SelectItem value="5000-10000">£5,000 - £10,000</SelectItem>
+                      <SelectItem value="above-10000">Above £10,000</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="notRobot"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/30">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer">
+                      I am not a robot
+                    </FormLabel>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
