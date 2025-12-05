@@ -107,8 +107,8 @@ const handler = async (req: Request): Promise<Response> => {
         <p>${data.message || "No message"}</p>
       `;
 
-    // Use Resend's test sender until domain is fully verified
-    const senderEmail = "onboarding@resend.dev";
+    // Using verified domain sender
+    const senderEmail = "info@manhateck.com";
 
     // Send admin notification
     const adminResult = await sendEmail(
