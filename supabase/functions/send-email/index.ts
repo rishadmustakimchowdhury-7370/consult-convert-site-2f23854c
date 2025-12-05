@@ -114,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
         ? `New Consultation Request from ${data.name}` 
         : `New Contact Form Submission from ${data.name}`,
       adminEmailContent,
-      `${siteTitle} <onboarding@resend.dev>`
+      `${siteTitle} <info@manhateck.com>`
     );
 
     console.log("Admin email sent:", adminResult);
@@ -142,7 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
       [data.email],
       "Thank you for contacting us!",
       userEmailContent,
-      `${siteTitle} <onboarding@resend.dev>`
+      `${siteTitle} <info@manhateck.com>`
     );
 
     console.log("User email sent:", userResult);
