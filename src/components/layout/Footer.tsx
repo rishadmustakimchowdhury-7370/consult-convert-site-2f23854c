@@ -1,8 +1,42 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Linkedin, Instagram, MessageCircle, Mail, Phone, MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface MenuItem {
+  id: string;
+  title: string;
+  link: string;
+  location: string;
+  parent_id: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    const { data } = await supabase
+      .from('navigation_menu')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (data) {
+      setMenuItems(data);
+    }
+  };
+
+  // Filter footer menu items (parent items only that show in footer or both)
+  const footerMenuItems = menuItems.filter(
+    item => (item.location === 'footer' || item.location === 'both') && !item.parent_id
+  );
 
   return (
     <footer className="bg-foreground text-background">
@@ -59,35 +93,62 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - Dynamic from database */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-sm text-background/80 hover:text-background transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-sm text-background/80 hover:text-background transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" className="text-sm text-background/80 hover:text-background transition-colors">
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-sm text-background/80 hover:text-background transition-colors">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-sm text-background/80 hover:text-background transition-colors">
-                  Contact
-                </Link>
-              </li>
+              {footerMenuItems.length > 0 ? (
+                footerMenuItems.map((item) => (
+                  <li key={item.id}>
+                    {item.link.startsWith('http') ? (
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-background/80 hover:text-background transition-colors"
+                      >
+                        {item.title}
+                      </a>
+                    ) : (
+                      <Link
+                        to={item.link}
+                        className="text-sm text-background/80 hover:text-background transition-colors"
+                      >
+                        {item.title}
+                      </Link>
+                    )}
+                  </li>
+                ))
+              ) : (
+                // Fallback links if no menu items configured
+                <>
+                  <li>
+                    <Link to="/" className="text-sm text-background/80 hover:text-background transition-colors">
+                      Home
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/about" className="text-sm text-background/80 hover:text-background transition-colors">
+                      About Us
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/services" className="text-sm text-background/80 hover:text-background transition-colors">
+                      Services
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/blog" className="text-sm text-background/80 hover:text-background transition-colors">
+                      Blog
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/contact" className="text-sm text-background/80 hover:text-background transition-colors">
+                      Contact
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 

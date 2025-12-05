@@ -40,7 +40,7 @@ export default function MenuManager() {
     title: '',
     link: '',
     location: 'header',
-    parent_id: '',
+    parent_id: 'none',
     is_active: true,
   });
 
@@ -93,7 +93,7 @@ export default function MenuManager() {
       title: formData.title.trim(),
       link: formData.link.trim(),
       location: formData.location,
-      parent_id: formData.parent_id || null,
+      parent_id: formData.parent_id === 'none' ? null : formData.parent_id,
       is_active: formData.is_active,
       sort_order: editingItem ? editingItem.sort_order : menuItems.length,
     };
@@ -160,7 +160,7 @@ export default function MenuManager() {
       title: item.title,
       link: item.link,
       location: item.location || 'header',
-      parent_id: item.parent_id || '',
+      parent_id: item.parent_id || 'none',
       is_active: item.is_active,
     });
     setIsDialogOpen(true);
@@ -191,6 +191,14 @@ export default function MenuManager() {
     }
   };
 
+  const handlePredefinedSelect = (title: string, link: string) => {
+    setFormData({
+      ...formData,
+      title: title,
+      link: link,
+    });
+  };
+
   const resetForm = () => {
     setEditingItem(null);
     setPreselectedParent(null);
@@ -199,7 +207,7 @@ export default function MenuManager() {
       title: '',
       link: '',
       location: 'header',
-      parent_id: '',
+      parent_id: 'none',
       is_active: true,
     });
     setIsDialogOpen(false);
@@ -374,13 +382,7 @@ export default function MenuManager() {
                           variant="outline"
                           size="sm"
                           className="justify-start"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              title: link.title,
-                              link: link.link,
-                            });
-                          }}
+                          onClick={() => handlePredefinedSelect(link.title, link.link)}
                         >
                           {link.title}
                         </Button>
@@ -463,7 +465,7 @@ export default function MenuManager() {
                     <SelectValue placeholder="No parent (top level)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No parent (top level)</SelectItem>
+                    <SelectItem value="none">No parent (top level)</SelectItem>
                     {parentMenuItems.map((item) => (
                       <SelectItem key={item.id} value={item.id}>
                         {item.title}
