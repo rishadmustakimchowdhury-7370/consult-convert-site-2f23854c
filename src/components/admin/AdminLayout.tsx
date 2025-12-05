@@ -2,9 +2,13 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from './AdminSidebar';
 import { Loader2 } from 'lucide-react';
+import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 
 export default function AdminLayout() {
   const { user, isAdmin, loading } = useAuth();
+  
+  // Enable 10-minute inactivity timeout for admin users
+  useInactivityTimeout(!!user && isAdmin);
 
   if (loading) {
     return (
@@ -15,7 +19,7 @@ export default function AdminLayout() {
   }
 
   if (!user) {
-    return <Navigate to="/admin/auth" replace />;
+    return <Navigate to="/visage/login" replace />;
   }
 
   if (!isAdmin) {
