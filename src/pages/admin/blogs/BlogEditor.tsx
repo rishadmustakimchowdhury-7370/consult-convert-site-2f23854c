@@ -11,7 +11,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import SEOAnalyzer from '@/components/admin/SEOAnalyzer';
-import { ArrowLeft, Save, Loader2, Image as ImageIcon } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -286,24 +287,13 @@ export default function BlogEditor() {
               <CardTitle>Post Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="cover-image">Cover Image URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="cover-image"
-                    value={coverImage}
-                    onChange={(e) => setCoverImage(e.target.value)}
-                    placeholder="https://..."
-                  />
-                </div>
-                {coverImage && (
-                  <img
-                    src={coverImage}
-                    alt="Cover preview"
-                    className="w-full h-32 object-cover rounded-lg mt-2"
-                  />
-                )}
-              </div>
+              <ImageUpload
+                value={coverImage}
+                onChange={setCoverImage}
+                label="Cover Image"
+                folder="blog-covers"
+                aspectRatio="video"
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>

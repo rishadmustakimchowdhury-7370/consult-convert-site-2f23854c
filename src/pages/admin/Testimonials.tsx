@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Star, Quote } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface Testimonial {
   id: string;
@@ -224,15 +225,13 @@ export default function Testimonials() {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
+              <ImageUpload
+                value={formData.image_url}
+                onChange={(url) => setFormData({ ...formData, image_url: url })}
+                label="Customer Photo"
+                folder="testimonials"
+                aspectRatio="square"
+              />
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_featured"
