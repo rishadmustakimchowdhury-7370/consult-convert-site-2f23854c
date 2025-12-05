@@ -3,13 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Pencil, Trash2, Eye, Code, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, HelpCircle, Search } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ImageUpload from '@/components/admin/ImageUpload';
 
@@ -329,252 +328,286 @@ export default function ServicesAdmin() {
           <DialogHeader>
             <DialogTitle>{editingService ? 'Edit Service' : 'Add New Service'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="basic">Basic</TabsTrigger>
-                <TabsTrigger value="features">Features</TabsTrigger>
-                <TabsTrigger value="process">Process</TabsTrigger>
-                <TabsTrigger value="faqs">FAQs</TabsTrigger>
-                <TabsTrigger value="seo">SEO</TabsTrigger>
-              </TabsList>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Accordion type="multiple" defaultValue={['basic']} className="w-full">
+              {/* Basic Information */}
+              <AccordionItem value="basic">
+                <AccordionTrigger className="text-base font-semibold">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    Basic Information
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Service Title</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => handleTitleChange(e.target.value)}
+                        placeholder="e.g., WordPress Web Design"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="slug">URL Slug</Label>
+                      <Input
+                        id="slug"
+                        value={formData.slug}
+                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                        placeholder="wordpress-web-design"
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <TabsContent value="basic" className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Service Title</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => handleTitleChange(e.target.value)}
-                      placeholder="e.g., WordPress Web Design"
-                      required
-                    />
+                    <Label htmlFor="icon">Icon</Label>
+                    <select
+                      id="icon"
+                      value={formData.icon_name}
+                      onChange={(e) => setFormData({ ...formData, icon_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                    >
+                      {iconOptions.map((icon) => (
+                        <option key={icon} value={icon}>{icon}</option>
+                      ))}
+                    </select>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="slug">URL Slug</Label>
-                    <Input
-                      id="slug"
-                      value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      placeholder="wordpress-web-design"
-                      required
+                    <Label htmlFor="short_description">Short Description</Label>
+                    <Textarea
+                      id="short_description"
+                      value={formData.short_description}
+                      onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                      placeholder="Brief description shown on homepage..."
+                      rows={2}
                     />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="icon">Icon</Label>
-                  <select
-                    id="icon"
-                    value={formData.icon_name}
-                    onChange={(e) => setFormData({ ...formData, icon_name: e.target.value })}
-                    className="w-full px-3 py-2 border border-input rounded-md bg-background"
-                  >
-                    {iconOptions.map((icon) => (
-                      <option key={icon} value={icon}>{icon}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="short_description">Short Description</Label>
-                  <Textarea
-                    id="short_description"
-                    value={formData.short_description}
-                    onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                    placeholder="Brief description shown on homepage..."
-                    rows={2}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content">Full Content</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="Detailed service description..."
-                    rows={6}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Cover Image</Label>
-                  <ImageUpload
-                    value={formData.cover_image}
-                    onChange={(url) => setFormData({ ...formData, cover_image: url })}
-                  />
-                </div>
-
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is_active"
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  <div className="space-y-2">
+                    <Label htmlFor="content">Full Content</Label>
+                    <Textarea
+                      id="content"
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      placeholder="Detailed service description..."
+                      rows={6}
                     />
-                    <Label htmlFor="is_active">Active</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is_featured"
-                      checked={formData.is_featured}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-                    />
-                    <Label htmlFor="is_featured">Featured on Homepage</Label>
-                  </div>
-                </div>
-              </TabsContent>
 
-              <TabsContent value="features" className="space-y-4 mt-4">
-                <div className="flex items-center justify-between">
-                  <Label>Service Features</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addFeature}>
-                    <Plus className="w-4 h-4 mr-1" /> Add Feature
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {features.map((feature, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-4 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">Feature {index + 1}</span>
-                          <Button type="button" variant="ghost" size="icon" onClick={() => removeFeature(index)}>
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <select
-                            value={feature.icon}
-                            onChange={(e) => updateFeature(index, 'icon', e.target.value)}
-                            className="px-3 py-2 border border-input rounded-md bg-background"
-                          >
-                            {iconOptions.map((icon) => (
-                              <option key={icon} value={icon}>{icon}</option>
-                            ))}
-                          </select>
-                          <Input
-                            value={feature.title}
-                            onChange={(e) => updateFeature(index, 'title', e.target.value)}
-                            placeholder="Feature title"
+                  <div className="space-y-2">
+                    <Label>Cover Image</Label>
+                    <ImageUpload
+                      value={formData.cover_image}
+                      onChange={(url) => setFormData({ ...formData, cover_image: url })}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="is_active"
+                        checked={formData.is_active}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                      />
+                      <Label htmlFor="is_active">Active</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="is_featured"
+                        checked={formData.is_featured}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                      />
+                      <Label htmlFor="is_featured">Featured on Homepage</Label>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Features */}
+              <AccordionItem value="features">
+                <AccordionTrigger className="text-base font-semibold">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Features ({features.length})
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                  <div className="flex justify-end">
+                    <Button type="button" variant="outline" size="sm" onClick={addFeature}>
+                      <Plus className="w-4 h-4 mr-1" /> Add Feature
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    {features.map((feature, index) => (
+                      <Card key={index}>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Feature {index + 1}</span>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeFeature(index)}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <select
+                              value={feature.icon}
+                              onChange={(e) => updateFeature(index, 'icon', e.target.value)}
+                              className="px-3 py-2 border border-input rounded-md bg-background"
+                            >
+                              {iconOptions.map((icon) => (
+                                <option key={icon} value={icon}>{icon}</option>
+                              ))}
+                            </select>
+                            <Input
+                              value={feature.title}
+                              onChange={(e) => updateFeature(index, 'title', e.target.value)}
+                              placeholder="Feature title"
+                            />
+                          </div>
+                          <Textarea
+                            value={feature.description}
+                            onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                            placeholder="Feature description"
+                            rows={2}
                           />
-                        </div>
-                        <Textarea
-                          value={feature.description}
-                          onChange={(e) => updateFeature(index, 'description', e.target.value)}
-                          placeholder="Feature description"
-                          rows={2}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {features.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">No features added yet</p>
-                  )}
-                </div>
-              </TabsContent>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {features.length === 0 && (
+                      <p className="text-muted-foreground text-center py-4">No features added yet</p>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-              <TabsContent value="process" className="space-y-4 mt-4">
-                <div className="flex items-center justify-between">
-                  <Label>Process Steps</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addProcessStep}>
-                    <Plus className="w-4 h-4 mr-1" /> Add Step
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {processSteps.map((step, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-4 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">Step {index + 1}</span>
-                          <Button type="button" variant="ghost" size="icon" onClick={() => removeProcessStep(index)}>
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <Input
-                          value={step.title}
-                          onChange={(e) => updateProcessStep(index, 'title', e.target.value)}
-                          placeholder="Step title"
-                        />
-                        <Textarea
-                          value={step.description}
-                          onChange={(e) => updateProcessStep(index, 'description', e.target.value)}
-                          placeholder="Step description"
-                          rows={2}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {processSteps.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">No process steps added yet</p>
-                  )}
-                </div>
-              </TabsContent>
+              {/* Process Steps */}
+              <AccordionItem value="process">
+                <AccordionTrigger className="text-base font-semibold">
+                  <div className="flex items-center gap-2">
+                    <ListOrdered className="w-5 h-5 text-primary" />
+                    Process Steps ({processSteps.length})
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                  <div className="flex justify-end">
+                    <Button type="button" variant="outline" size="sm" onClick={addProcessStep}>
+                      <Plus className="w-4 h-4 mr-1" /> Add Step
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    {processSteps.map((step, index) => (
+                      <Card key={index}>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Step {index + 1}</span>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeProcessStep(index)}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <Input
+                            value={step.title}
+                            onChange={(e) => updateProcessStep(index, 'title', e.target.value)}
+                            placeholder="Step title"
+                          />
+                          <Textarea
+                            value={step.description}
+                            onChange={(e) => updateProcessStep(index, 'description', e.target.value)}
+                            placeholder="Step description"
+                            rows={2}
+                          />
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {processSteps.length === 0 && (
+                      <p className="text-muted-foreground text-center py-4">No process steps added yet</p>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-              <TabsContent value="faqs" className="space-y-4 mt-4">
-                <div className="flex items-center justify-between">
-                  <Label>FAQs</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addFaq}>
-                    <Plus className="w-4 h-4 mr-1" /> Add FAQ
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {faqs.map((faq, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-4 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">FAQ {index + 1}</span>
-                          <Button type="button" variant="ghost" size="icon" onClick={() => removeFaq(index)}>
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <Input
-                          value={faq.question}
-                          onChange={(e) => updateFaq(index, 'question', e.target.value)}
-                          placeholder="Question"
-                        />
-                        <Textarea
-                          value={faq.answer}
-                          onChange={(e) => updateFaq(index, 'answer', e.target.value)}
-                          placeholder="Answer"
-                          rows={3}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {faqs.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">No FAQs added yet</p>
-                  )}
-                </div>
-              </TabsContent>
+              {/* FAQs */}
+              <AccordionItem value="faqs">
+                <AccordionTrigger className="text-base font-semibold">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                    FAQs ({faqs.length})
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                  <div className="flex justify-end">
+                    <Button type="button" variant="outline" size="sm" onClick={addFaq}>
+                      <Plus className="w-4 h-4 mr-1" /> Add FAQ
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    {faqs.map((faq, index) => (
+                      <Card key={index}>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">FAQ {index + 1}</span>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeFaq(index)}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <Input
+                            value={faq.question}
+                            onChange={(e) => updateFaq(index, 'question', e.target.value)}
+                            placeholder="Question"
+                          />
+                          <Textarea
+                            value={faq.answer}
+                            onChange={(e) => updateFaq(index, 'answer', e.target.value)}
+                            placeholder="Answer"
+                            rows={3}
+                          />
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {faqs.length === 0 && (
+                      <p className="text-muted-foreground text-center py-4">No FAQs added yet</p>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-              <TabsContent value="seo" className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="meta_title">Meta Title</Label>
-                  <Input
-                    id="meta_title"
-                    value={formData.meta_title}
-                    onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                    placeholder="SEO title (50-60 characters)"
-                  />
-                  <p className="text-xs text-muted-foreground">{formData.meta_title.length}/60 characters</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="meta_description">Meta Description</Label>
-                  <Textarea
-                    id="meta_description"
-                    value={formData.meta_description}
-                    onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                    placeholder="SEO description (120-160 characters)"
-                    rows={3}
-                  />
-                  <p className="text-xs text-muted-foreground">{formData.meta_description.length}/160 characters</p>
-                </div>
-              </TabsContent>
-            </Tabs>
+              {/* SEO Settings */}
+              <AccordionItem value="seo">
+                <AccordionTrigger className="text-base font-semibold">
+                  <div className="flex items-center gap-2">
+                    <Search className="w-5 h-5 text-primary" />
+                    SEO Settings
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="meta_title">Meta Title</Label>
+                    <Input
+                      id="meta_title"
+                      value={formData.meta_title}
+                      onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                      placeholder="SEO title (50-60 characters)"
+                    />
+                    <p className="text-xs text-muted-foreground">{formData.meta_title.length}/60 characters</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="meta_description">Meta Description</Label>
+                    <Textarea
+                      id="meta_description"
+                      value={formData.meta_description}
+                      onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                      placeholder="SEO description (120-160 characters)"
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">{formData.meta_description.length}/160 characters</p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
-            <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+            <div className="flex justify-end gap-2 pt-4 border-t">
               <Button type="button" variant="outline" onClick={resetForm}>
                 Cancel
               </Button>

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,18 +15,20 @@ interface HeaderProps {
   onConsultationClick: () => void;
 }
 
-const services = [
-  { name: "Web Development", path: "/services/web-development" },
-  { name: "Digital Marketing", path: "/services/digital-marketing" },
-  { name: "Brand Strategy", path: "/services/brand-strategy" },
-  { name: "UI/UX Design", path: "/services/uiux-design" },
-  { name: "SEO Services", path: "/services/seo-services" },
-  { name: "Content Creation", path: "/services/content-creation" },
-];
+interface MenuItem {
+  id: string;
+  title: string;
+  link: string;
+  location: string;
+  parent_id: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
 
 export const Header = ({ onConsultationClick }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const location = useLocation();
 
   useEffect(() => {
@@ -36,7 +39,32 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    const { data } = await supabase
+      .from('navigation_menu')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (data) {
+      setMenuItems(data);
+    }
+  };
+
   const isActive = (path: string) => location.pathname === path;
+
+  // Filter header menu items (parent items only)
+  const headerParentItems = menuItems.filter(
+    item => (item.location === 'header' || item.location === 'both') && !item.parent_id
+  );
+
+  // Get submenu items for a parent
+  const getSubItems = (parentId: string) => 
+    menuItems.filter(item => item.parent_id === parentId);
 
   return (
     <header
@@ -61,62 +89,49 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
-            <Link
-              to="/"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Home
-            </Link>
-            <Link
-              to="/about"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/about") ? "text-primary" : "text-foreground"
-              )}
-            >
-              About
-            </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center space-x-1 text-sm font-medium text-foreground hover:text-primary transition-colors outline-none">
-                <span>Services</span>
-                <ChevronDown className="w-4 h-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-popover">
-                <DropdownMenuItem asChild>
-                  <Link to="/services" className="w-full cursor-pointer">
-                    All Services
-                  </Link>
-                </DropdownMenuItem>
-                {services.map((service) => (
-                  <DropdownMenuItem key={service.path} asChild>
-                    <Link to={service.path} className="w-full cursor-pointer">
-                      {service.name}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Link
-              to="/blog"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/blog") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Blog
-            </Link>
-            <Link
-              to="/contact"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/contact") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Contact
-            </Link>
+            {headerParentItems.map((item) => {
+              const subItems = getSubItems(item.id);
+              
+              if (subItems.length > 0) {
+                // Item has submenu - render dropdown
+                return (
+                  <DropdownMenu key={item.id}>
+                    <DropdownMenuTrigger className="flex items-center space-x-1 text-sm font-medium text-foreground hover:text-primary transition-colors outline-none">
+                      <span>{item.title}</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 bg-popover">
+                      <DropdownMenuItem asChild>
+                        <Link to={item.link} className="w-full cursor-pointer">
+                          All {item.title}
+                        </Link>
+                      </DropdownMenuItem>
+                      {subItems.map((subItem) => (
+                        <DropdownMenuItem key={subItem.id} asChild>
+                          <Link to={subItem.link} className="w-full cursor-pointer">
+                            {subItem.title}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+
+              // Regular link without submenu
+              return (
+                <Link
+                  key={item.id}
+                  to={item.link}
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    isActive(item.link) ? "text-primary" : "text-foreground"
+                  )}
+                >
+                  {item.title}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* CTA Button */}
@@ -140,73 +155,42 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-4 space-y-4 animate-fade-in">
-            <Link
-              to="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block py-2 text-sm font-medium transition-colors hover:text-primary",
-                isActive("/") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Home
-            </Link>
-            <Link
-              to="/about"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block py-2 text-sm font-medium transition-colors hover:text-primary",
-                isActive("/about") ? "text-primary" : "text-foreground"
-              )}
-            >
-              About
-            </Link>
-            <Link
-              to="/services"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block py-2 text-sm font-medium transition-colors hover:text-primary",
-                isActive("/services") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Services
-            </Link>
-            {services.map((service) => (
-              <Link
-                key={service.path}
-                to={service.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2 pl-4 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {service.name}
-              </Link>
-            ))}
-            <Link
-              to="/blog"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block py-2 text-sm font-medium transition-colors hover:text-primary",
-                isActive("/blog") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Blog
-            </Link>
-            <Link
-              to="/contact"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block py-2 text-sm font-medium transition-colors hover:text-primary",
-                isActive("/contact") ? "text-primary" : "text-foreground"
-              )}
-            >
-              Contact
-            </Link>
+          <div className="lg:hidden py-4 space-y-2 animate-fade-in">
+            {headerParentItems.map((item) => {
+              const subItems = getSubItems(item.id);
+              
+              return (
+                <div key={item.id}>
+                  <Link
+                    to={item.link}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "block py-2 text-sm font-medium transition-colors hover:text-primary",
+                      isActive(item.link) ? "text-primary" : "text-foreground"
+                    )}
+                  >
+                    {item.title}
+                  </Link>
+                  {/* Show submenus */}
+                  {subItems.map((subItem) => (
+                    <Link
+                      key={subItem.id}
+                      to={subItem.link}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block py-2 pl-4 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {subItem.title}
+                    </Link>
+                  ))}
+                </div>
+              );
+            })}
             <Button
               onClick={() => {
                 onConsultationClick();
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold mt-4"
             >
               Book Free Consultation
             </Button>
