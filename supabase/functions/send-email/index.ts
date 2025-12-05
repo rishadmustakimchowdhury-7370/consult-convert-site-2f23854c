@@ -107,6 +107,9 @@ const handler = async (req: Request): Promise<Response> => {
         <p>${data.message || "No message"}</p>
       `;
 
+    // Use Resend's test sender until domain is fully verified
+    const senderEmail = "onboarding@resend.dev";
+
     // Send admin notification
     const adminResult = await sendEmail(
       adminEmails,
@@ -114,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
         ? `New Consultation Request from ${data.name}` 
         : `New Contact Form Submission from ${data.name}`,
       adminEmailContent,
-      `${siteTitle} <info@manhateck.com>`
+      `${siteTitle} <${senderEmail}>`
     );
 
     console.log("Admin email sent:", adminResult);
@@ -142,7 +145,7 @@ const handler = async (req: Request): Promise<Response> => {
       [data.email],
       "Thank you for contacting us!",
       userEmailContent,
-      `${siteTitle} <info@manhateck.com>`
+      `${siteTitle} <${senderEmail}>`
     );
 
     console.log("User email sent:", userResult);
