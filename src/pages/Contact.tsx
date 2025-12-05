@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
@@ -10,7 +11,6 @@ import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -24,17 +24,20 @@ import { Mail, MessageCircle, Clock, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+const RECAPTCHA_SITE_KEY = "6LflcCIsAAAAAMeTVk4kXhSA1Us7Fucgu3pK8iLE";
+
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   email: z.string().email("Invalid email address").max(255),
   subject: z.string().min(5, "Subject must be at least 5 characters").max(200),
   message: z.string().min(10, "Message must be at least 10 characters").max(1000),
-  notRobot: z.boolean().refine(val => val === true, "Please confirm you are not a robot"),
 });
 
 const Contact = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,17 +47,26 @@ const Contact = () => {
       email: "",
       subject: "",
       message: "",
-      notRobot: false,
     },
   });
 
+  const onRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!recaptchaToken) {
+      toast.error("Please complete the reCAPTCHA verification");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
       const { error } = await supabase.functions.invoke('send-email', {
         body: {
           type: 'contact',
+          recaptchaToken,
           data: {
             name: values.name,
             email: values.email,
@@ -68,10 +80,14 @@ const Contact = () => {
 
       toast.success("Message sent successfully!");
       form.reset();
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
       navigate('/thank-you');
     } catch (error: any) {
       console.error('Error submitting form:', error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error.message || "Something went wrong. Please try again.");
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,31 +180,18 @@ const Contact = () => {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="notRobot"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/30">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel className="cursor-pointer">
-                                I am not a robot
-                              </FormLabel>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="flex justify-center py-2">
+                        <ReCAPTCHA
+                          ref={recaptchaRef}
+                          sitekey={RECAPTCHA_SITE_KEY}
+                          onChange={onRecaptchaChange}
+                        />
+                      </div>
 
                       <Button
                         type="submit"
                         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !recaptchaToken}
                       >
                         {isSubmitting ? "Sending..." : "Send Message"}
                       </Button>
