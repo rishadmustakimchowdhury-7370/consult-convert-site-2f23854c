@@ -2,7 +2,6 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const RECAPTCHA_SECRET_KEY = Deno.env.get("RECAPTCHA_SECRET_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +10,6 @@ const corsHeaders = {
 
 interface EmailRequest {
   type: "contact" | "consultation" | "admin_notification";
-  recaptchaToken: string;
   data: {
     name: string;
     email: string;
@@ -23,23 +21,6 @@ interface EmailRequest {
     availableDate?: string;
     availableTime?: string;
   };
-}
-
-async function verifyRecaptcha(token: string): Promise<boolean> {
-  console.log("Verifying reCAPTCHA token...");
-  
-  const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `secret=${RECAPTCHA_SECRET_KEY}&response=${token}`,
-  });
-
-  const result = await response.json();
-  console.log("reCAPTCHA verification result:", result.success);
-  
-  return result.success === true;
 }
 
 async function sendEmail(to: string[], subject: string, html: string, from: string) {
@@ -74,34 +55,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, recaptchaToken, data }: EmailRequest = await req.json();
+    const { type, data }: EmailRequest = await req.json();
     console.log("Processing email request:", type, data);
 
-    // Verify reCAPTCHA token
-    if (!recaptchaToken) {
-      console.error("No reCAPTCHA token provided");
+    // Basic validation
+    if (!data.name || !data.email) {
+      console.error("Missing required fields");
       return new Response(
-        JSON.stringify({ error: "reCAPTCHA verification required" }),
+        JSON.stringify({ error: "Name and email are required" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
     }
-
-    const isValidRecaptcha = await verifyRecaptcha(recaptchaToken);
-    if (!isValidRecaptcha) {
-      console.error("reCAPTCHA verification failed");
-      return new Response(
-        JSON.stringify({ error: "reCAPTCHA verification failed. Please try again." }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-
-    console.log("reCAPTCHA verified successfully");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -130,6 +97,8 @@ const handler = async (req: Request): Promise<Response> => {
       available_time: data.availableTime,
       form_type: type,
     });
+
+    console.log("Submission saved to database");
 
     // Send notification to admin
     const adminEmailContent = type === "consultation" 
