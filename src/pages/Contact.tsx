@@ -1,9 +1,8 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
-import ReCAPTCHA from "react-google-recaptcha";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
@@ -23,8 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mail, MessageCircle, Clock, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
-const RECAPTCHA_SITE_KEY = "6LdKdiIsAAAAAAyj26VK8GOYDVp-grISAKJcb29F";
+import { MathChallenge } from "@/components/MathChallenge";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -36,8 +34,7 @@ const formSchema = z.object({
 const Contact = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [isVerified, setIsVerified] = useState(false);
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,23 +47,9 @@ const Contact = () => {
     },
   });
 
-  const onRecaptchaChange = (token: string | null) => {
-    setRecaptchaToken(token);
-  };
-
-  const onRecaptchaError = () => {
-    console.error("reCAPTCHA error - check domain configuration");
-    toast.error("reCAPTCHA failed to load. Please refresh the page.");
-  };
-
-  const onRecaptchaExpired = () => {
-    setRecaptchaToken(null);
-    toast.warning("reCAPTCHA expired. Please verify again.");
-  };
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!recaptchaToken) {
-      toast.error("Please complete the reCAPTCHA verification");
+    if (!isVerified) {
+      toast.error("Please solve the math problem to verify");
       return;
     }
 
@@ -76,7 +59,6 @@ const Contact = () => {
       const { error } = await supabase.functions.invoke('send-email', {
         body: {
           type: 'contact',
-          recaptchaToken,
           data: {
             name: values.name,
             email: values.email,
@@ -90,14 +72,11 @@ const Contact = () => {
 
       toast.success("Message sent successfully!");
       form.reset();
-      setRecaptchaToken(null);
-      recaptchaRef.current?.reset();
+      setIsVerified(false);
       navigate('/thank-you');
     } catch (error: any) {
       console.error('Error submitting form:', error);
       toast.error(error.message || "Something went wrong. Please try again.");
-      recaptchaRef.current?.reset();
-      setRecaptchaToken(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -190,20 +169,12 @@ const Contact = () => {
                         )}
                       />
 
-                      <div className="flex justify-center py-2">
-                        <ReCAPTCHA
-                          ref={recaptchaRef}
-                          sitekey={RECAPTCHA_SITE_KEY}
-                          onChange={onRecaptchaChange}
-                          onErrored={onRecaptchaError}
-                          onExpired={onRecaptchaExpired}
-                        />
-                      </div>
+                      <MathChallenge onVerified={setIsVerified} />
 
                       <Button
                         type="submit"
                         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                        disabled={isSubmitting || !recaptchaToken}
+                        disabled={isSubmitting || !isVerified}
                       >
                         {isSubmitting ? "Sending..." : "Send Message"}
                       </Button>
