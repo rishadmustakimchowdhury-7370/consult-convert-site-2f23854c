@@ -24,7 +24,7 @@ import { Mail, MessageCircle, Clock, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-const RECAPTCHA_SITE_KEY = "6Le5dCIsAAAAAFvRPLZTi2Ef6D2YoYW73UwKcX0X";
+const RECAPTCHA_SITE_KEY = "6LdKdiIsAAAAAAyj26VK8GOYDVp-grISAKJcb29F";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
