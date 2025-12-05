@@ -14,16 +14,20 @@ import {
   FolderOpen,
   Quote,
   ExternalLink,
+  Briefcase,
+  Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
+  { icon: Briefcase, label: 'Services', path: '/admin/services' },
   { icon: FileText, label: 'Blog Posts', path: '/admin/blogs' },
   { icon: FolderOpen, label: 'Categories', path: '/admin/categories' },
   { icon: Files, label: 'Pages', path: '/admin/pages' },
   { icon: Quote, label: 'Testimonials', path: '/admin/testimonials' },
+  { icon: Menu, label: 'Menu Manager', path: '/admin/menu' },
   { icon: Image, label: 'Media', path: '/admin/media' },
   { icon: Search, label: 'SEO Tools', path: '/admin/seo' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
