@@ -30,6 +30,21 @@ interface Testimonial {
   image_url: string | null;
 }
 
+interface Service {
+  id: string;
+  title: string;
+  slug: string;
+  short_description: string | null;
+  icon_name: string | null;
+  is_featured: boolean;
+}
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Code, ShoppingCart, Palette, Globe, Search, Youtube, Megaphone, Video, 
+  Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle, Smartphone, Zap, 
+  Award, Star, TrendingUp, Users, Clock, Shield
+};
+
 const whyChooseFeatures = [
   {
     icon: Code,
@@ -127,23 +142,34 @@ const ukBusinessReasons = [
 const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
-      const { data: testimonialData } = await supabase
-        .from('testimonials')
-        .select('id, name, role, company, content, rating, image_url')
-        .order('created_at', { ascending: false })
-        .limit(50);
+    const fetchData = async () => {
+      const [testimonialsRes, servicesRes] = await Promise.all([
+        supabase
+          .from('testimonials')
+          .select('id, name, role, company, content, rating, image_url')
+          .order('created_at', { ascending: false })
+          .limit(50),
+        supabase
+          .from('services')
+          .select('id, title, slug, short_description, icon_name, is_featured')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      ]);
       
-      if (testimonialData) {
-        setTestimonials(testimonialData);
+      if (testimonialsRes.data) {
+        setTestimonials(testimonialsRes.data);
+      }
+      if (servicesRes.data) {
+        setServices(servicesRes.data);
       }
       setIsLoading(false);
     };
     
-    fetchTestimonials();
+    fetchData();
   }, []);
 
   return (
@@ -225,112 +251,35 @@ const Index = () => {
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[
-              {
-                icon: Code,
-                title: "WordPress Web Design",
-                description: "Custom WordPress websites with stunning designs, powerful functionality, and easy content management.",
-                link: "/services/web-development"
-              },
-              {
-                icon: ShoppingCart,
-                title: "Shopify Web Design",
-                description: "Professional Shopify stores optimized for conversions, seamless checkout, and brand consistency.",
-                link: "/services/web-development"
-              },
-              {
-                icon: Palette,
-                title: "Wix Web Design",
-                description: "Beautiful, responsive Wix websites that are easy to maintain and perfect for growing businesses.",
-                link: "/services/web-development"
-              },
-              {
-                icon: Globe,
-                title: "Webflow Design & Development",
-                description: "Cutting-edge Webflow sites with advanced animations, interactions, and CMS capabilities.",
-                link: "/services/web-development"
-              },
-              {
-                icon: Search,
-                title: "Affordable Local SEO",
-                description: "Dominate local search results with targeted SEO strategies that bring customers to your door.",
-                link: "/services/seo-services"
-              },
-              {
-                icon: Youtube,
-                title: "YouTube SEO Agency",
-                description: "Optimize your videos for maximum visibility, engagement, and subscriber growth on YouTube.",
-                link: "/services/seo-services"
-              },
-              {
-                icon: Megaphone,
-                title: "Google Ads Management",
-                description: "Expert Google Ads campaigns that maximize ROI and drive qualified traffic to your business.",
-                link: "/services/digital-marketing"
-              },
-              {
-                icon: Video,
-                title: "Video Editing",
-                description: "Professional video editing services that transform raw footage into compelling visual stories.",
-                link: "/services/content-creation"
-              },
-              {
-                icon: Gauge,
-                title: "Website Speed Optimization",
-                description: "Boost your site performance with expert speed optimization for better UX and SEO rankings.",
-                link: "/services/web-development"
-              },
-              {
-                icon: ShieldCheck,
-                title: "WordPress Malware Removal",
-                description: "Complete malware cleanup and security hardening to protect your WordPress site from threats.",
-                link: "/services/web-development"
-              },
-              {
-                icon: Pin,
-                title: "Pinterest Marketing",
-                description: "Strategic Pinterest campaigns that drive traffic, increase brand awareness, and boost sales.",
-                link: "/services/digital-marketing"
-              },
-              {
-                icon: Mail,
-                title: "Email Marketing Automation",
-                description: "Automated email campaigns that nurture leads, drive conversions, and build customer loyalty.",
-                link: "/services/digital-marketing"
-              },
-              {
-                icon: Bot,
-                title: "AI Automation Agent",
-                description: "Intelligent AI agents that automate workflows, save time, and streamline business operations.",
-                link: "/services/brand-strategy"
-              },
-              {
-                icon: MessageCircle,
-                title: "AI Chatbot Solutions",
-                description: "Custom AI chatbots that provide 24/7 customer support and enhance user engagement.",
-                link: "/services/brand-strategy"
-              }
-            ].map((service, index) => (
-              <a
-                key={service.title}
-                href={service.link}
-                className="group block p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-300 animate-fade-in-up relative overflow-hidden"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <service.icon className="w-8 h-8 text-primary-foreground" />
+            {services.map((service, index) => {
+              const ServiceIcon = iconMap[service.icon_name || 'Code'] || Code;
+              return (
+                <a
+                  key={service.id}
+                  href={`/services/${service.slug}`}
+                  className="group block p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-300 animate-fade-in-up relative overflow-hidden"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <ServiceIcon className="w-8 h-8 text-primary-foreground" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{service.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed mb-4">{service.short_description || 'Professional digital services tailored to your needs.'}</p>
+                    <div className="flex items-center text-primary font-semibold text-sm group-hover:translate-x-2 transition-transform duration-300">
+                      Learn More
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{service.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed mb-4">{service.description}</p>
-                  <div className="flex items-center text-primary font-semibold text-sm group-hover:translate-x-2 transition-transform duration-300">
-                    Learn More
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </div>
-                </div>
-              </a>
-            ))}
+                </a>
+              );
+            })}
+            {services.length === 0 && !isLoading && (
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                No services available yet. Add services from the admin dashboard.
+              </div>
+            )}
           </div>
           <div className="mt-16 text-center">
             <p className="text-muted-foreground mb-6">Need a custom solution tailored to your specific needs?</p>

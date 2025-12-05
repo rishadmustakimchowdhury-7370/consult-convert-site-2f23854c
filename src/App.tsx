@@ -11,12 +11,7 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import WebDevelopment from "./pages/services/WebDevelopment";
-import DigitalMarketing from "./pages/services/DigitalMarketing";
-import BrandStrategy from "./pages/services/BrandStrategy";
-import UIUXDesign from "./pages/services/UIUXDesign";
-import SEOServices from "./pages/services/SEOServices";
-import ContentCreation from "./pages/services/ContentCreation";
+import ServicePage from "./pages/services/ServicePage";
 import ThankYou from "./pages/ThankYou";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +28,8 @@ import SEOTools from "./pages/admin/SEOTools";
 import Settings from "./pages/admin/Settings";
 import Categories from "./pages/admin/Categories";
 import Testimonials from "./pages/admin/Testimonials";
+import ServicesAdmin from "./pages/admin/Services";
+import MenuManager from "./pages/admin/MenuManager";
 
 const queryClient = new QueryClient();
 
@@ -52,12 +49,7 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/services/web-development" element={<WebDevelopment />} />
-            <Route path="/services/digital-marketing" element={<DigitalMarketing />} />
-            <Route path="/services/brand-strategy" element={<BrandStrategy />} />
-            <Route path="/services/uiux-design" element={<UIUXDesign />} />
-            <Route path="/services/seo-services" element={<SEOServices />} />
-            <Route path="/services/content-creation" element={<ContentCreation />} />
+            <Route path="/services/:slug" element={<ServicePage />} />
             <Route path="/thank-you" element={<ThankYou />} />
 
             {/* Admin Auth */}
@@ -66,6 +58,7 @@ const App = () => (
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
+              <Route path="services" element={<ServicesAdmin />} />
               <Route path="blogs" element={<BlogList />} />
               <Route path="blogs/new" element={<BlogEditor />} />
               <Route path="blogs/:id" element={<BlogEditor />} />
@@ -74,6 +67,7 @@ const App = () => (
               <Route path="pages/new" element={<PageEditor />} />
               <Route path="pages/:id" element={<PageEditor />} />
               <Route path="testimonials" element={<Testimonials />} />
+              <Route path="menu" element={<MenuManager />} />
               <Route path="media" element={<MediaManager />} />
               <Route path="seo" element={<SEOTools />} />
               <Route path="settings" element={<Settings />} />
