@@ -100,6 +100,99 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          available_date: string | null
+          available_time: string | null
+          budget: string | null
+          created_at: string | null
+          email: string
+          form_type: string | null
+          id: string
+          is_read: boolean | null
+          message: string | null
+          name: string
+          phone: string | null
+          service: string | null
+          subject: string | null
+        }
+        Insert: {
+          available_date?: string | null
+          available_time?: string | null
+          budget?: string | null
+          created_at?: string | null
+          email: string
+          form_type?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          name: string
+          phone?: string | null
+          service?: string | null
+          subject?: string | null
+        }
+        Update: {
+          available_date?: string | null
+          available_time?: string | null
+          budget?: string | null
+          created_at?: string | null
+          email?: string
+          form_type?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          name?: string
+          phone?: string | null
+          service?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      homepage_content: {
+        Row: {
+          button_link: string | null
+          button_text: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          section_key: string
+          sort_order: number | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          button_link?: string | null
+          button_text?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          section_key: string
+          sort_order?: number | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          button_link?: string | null
+          button_text?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          section_key?: string
+          sort_order?: number | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string | null
@@ -126,6 +219,50 @@ export type Database = {
           url?: string
         }
         Relationships: []
+      }
+      navigation_menu: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          link: string
+          location: string | null
+          parent_id: string | null
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          link: string
+          location?: string | null
+          parent_id?: string | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          link?: string
+          location?: string | null
+          parent_id?: string | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "navigation_menu_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "navigation_menu"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pages: {
         Row: {
@@ -196,16 +333,84 @@ export type Database = {
         }
         Relationships: []
       }
+      services: {
+        Row: {
+          content: string | null
+          cover_image: string | null
+          created_at: string | null
+          faqs: Json | null
+          features: Json | null
+          icon_name: string | null
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          process_steps: Json | null
+          short_description: string | null
+          slug: string
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          faqs?: Json | null
+          features?: Json | null
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          process_steps?: Json | null
+          short_description?: string | null
+          slug: string
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          faqs?: Json | null
+          features?: Json | null
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          process_steps?: Json | null
+          short_description?: string | null
+          slug?: string
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
+          admin_email: string | null
+          contact_address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          contact_phone_secondary: string | null
           facebook_url: string | null
+          favicon_url: string | null
           global_meta_description: string | null
           global_meta_title: string | null
           google_analytics_script: string | null
           id: string
           instagram_url: string | null
           linkedin_url: string | null
+          logo_height: number | null
           logo_url: string | null
+          logo_width: number | null
           pinterest_url: string | null
           site_description: string | null
           site_title: string | null
@@ -213,14 +418,22 @@ export type Database = {
           whatsapp_url: string | null
         }
         Insert: {
+          admin_email?: string | null
+          contact_address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_phone_secondary?: string | null
           facebook_url?: string | null
+          favicon_url?: string | null
           global_meta_description?: string | null
           global_meta_title?: string | null
           google_analytics_script?: string | null
           id?: string
           instagram_url?: string | null
           linkedin_url?: string | null
+          logo_height?: number | null
           logo_url?: string | null
+          logo_width?: number | null
           pinterest_url?: string | null
           site_description?: string | null
           site_title?: string | null
@@ -228,14 +441,22 @@ export type Database = {
           whatsapp_url?: string | null
         }
         Update: {
+          admin_email?: string | null
+          contact_address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_phone_secondary?: string | null
           facebook_url?: string | null
+          favicon_url?: string | null
           global_meta_description?: string | null
           global_meta_title?: string | null
           google_analytics_script?: string | null
           id?: string
           instagram_url?: string | null
           linkedin_url?: string | null
+          logo_height?: number | null
           logo_url?: string | null
+          logo_width?: number | null
           pinterest_url?: string | null
           site_description?: string | null
           site_title?: string | null

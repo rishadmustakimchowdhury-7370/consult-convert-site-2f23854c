@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,8 +19,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, MessageCircle, Clock, MapPin } from "lucide-react";
+import { Mail, MessageCircle, Clock, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -30,6 +33,7 @@ const formSchema = z.object({
 const Contact = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,15 +48,30 @@ const Contact = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast.success("Message sent successfully!", {
-      description: "We'll get back to you within 24 hours.",
-    });
-    
-    form.reset();
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'contact',
+          data: {
+            name: values.name,
+            email: values.email,
+            subject: values.subject,
+            message: values.message,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Message sent successfully!");
+      form.reset();
+      navigate('/thank-you');
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -165,20 +184,35 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <a href="mailto:hello@agency.com" className="text-muted-foreground hover:text-primary transition-colors">
-                        hello@agency.com
+                      <a href="mailto:info@manhateck.com" className="text-muted-foreground hover:text-primary transition-colors">
+                        info@manhateck.com
                       </a>
                     </div>
                   </div>
 
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                      <MessageCircle className="w-6 h-6 text-accent" />
+                      <Phone className="w-6 h-6 text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Phone</h3>
+                      <a href="tel:+447426468550" className="text-muted-foreground hover:text-accent transition-colors block">
+                        +44 742 646 8550
+                      </a>
+                      <a href="tel:+8801839697370" className="text-muted-foreground hover:text-accent transition-colors block">
+                        +880 183 969 7370
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center flex-shrink-0">
+                      <MessageCircle className="w-6 h-6 text-[#25D366]" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">WhatsApp</h3>
-                      <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent transition-colors">
-                        +1 (234) 567-890
+                      <a href="https://wa.me/447426468550" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-[#25D366] transition-colors">
+                        +44 742 646 8550
                       </a>
                     </div>
                   </div>
@@ -203,9 +237,9 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold mb-1">Location</h3>
                       <p className="text-muted-foreground text-sm">
-                        123 Business Street<br />
-                        Suite 100<br />
-                        City, State 12345
+                        Suite A, 82 James Carter Road<br />
+                        Mildenhall, Bury St. Edmunds<br />
+                        United Kingdom, IP28 7DE
                       </p>
                     </div>
                   </div>
@@ -227,12 +261,19 @@ const Contact = () => {
                 </CardContent>
               </Card>
 
-              {/* Map Placeholder */}
-              <Card className="border-2">
+              {/* Map */}
+              <Card className="border-2 overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center">
-                    <p className="text-muted-foreground">Map Embed Placeholder</p>
-                  </div>
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.7!2d0.5176!3d52.3447!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d84e8b8c0d4a3b%3A0x0!2sJames%20Carter%20Road%2C%20Mildenhall!5e0!3m2!1sen!2suk!4v1"
+                    width="100%"
+                    height="250"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Office Location"
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -241,6 +282,7 @@ const Contact = () => {
       </section>
 
       <Footer />
+      <WhatsAppChat phoneNumber="+447426468550" />
       <ConsultationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
   );

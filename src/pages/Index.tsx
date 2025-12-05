@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { ServiceCard } from "@/components/ServiceCard";
 import { TestimonialCard } from "@/components/TestimonialCard";
 import { Button } from "@/components/ui/button";
@@ -21,44 +22,27 @@ interface Testimonial {
   image_url: string | null;
 }
 
-const services = [
-  {
-    title: "Web Development",
-    description: "Custom, scalable websites and web applications built with modern technologies to drive your business forward.",
-    icon: Code,
-    link: "/services/web-development",
-  },
-  {
-    title: "Digital Marketing",
-    description: "Data-driven marketing strategies that increase your online visibility and convert visitors into customers.",
-    icon: Megaphone,
-    link: "/services/digital-marketing",
-  },
-  {
-    title: "Brand Strategy",
-    description: "Comprehensive brand development that tells your story and connects with your target audience.",
-    icon: Lightbulb,
-    link: "/services/brand-strategy",
-  },
-  {
-    title: "UI/UX Design",
-    description: "Beautiful, intuitive interfaces that provide exceptional user experiences and drive engagement.",
-    icon: Palette,
-    link: "/services/uiux-design",
-  },
-  {
-    title: "SEO Services",
-    description: "Proven SEO strategies to rank higher on search engines and attract more organic traffic.",
-    icon: TrendingUp,
-    link: "/services/seo-services",
-  },
-  {
-    title: "Content Creation",
-    description: "Compelling content that engages your audience and establishes your authority in your industry.",
-    icon: PenTool,
-    link: "/services/content-creation",
-  },
-];
+interface HomepageContent {
+  section_key: string;
+  title: string | null;
+  subtitle: string | null;
+  content: string | null;
+  button_text: string | null;
+  button_link: string | null;
+  image_url: string | null;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  slug: string;
+  short_description: string | null;
+  icon_name: string | null;
+}
+
+const iconMap: Record<string, any> = {
+  Code, Megaphone, Lightbulb, Palette, TrendingUp, PenTool
+};
 
 const whyChooseUs = [
   {
@@ -86,23 +70,57 @@ const whyChooseUs = [
 const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [homepageContent, setHomepageContent] = useState<Record<string, HomepageContent>>({});
+  const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
-      const { data, error } = await supabase
+    const fetchData = async () => {
+      // Fetch homepage content
+      const { data: contentData } = await supabase
+        .from('homepage_content')
+        .select('*')
+        .eq('is_active', true);
+      
+      if (contentData) {
+        const contentMap: Record<string, HomepageContent> = {};
+        contentData.forEach((item: HomepageContent) => {
+          contentMap[item.section_key] = item;
+        });
+        setHomepageContent(contentMap);
+      }
+
+      // Fetch services
+      const { data: servicesData } = await supabase
+        .from('services')
+        .select('id, title, slug, short_description, icon_name')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      
+      if (servicesData) {
+        setServices(servicesData);
+      }
+
+      // Fetch testimonials
+      const { data: testimonialData } = await supabase
         .from('testimonials')
         .select('id, name, role, company, content, rating, image_url')
         .order('created_at', { ascending: false })
         .limit(50);
       
-      if (!error && data) {
-        setTestimonials(data);
+      if (testimonialData) {
+        setTestimonials(testimonialData);
       }
+      
       setIsLoading(false);
     };
-    fetchTestimonials();
+    
+    fetchData();
   }, []);
+
+  const heroContent = homepageContent['hero'];
+  const aboutContent = homepageContent['about'];
+  const ctaContent = homepageContent['cta'];
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,13 +133,13 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-in-up">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                Transform Your Business with{" "}
+                {heroContent?.title?.split(' ').slice(0, -2).join(' ') || "Transform Your Business with"}{" "}
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Premium Solutions
+                  {heroContent?.title?.split(' ').slice(-2).join(' ') || "Premium Solutions"}
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                We deliver cutting-edge digital solutions that drive growth, enhance user experience, and establish your brand as an industry leader.
+                {heroContent?.subtitle || "We deliver cutting-edge digital solutions that drive growth, enhance user experience, and establish your brand as an industry leader."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -129,7 +147,7 @@ const Index = () => {
                   onClick={() => setIsDialogOpen(true)}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all"
                 >
-                  Book a Free Consultation
+                  {heroContent?.button_text || "Book a Free Consultation"}
                 </Button>
                 <Button
                   size="lg"
@@ -143,7 +161,7 @@ const Index = () => {
             </div>
             <div className="animate-scale-in">
               <img
-                src={heroImage}
+                src={heroContent?.image_url || heroImage}
                 alt="Professional workspace showcasing modern digital agency environment"
                 className="rounded-2xl shadow-2xl"
               />
@@ -156,12 +174,12 @@ const Index = () => {
       <section className="py-20 bg-section-bg">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold">Who We Are</h2>
+            <h2 className="text-4xl md:text-5xl font-bold">{aboutContent?.title || "Who We Are"}</h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              We're a team of passionate experts dedicated to helping businesses thrive in the digital age. With years of experience and a commitment to excellence, we transform ideas into impactful solutions that deliver measurable results.
+              {aboutContent?.subtitle || "We're a team of passionate experts dedicated to helping businesses thrive in the digital age."}
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Our mission is simple: empower your business with innovative strategies and cutting-edge technology that drive sustainable growth.
+              {aboutContent?.content || "With years of experience and a commitment to excellence, we transform ideas into impactful solutions that deliver measurable results. Our mission is simple: empower your business with innovative strategies and cutting-edge technology that drive sustainable growth."}
             </p>
           </div>
         </div>
@@ -177,11 +195,19 @@ const Index = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <div key={service.title} className="animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-                <ServiceCard {...service} />
-              </div>
-            ))}
+            {services.map((service, index) => {
+              const IconComponent = iconMap[service.icon_name || 'Code'] || Code;
+              return (
+                <div key={service.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+                  <ServiceCard
+                    title={service.title}
+                    description={service.short_description || ''}
+                    icon={IconComponent}
+                    link={`/services/${service.slug}`}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -273,21 +299,22 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-accent text-white">
         <div className="container mx-auto px-4 text-center space-y-8">
-          <h2 className="text-4xl md:text-5xl font-bold">Ready to Get Started?</h2>
+          <h2 className="text-4xl md:text-5xl font-bold">{ctaContent?.title || "Ready to Get Started?"}</h2>
           <p className="text-xl max-w-2xl mx-auto opacity-90">
-            Let's discuss how we can help transform your business and achieve your goals.
+            {ctaContent?.subtitle || "Let's discuss how we can help transform your business and achieve your goals."}
           </p>
           <Button
             size="lg"
             onClick={() => setIsDialogOpen(true)}
             className="bg-white hover:bg-white/90 text-primary text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all"
           >
-            Book Your Free Consultation Now
+            {ctaContent?.button_text || "Book Your Free Consultation Now"}
           </Button>
         </div>
       </section>
 
       <Footer />
+      <WhatsAppChat phoneNumber="+447426468550" />
       <ConsultationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
   );

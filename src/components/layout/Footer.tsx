@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Linkedin, Instagram, MessageCircle } from "lucide-react";
+import { Facebook, Linkedin, Instagram, MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -12,12 +12,12 @@ export const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">A</span>
+                <span className="text-white font-bold text-xl">M</span>
               </div>
-              <span className="text-2xl font-bold">Agency</span>
+              <span className="text-2xl font-bold">Manhateck</span>
             </div>
             <p className="text-sm text-background/80">
-              Delivering premium solutions that transform your business and drive real results.
+              Delivering premium digital solutions that transform your business and drive real results.
             </p>
             <div className="flex space-x-4">
               <a
@@ -48,10 +48,10 @@ export const Footer = () => {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://wa.me/1234567890"
+                href="https://wa.me/447426468550"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-background/10 hover:bg-accent rounded-full flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
                 aria-label="WhatsApp"
               >
                 <MessageCircle className="w-5 h-5" />
@@ -76,6 +76,11 @@ export const Footer = () => {
               <li>
                 <Link to="/services" className="text-sm text-background/80 hover:text-background transition-colors">
                   Services
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-sm text-background/80 hover:text-background transition-colors">
+                  Blog
                 </Link>
               </li>
               <li>
@@ -128,21 +133,37 @@ export const Footer = () => {
           {/* Contact Info */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-2 text-sm text-background/80">
-              <li>
-                <a href="mailto:hello@agency.com" className="hover:text-background transition-colors">
-                  hello@agency.com
+            <ul className="space-y-3 text-sm text-background/80">
+              <li className="flex items-start space-x-3">
+                <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <a href="mailto:info@manhateck.com" className="hover:text-background transition-colors">
+                  info@manhateck.com
                 </a>
               </li>
-              <li>
-                <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
-                  WhatsApp: +1 (234) 567-890
+              <li className="flex items-start space-x-3">
+                <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <div>
+                  <a href="tel:+447426468550" className="hover:text-background transition-colors block">
+                    +44 742 646 8550
+                  </a>
+                  <a href="tel:+8801839697370" className="hover:text-background transition-colors block">
+                    +880 183 969 7370
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-start space-x-3">
+                <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <a href="https://wa.me/447426468550" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
+                  WhatsApp: +44 742 646 8550
                 </a>
               </li>
-              <li className="pt-2">
-                <span className="font-medium text-background">Support Hours:</span>
-                <br />
-                Mon-Fri: 9:00 AM - 6:00 PM
+              <li className="flex items-start space-x-3">
+                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>
+                  Suite A, 82 James Carter Road<br />
+                  Mildenhall, Bury St. Edmunds<br />
+                  United Kingdom, IP28 7DE
+                </span>
               </li>
             </ul>
           </div>
@@ -151,7 +172,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-background/20 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="text-sm text-background/60">
-            © {currentYear} Agency. All rights reserved.
+            © {currentYear} Manhateck. All rights reserved.
           </p>
           <Link
             to="/privacy-policy"
