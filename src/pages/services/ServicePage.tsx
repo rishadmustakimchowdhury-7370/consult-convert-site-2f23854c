@@ -3,14 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { TestimonialCard } from "@/components/TestimonialCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { supabase } from "@/integrations/supabase/client";
+import Autoplay from "embla-carousel-autoplay";
 import { 
   ArrowRight, CheckCircle, Phone, Code, ShoppingCart, Palette, Globe, Search, 
   Youtube, Megaphone, Video, Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle,
-  Smartphone, Zap, Award, Star, TrendingUp, Users, Clock, Shield
+  Smartphone, Zap, Award, Star, TrendingUp, Users, Clock, Shield, MapPin
 } from "lucide-react";
 
 interface Feature {
@@ -45,6 +48,16 @@ interface Service {
   meta_description: string | null;
 }
 
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  company: string | null;
+  content: string;
+  rating: number | null;
+  image_url: string | null;
+}
+
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Code, ShoppingCart, Palette, Globe, Search, Youtube, Megaphone, Video, 
   Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle, Smartphone, Zap, 
@@ -56,41 +69,54 @@ const ServicePage = () => {
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [service, setService] = useState<Service | null>(null);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchService = async () => {
+    const fetchData = async () => {
       if (!slug) return;
       
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('slug', slug)
-        .eq('is_active', true)
-        .maybeSingle();
+      const [serviceRes, testimonialsRes] = await Promise.all([
+        supabase
+          .from('services')
+          .select('*')
+          .eq('slug', slug)
+          .eq('is_active', true)
+          .maybeSingle(),
+        supabase
+          .from('testimonials')
+          .select('id, name, role, company, content, rating, image_url')
+          .order('created_at', { ascending: false })
+          .limit(10)
+      ]);
 
-      if (error || !data) {
+      if (serviceRes.error || !serviceRes.data) {
         navigate('/services');
         return;
       }
 
       setService({
-        ...data,
-        features: Array.isArray(data.features) ? (data.features as unknown as Feature[]) : [],
-        process_steps: Array.isArray(data.process_steps) ? (data.process_steps as unknown as ProcessStep[]) : [],
-        faqs: Array.isArray(data.faqs) ? (data.faqs as unknown as FAQ[]) : [],
+        ...serviceRes.data,
+        features: Array.isArray(serviceRes.data.features) ? (serviceRes.data.features as unknown as Feature[]) : [],
+        process_steps: Array.isArray(serviceRes.data.process_steps) ? (serviceRes.data.process_steps as unknown as ProcessStep[]) : [],
+        faqs: Array.isArray(serviceRes.data.faqs) ? (serviceRes.data.faqs as unknown as FAQ[]) : [],
       });
+      
+      if (testimonialsRes.data) {
+        setTestimonials(testimonialsRes.data);
+      }
+      
       setIsLoading(false);
 
       // Update page title and meta
-      if (data.meta_title) {
-        document.title = data.meta_title;
+      if (serviceRes.data.meta_title) {
+        document.title = serviceRes.data.meta_title;
       } else {
-        document.title = `${data.title} | Manha Tech`;
+        document.title = `${serviceRes.data.title} | Manha Tech`;
       }
     };
 
-    fetchService();
+    fetchData();
   }, [slug, navigate]);
 
   if (isLoading) {
@@ -285,24 +311,92 @@ const ServicePage = () => {
         </section>
       )}
 
-      {/* Final CTA */}
-      <section className="py-20">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Let's Work Together
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Contact us today to discuss your project requirements and get a free quote.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl"
+      {/* Testimonials Section */}
+      {testimonials.length > 0 && (
+        <section className="py-20 bg-section-bg">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center space-y-4 mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold">What Our Clients Say</h2>
+              <p className="text-lg text-muted-foreground">
+                Don't just take our word for it - hear from our satisfied clients
+              </p>
+            </div>
+            <Carousel
+              opts={{ align: "start", loop: true }}
+              plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
+              className="w-full"
             >
-              Book a Free Consultation
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+              <CarouselContent className="-ml-4">
+                {testimonials.map((testimonial) => (
+                  <CarouselItem key={testimonial.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <TestimonialCard
+                      name={testimonial.name}
+                      role={testimonial.role || ''}
+                      content={testimonial.content}
+                      rating={testimonial.rating || 5}
+                      image_url={testimonial.image_url}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-4" />
+              <CarouselNext className="hidden md:flex -right-4" />
+            </Carousel>
+          </div>
+        </section>
+      )}
+
+      {/* Location Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold">Visit Our Office</h2>
+              <p className="text-lg text-muted-foreground">
+                We'd love to meet you in person. Come visit us at our office or get in touch to schedule a meeting.
+              </p>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Our Address</h3>
+                  <p className="text-muted-foreground">
+                    Suite A, 82 James Carter Road<br />
+                    Mildenhall, Bury St. Edmunds<br />
+                    United Kingdom, IP28 7DE
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  onClick={() => setIsDialogOpen(true)}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl"
+                >
+                  Book a Free Consultation
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <a href="tel:+447426468550">
+                    <Phone className="w-5 h-5 mr-2" />
+                    Call Us Now
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl h-[400px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2435.866684067!2d0.5066!3d52.3167!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d85f9b5c1234567%3A0x1234567890abcdef!2s82%20James%20Carter%20Rd%2C%20Mildenhall%2C%20Bury%20Saint%20Edmunds%20IP28%207DE%2C%20UK!5e0!3m2!1sen!2suk!4v1234567890"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Manha Tech Office Location"
+              ></iframe>
+            </div>
           </div>
         </div>
       </section>
