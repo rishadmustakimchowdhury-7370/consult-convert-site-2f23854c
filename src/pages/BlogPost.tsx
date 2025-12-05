@@ -142,13 +142,13 @@ export default function BlogPost() {
               </span>
             </div>
 
-            {/* Cover Image */}
+            {/* Cover Image - Fixed 16:9 aspect ratio */}
             {blog.cover_image && (
-              <div className="relative rounded-xl overflow-hidden mb-10 shadow-lg">
+              <div className="relative rounded-xl overflow-hidden mb-10 shadow-lg aspect-video">
                 <img
                   src={blog.cover_image}
                   alt={blog.title}
-                  className="w-full h-auto max-h-[500px] object-cover"
+                  className="w-full h-full object-cover"
                 />
               </div>
             )}
