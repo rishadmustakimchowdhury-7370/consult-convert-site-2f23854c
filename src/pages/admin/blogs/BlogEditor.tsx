@@ -35,6 +35,7 @@ export default function BlogEditor() {
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [coverImage, setCoverImage] = useState('');
+  const [coverImageAlt, setCoverImageAlt] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [isPublished, setIsPublished] = useState(false);
@@ -68,6 +69,7 @@ export default function BlogEditor() {
             setContent(data.content || '');
             setExcerpt(data.excerpt || '');
             setCoverImage(data.cover_image || '');
+            setCoverImageAlt((data as any).cover_image_alt || '');
             setCategoryId(data.category_id || '');
             setAuthorName(data.author_name || '');
             setIsPublished(data.status === 'published');
@@ -111,6 +113,7 @@ export default function BlogEditor() {
       content,
       excerpt,
       cover_image: coverImage,
+      cover_image_alt: coverImageAlt,
       category_id: categoryId || null,
       author_name: authorName,
       status: (isPublished ? 'published' : 'draft') as 'published' | 'draft',
@@ -295,6 +298,19 @@ export default function BlogEditor() {
                 aspectRatio="video"
                 recommendedSize="1200 x 675px (16:9)"
               />
+
+              <div className="space-y-2">
+                <Label htmlFor="cover-image-alt">Image Alt Text (SEO)</Label>
+                <Input
+                  id="cover-image-alt"
+                  value={coverImageAlt}
+                  onChange={(e) => setCoverImageAlt(e.target.value)}
+                  placeholder="Describe the image for SEO and accessibility"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Describe the image content for better SEO and accessibility
+                </p>
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>

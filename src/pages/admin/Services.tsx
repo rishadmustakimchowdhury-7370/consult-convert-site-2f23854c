@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, HelpCircle, Search } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ImageUpload from '@/components/admin/ImageUpload';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 
 interface Feature {
   icon: string;
@@ -388,13 +389,13 @@ export default function ServicesAdmin() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="content">Full Content</Label>
-                    <Textarea
-                      id="content"
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="Detailed service description..."
-                      rows={6}
+                    <Label htmlFor="content">Full Content (SEO Optimized)</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Use H2/H3 headings, add internal/external links, and include images with alt text for SEO
+                    </p>
+                    <RichTextEditor
+                      content={formData.content}
+                      onChange={(content) => setFormData({ ...formData, content })}
                     />
                   </div>
 

@@ -20,6 +20,7 @@ export type Database = {
           category_id: string | null
           content: string | null
           cover_image: string | null
+          cover_image_alt: string | null
           created_at: string | null
           excerpt: string | null
           focus_keyword: string | null
@@ -37,6 +38,7 @@ export type Database = {
           category_id?: string | null
           content?: string | null
           cover_image?: string | null
+          cover_image_alt?: string | null
           created_at?: string | null
           excerpt?: string | null
           focus_keyword?: string | null
@@ -54,6 +56,7 @@ export type Database = {
           category_id?: string | null
           content?: string | null
           cover_image?: string | null
+          cover_image_alt?: string | null
           created_at?: string | null
           excerpt?: string | null
           focus_keyword?: string | null
