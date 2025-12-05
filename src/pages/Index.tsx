@@ -373,23 +373,38 @@ const Index = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 md:py-28">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">What Our Clients Say</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Don't just take our word for it—see what UK businesses say about our ecommerce website design services
+      <section className="py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Section Header */}
+          <div className="text-center space-y-6 mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <Star className="w-4 h-4 fill-primary" />
+              Client Success Stories
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+              What Our Clients Say About Our
+              <span className="block text-primary mt-2">Ecommerce Website Design Services</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Don't just take our word for it—discover how UK businesses have transformed their online presence with our professional ecommerce solutions
             </p>
           </div>
           
           {isLoading ? (
-            <div className="flex justify-center">
-              <div className="animate-pulse text-muted-foreground">Loading testimonials...</div>
+            <div className="flex justify-center py-12">
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                Loading testimonials...
+              </div>
             </div>
           ) : testimonials.length === 0 ? (
-            <p className="text-center text-muted-foreground">No testimonials yet.</p>
+            <p className="text-center text-muted-foreground py-12">No testimonials yet.</p>
           ) : (
-            <div className="px-12">
+            <div className="px-4 md:px-16">
               <Carousel
                 opts={{
                   align: "start",
@@ -404,11 +419,11 @@ const Index = () => {
                 ]}
                 className="w-full"
               >
-                <CarouselContent className="-ml-4">
+                <CarouselContent className="-ml-6">
                   {testimonials.map((testimonial) => (
                     <CarouselItem 
                       key={testimonial.id} 
-                      className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                      className="pl-6 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                     >
                       <TestimonialCard
                         name={testimonial.name}
@@ -421,9 +436,16 @@ const Index = () => {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="hidden sm:flex" />
-                <CarouselNext className="hidden sm:flex" />
+                <CarouselPrevious className="hidden md:flex -left-4 lg:-left-8 bg-background border-2 border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all shadow-lg" />
+                <CarouselNext className="hidden md:flex -right-4 lg:-right-8 bg-background border-2 border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all shadow-lg" />
               </Carousel>
+              
+              {/* Carousel indicators */}
+              <div className="flex justify-center gap-2 mt-8">
+                {Array.from({ length: Math.min(4, Math.ceil(testimonials.length / 4)) }).map((_, i) => (
+                  <div key={i} className="w-2 h-2 rounded-full bg-primary/30 hover:bg-primary transition-colors cursor-pointer"></div>
+                ))}
+              </div>
             </div>
           )}
         </div>
