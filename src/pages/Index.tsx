@@ -430,25 +430,65 @@ const Index = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 md:py-28 bg-gradient-to-r from-primary to-accent text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
-        <div className="container mx-auto px-4 text-center space-y-8 relative z-10">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">Get Started with Manha Tech Today!</h2>
-          <p className="text-xl max-w-3xl mx-auto opacity-95 leading-relaxed">
-            Whether you're a small business or an established enterprise, Manha Tech is here to help you succeed. Our ecommerce website design services are designed to meet your unique needs, ensuring complete customer satisfaction.
-          </p>
-          <p className="text-lg max-w-2xl mx-auto opacity-90">
-            With over a decade of expertise, Manha Tech is your go-to partner for ecommerce website design in the UK. Take the first step towards transforming your online store—contact us now!
-          </p>
-          <div className="pt-4">
-            <Button
-              size="lg"
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-background hover:bg-background/90 text-foreground text-lg px-10 py-7 shadow-xl hover:shadow-2xl transition-all group"
-            >
-              Book Your Free Consultation Now
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
+      <section className="py-24 md:py-32 bg-gradient-to-br from-primary via-primary/95 to-accent relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        </div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            {/* Badge */}
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/15 backdrop-blur-sm rounded-full text-white/95 text-sm font-medium border border-white/20">
+                <Award className="w-4 h-4" />
+                Over a Decade of Excellence
+              </div>
+            </div>
+            
+            {/* Main heading */}
+            <div className="text-center space-y-6 mb-10">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
+                Get Started with Manha Tech Today
+              </h2>
+              <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+                Whether you're a small business or an established enterprise, Manha Tech is here to help you succeed. Our ecommerce website design services are designed to meet your unique needs, ensuring complete customer satisfaction.
+              </p>
+            </div>
+            
+            {/* CTA Button */}
+            <div className="flex justify-center mb-12">
+              <Button
+                size="lg"
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-white hover:bg-white/95 text-primary text-lg font-semibold px-10 py-7 rounded-xl shadow-2xl hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] transition-all duration-300 group"
+              >
+                Book Your Free Consultation Now
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
+            
+            {/* Trust indicators */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/15">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">10+</div>
+                <div className="text-sm text-white/75">Years Experience</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">500+</div>
+                <div className="text-sm text-white/75">Projects Delivered</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">98%</div>
+                <div className="text-sm text-white/75">Client Satisfaction</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">24/7</div>
+                <div className="text-sm text-white/75">Support Available</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
