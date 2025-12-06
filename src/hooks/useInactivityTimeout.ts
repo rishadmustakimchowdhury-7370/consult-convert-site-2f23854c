@@ -14,6 +14,7 @@ export function useInactivityTimeout(enabled: boolean = true) {
   const handleLogout = useCallback(async () => {
     toast.error("You have been logged out due to inactivity");
     await signOut();
+    window.location.href = '/visage/login';
   }, [signOut]);
 
   const showWarning = useCallback(() => {
