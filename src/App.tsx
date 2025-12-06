@@ -63,10 +63,10 @@ const App = () => (
             <Route path="/landing" element={<Landing />} />
 
             {/* Admin Auth */}
-            <Route path="/admin/login" element={<AdminAuth />} />
+            <Route path="/visage/login" element={<AdminAuth />} />
 
             {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/visage" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="services" element={<ServicesAdmin />} />
               <Route path="blogs" element={<BlogList />} />

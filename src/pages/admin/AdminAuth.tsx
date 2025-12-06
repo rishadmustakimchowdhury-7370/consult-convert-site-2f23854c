@@ -20,7 +20,7 @@ export default function AdminAuth() {
 
   useEffect(() => {
     if (user && isAdmin) {
-      navigate('/admin');
+      navigate('/visage');
     }
   }, [user, isAdmin, navigate]);
 

@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
@@ -22,25 +22,31 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
-  { icon: Briefcase, label: 'Services', path: '/admin/services' },
-  { icon: FolderOpen, label: 'Projects', path: '/admin/projects' },
-  { icon: FileText, label: 'Blog Posts', path: '/admin/blogs' },
-  { icon: FolderOpen, label: 'Categories', path: '/admin/categories' },
-  { icon: Files, label: 'Pages', path: '/admin/pages' },
-  { icon: Quote, label: 'Testimonials', path: '/admin/testimonials' },
-  { icon: Menu, label: 'Menu Manager', path: '/admin/menu' },
-  { icon: Image, label: 'Media', path: '/admin/media' },
-  { icon: Search, label: 'SEO Tools', path: '/admin/seo' },
-  { icon: Search, label: 'SEO Verification', path: '/admin/seo-verification' },
-  { icon: Layout, label: 'Footer Settings', path: '/admin/footer' },
-  { icon: Settings, label: 'Settings', path: '/admin/settings' },
+  { icon: LayoutDashboard, label: 'Overview', path: '/visage' },
+  { icon: Briefcase, label: 'Services', path: '/visage/services' },
+  { icon: FolderOpen, label: 'Projects', path: '/visage/projects' },
+  { icon: FileText, label: 'Blog Posts', path: '/visage/blogs' },
+  { icon: FolderOpen, label: 'Categories', path: '/visage/categories' },
+  { icon: Files, label: 'Pages', path: '/visage/pages' },
+  { icon: Quote, label: 'Testimonials', path: '/visage/testimonials' },
+  { icon: Menu, label: 'Menu Manager', path: '/visage/menu' },
+  { icon: Image, label: 'Media', path: '/visage/media' },
+  { icon: Search, label: 'SEO Tools', path: '/visage/seo' },
+  { icon: Search, label: 'SEO Verification', path: '/visage/seo-verification' },
+  { icon: Layout, label: 'Footer Settings', path: '/visage/footer' },
+  { icon: Settings, label: 'Settings', path: '/visage/settings' },
 ];
 
 export default function AdminSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/visage/login');
+  };
 
   return (
     <aside
@@ -73,7 +79,7 @@ export default function AdminSidebar() {
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path || 
-            (item.path !== '/admin' && location.pathname.startsWith(item.path));
+            (item.path !== '/visage' && location.pathname.startsWith(item.path));
           
           return (
             <Link
@@ -115,7 +121,7 @@ export default function AdminSidebar() {
             'w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10',
             collapsed && 'justify-center px-2'
           )}
-          onClick={signOut}
+          onClick={handleLogout}
         >
           <LogOut className="w-5 h-5" />
           {!collapsed && <span>Logout</span>}
