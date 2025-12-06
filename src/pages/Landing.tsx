@@ -9,10 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { MathChallenge } from '@/components/MathChallenge';
+import { WhatsAppChat } from '@/components/WhatsAppChat';
 import {
   ArrowRight, CheckCircle, Star, Zap, Shield, Clock, Users,
   Code, ShoppingCart, Palette, Globe, Search, Megaphone,
-  Phone, Mail, MapPin
+  Phone, Mail, MapPin, MessageCircle
 } from 'lucide-react';
 
 interface Service {
@@ -154,10 +155,21 @@ export default function Landing() {
               Manha Tech
             </span>
           )}
-          <Button onClick={scrollToForm}>
-            Get Started
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <a
+              href={`https://wa.me/${(settings?.contact_phone || '+447426468550').replace(/[^0-9]/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 bg-[#25D366] hover:bg-[#128C7E] rounded-full flex items-center justify-center transition-colors"
+              aria-label="WhatsApp"
+            >
+              <MessageCircle className="w-5 h-5 text-white" />
+            </a>
+            <Button onClick={scrollToForm}>
+              Get Started
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -420,6 +432,9 @@ export default function Landing() {
           <p>© {new Date().getFullYear()} Manha Tech. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* WhatsApp Chat Widget */}
+      <WhatsAppChat phoneNumber={settings?.contact_phone || '+447426468550'} />
     </div>
   );
 }
