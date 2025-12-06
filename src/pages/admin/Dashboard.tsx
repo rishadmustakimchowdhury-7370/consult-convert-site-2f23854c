@@ -72,7 +72,7 @@ export default function Dashboard() {
       icon: FileText, 
       color: 'from-primary to-primary/70',
       bgColor: 'bg-primary/10',
-      link: '/admin/blogs'
+      link: '/visage/blogs'
     },
     { 
       title: 'Published', 
@@ -80,7 +80,7 @@ export default function Dashboard() {
       icon: Eye, 
       color: 'from-green-500 to-green-400',
       bgColor: 'bg-green-500/10',
-      link: '/admin/blogs'
+      link: '/visage/blogs'
     },
     { 
       title: 'Drafts', 
@@ -88,7 +88,7 @@ export default function Dashboard() {
       icon: Clock, 
       color: 'from-amber-500 to-amber-400',
       bgColor: 'bg-amber-500/10',
-      link: '/admin/blogs'
+      link: '/visage/blogs'
     },
     { 
       title: 'Pages', 
@@ -96,7 +96,7 @@ export default function Dashboard() {
       icon: Files, 
       color: 'from-blue-500 to-blue-400',
       bgColor: 'bg-blue-500/10',
-      link: '/admin/pages'
+      link: '/visage/pages'
     },
     { 
       title: 'Categories', 
@@ -104,7 +104,7 @@ export default function Dashboard() {
       icon: FolderOpen, 
       color: 'from-purple-500 to-purple-400',
       bgColor: 'bg-purple-500/10',
-      link: '/admin/categories'
+      link: '/visage/categories'
     },
     { 
       title: 'Testimonials', 
@@ -112,15 +112,15 @@ export default function Dashboard() {
       icon: Quote, 
       color: 'from-pink-500 to-pink-400',
       bgColor: 'bg-pink-500/10',
-      link: '/admin/testimonials'
+      link: '/visage/testimonials'
     },
   ];
 
   const quickActions = [
-    { title: 'New Blog Post', icon: FilePlus, path: '/admin/blogs/new', color: 'bg-primary hover:bg-primary/90' },
-    { title: 'Add Category', icon: FolderOpen, path: '/admin/categories', color: 'bg-purple-500 hover:bg-purple-600' },
-    { title: 'Add Testimonial', icon: Quote, path: '/admin/testimonials', color: 'bg-pink-500 hover:bg-pink-600' },
-    { title: 'SEO Tools', icon: Search, path: '/admin/seo', color: 'bg-accent hover:bg-accent/90' },
+    { title: 'New Blog Post', icon: FilePlus, path: '/visage/blogs/new', color: 'bg-primary hover:bg-primary/90' },
+    { title: 'Add Category', icon: FolderOpen, path: '/visage/categories', color: 'bg-purple-500 hover:bg-purple-600' },
+    { title: 'Add Testimonial', icon: Quote, path: '/visage/testimonials', color: 'bg-pink-500 hover:bg-pink-600' },
+    { title: 'SEO Tools', icon: Search, path: '/visage/seo', color: 'bg-accent hover:bg-accent/90' },
   ];
 
   return (
@@ -132,7 +132,7 @@ export default function Dashboard() {
           <p className="text-muted-foreground mt-1">Welcome back! Here's what's happening.</p>
         </div>
         <Button asChild size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
-          <Link to="/admin/blogs/new">
+          <Link to="/visage/blogs/new">
             <Plus className="w-5 h-5 mr-2" />
             Create New Blog
           </Link>
@@ -206,7 +206,7 @@ export default function Dashboard() {
                 Analyze and optimize your content for search engines
               </p>
               <Button variant="outline" asChild>
-                <Link to="/admin/seo">Open SEO Tools</Link>
+                <Link to="/visage/seo">Open SEO Tools</Link>
               </Button>
             </div>
           </CardContent>

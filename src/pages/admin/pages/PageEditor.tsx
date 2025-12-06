@@ -40,7 +40,7 @@ export default function PageEditor() {
         .then(({ data, error }) => {
           if (error) {
             toast({ title: 'Error', description: error.message, variant: 'destructive' });
-            navigate('/admin/pages');
+            navigate('/visage/pages');
           } else if (data) {
             setTitle(data.title || '');
             setSlug(data.slug || '');
@@ -103,7 +103,7 @@ export default function PageEditor() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Saved', description: 'Page saved successfully.' });
-      navigate('/admin/pages');
+      navigate('/visage/pages');
     }
   };
 
@@ -120,7 +120,7 @@ export default function PageEditor() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/pages')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/visage/pages')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>

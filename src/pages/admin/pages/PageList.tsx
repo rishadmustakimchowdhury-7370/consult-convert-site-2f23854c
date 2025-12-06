@@ -91,7 +91,7 @@ export default function PageList() {
           <p className="text-muted-foreground">Manage your website pages</p>
         </div>
         <Button asChild>
-          <Link to="/admin/pages/new">
+          <Link to="/visage/pages/new">
             <Plus className="w-4 h-4 mr-2" />
             New Page
           </Link>
@@ -111,7 +111,7 @@ export default function PageList() {
             <div className="text-center py-8 text-muted-foreground">
               <p>No pages yet.</p>
               <Button variant="outline" className="mt-4" asChild>
-                <Link to="/admin/pages/new">Create your first page</Link>
+                <Link to="/visage/pages/new">Create your first page</Link>
               </Button>
             </div>
           ) : (
@@ -151,7 +151,7 @@ export default function PageList() {
                     </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/pages/${page.id}`}>
+                        <Link to={`/visage/pages/${page.id}`}>
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>

@@ -88,7 +88,7 @@ export default function ProjectEditor() {
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      navigate('/admin/projects');
+      navigate('/visage/projects');
     } else if (data) {
       setFormData({
         project_name: data.project_name || '',
@@ -175,7 +175,7 @@ export default function ProjectEditor() {
     toast({ title: 'Saved', description: 'Project saved successfully.' });
     
     if (!isEditing && savedId) {
-      navigate(`/admin/projects/${savedId}`);
+      navigate(`/visage/projects/${savedId}`);
     }
   };
 
@@ -260,7 +260,7 @@ export default function ProjectEditor() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/projects')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/visage/projects')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
