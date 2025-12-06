@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { MathChallenge } from '@/components/MathChallenge';
 import { WhatsAppChat } from '@/components/WhatsAppChat';
 import { TestimonialCard } from '@/components/TestimonialCard';
@@ -244,13 +244,15 @@ export default function Landing() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          {settings?.logo_url ? (
-            <img src={settings.logo_url} alt="Logo" className="h-10" />
-          ) : (
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Manha Tech
-            </span>
-          )}
+          <Link to="/" className="flex items-center">
+            {settings?.logo_url ? (
+              <img src={settings.logo_url} alt="Logo" className="h-10" />
+            ) : (
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Manha Tech
+              </span>
+            )}
+          </Link>
           <div className="flex items-center gap-3">
             <a
               href={`https://wa.me/${(settings?.contact_phone || '+447426468550').replace(/[^0-9]/g, '')}`}
