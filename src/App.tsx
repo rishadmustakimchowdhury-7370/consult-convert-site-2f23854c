@@ -15,6 +15,7 @@ import ServicePage from "./pages/services/ServicePage";
 import ThankYou from "./pages/ThankYou";
 import NotFound from "./pages/NotFound";
 import PublicProjects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 import Landing from "./pages/Landing";
 
 // Admin Pages
@@ -35,6 +36,7 @@ import MenuManager from "./pages/admin/MenuManager";
 import AdminProjects from "./pages/admin/Projects";
 import ProjectEditor from "./pages/admin/ProjectEditor";
 import SEOVerification from "./pages/admin/SEOVerification";
+import FooterSettings from "./pages/admin/FooterSettings";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,7 @@ const App = () => (
             <Route path="/services/:slug" element={<ServicePage />} />
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/projects" element={<PublicProjects />} />
+            <Route path="/projects/:id" element={<ProjectDetails />} />
             <Route path="/landing" element={<Landing />} />
 
             {/* Admin Auth */}
@@ -81,6 +84,7 @@ const App = () => (
               <Route path="projects" element={<AdminProjects />} />
               <Route path="projects/new" element={<ProjectEditor />} />
               <Route path="projects/:id" element={<ProjectEditor />} />
+              <Route path="footer" element={<FooterSettings />} />
               <Route path="settings" element={<Settings />} />
             </Route>
 

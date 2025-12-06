@@ -16,6 +16,7 @@ import {
   ExternalLink,
   Briefcase,
   Menu,
+  Layout,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: Image, label: 'Media', path: '/admin/media' },
   { icon: Search, label: 'SEO Tools', path: '/admin/seo' },
   { icon: Search, label: 'SEO Verification', path: '/admin/seo-verification' },
+  { icon: Layout, label: 'Footer Settings', path: '/admin/footer' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 

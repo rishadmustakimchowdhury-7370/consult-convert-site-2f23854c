@@ -13,23 +13,47 @@ interface MenuItem {
   is_active: boolean;
 }
 
+interface SiteSettings {
+  site_title: string | null;
+  site_description: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  contact_phone_secondary: string | null;
+  contact_address: string | null;
+  whatsapp_url: string | null;
+  facebook_url: string | null;
+  linkedin_url: string | null;
+  instagram_url: string | null;
+}
+
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
-    fetchMenuItems();
+    fetchData();
   }, []);
 
-  const fetchMenuItems = async () => {
-    const { data } = await supabase
-      .from('navigation_menu')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  const fetchData = async () => {
+    const [menuRes, settingsRes] = await Promise.all([
+      supabase
+        .from('navigation_menu')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('site_settings')
+        .select('site_title, site_description, contact_email, contact_phone, contact_phone_secondary, contact_address, whatsapp_url, facebook_url, linkedin_url, instagram_url')
+        .limit(1)
+        .maybeSingle()
+    ]);
 
-    if (data) {
-      setMenuItems(data);
+    if (menuRes.data) {
+      setMenuItems(menuRes.data);
+    }
+    if (settingsRes.data) {
+      setSettings(settingsRes.data);
     }
   };
 
@@ -48,48 +72,88 @@ export const Footer = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">M</span>
               </div>
-              <span className="text-2xl font-bold">Manhateck</span>
+              <span className="text-2xl font-bold">{settings?.site_title || 'Manhateck'}</span>
             </div>
             <p className="text-sm text-background/80">
-              Delivering premium digital solutions that transform your business and drive real results.
+              {settings?.site_description || 'Delivering premium digital solutions that transform your business and drive real results.'}
             </p>
             <div className="flex space-x-4">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://wa.me/447426468550"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </a>
+              {settings?.facebook_url && (
+                <a
+                  href={settings.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.linkedin_url && (
+                <a
+                  href={settings.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.instagram_url && (
+                <a
+                  href={settings.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.whatsapp_url && (
+                <a
+                  href={settings.whatsapp_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
+                  aria-label="WhatsApp"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              )}
+              {/* Fallback social icons if none configured */}
+              {!settings?.facebook_url && !settings?.linkedin_url && !settings?.instagram_url && !settings?.whatsapp_url && (
+                <>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://linkedin.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://wa.me/447426468550"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
+                    aria-label="WhatsApp"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
@@ -197,33 +261,43 @@ export const Footer = () => {
             <ul className="space-y-3 text-sm text-background/80">
               <li className="flex items-start space-x-3">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href="mailto:info@manhateck.com" className="hover:text-background transition-colors">
-                  info@manhateck.com
+                <a href={`mailto:${settings?.contact_email || 'info@manhateck.com'}`} className="hover:text-background transition-colors">
+                  {settings?.contact_email || 'info@manhateck.com'}
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <div>
-                  <a href="tel:+447426468550" className="hover:text-background transition-colors block">
-                    +44 742 646 8550
+                  <a href={`tel:${settings?.contact_phone || '+447426468550'}`} className="hover:text-background transition-colors block">
+                    {settings?.contact_phone || '+44 742 646 8550'}
                   </a>
-                  <a href="tel:+8801839697370" className="hover:text-background transition-colors block">
-                    +880 183 969 7370
-                  </a>
+                  {(settings?.contact_phone_secondary || !settings) && (
+                    <a href={`tel:${settings?.contact_phone_secondary || '+8801839697370'}`} className="hover:text-background transition-colors block">
+                      {settings?.contact_phone_secondary || '+880 183 969 7370'}
+                    </a>
+                  )}
                 </div>
               </li>
               <li className="flex items-start space-x-3">
                 <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href="https://wa.me/447426468550" target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
-                  WhatsApp: +44 742 646 8550
+                <a href={settings?.whatsapp_url || 'https://wa.me/447426468550'} target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
+                  WhatsApp: {settings?.contact_phone || '+44 742 646 8550'}
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>
-                  Suite A, 82 James Carter Road<br />
-                  Mildenhall, Bury St. Edmunds<br />
-                  United Kingdom, IP28 7DE
+                  {settings?.contact_address ? (
+                    settings.contact_address.split(',').map((part, idx) => (
+                      <span key={idx}>{part.trim()}{idx < settings.contact_address!.split(',').length - 1 && <br />}</span>
+                    ))
+                  ) : (
+                    <>
+                      Suite A, 82 James Carter Road<br />
+                      Mildenhall, Bury St. Edmunds<br />
+                      United Kingdom, IP28 7DE
+                    </>
+                  )}
                 </span>
               </li>
             </ul>
@@ -233,7 +307,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-background/20 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="text-sm text-background/60">
-            © {currentYear} Manhateck. All rights reserved.
+            © {currentYear} {settings?.site_title || 'Manhateck'}. All rights reserved.
           </p>
           <Link
             to="/privacy-policy"
