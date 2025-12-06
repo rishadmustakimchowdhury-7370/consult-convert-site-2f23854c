@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Loader2, Facebook, Linkedin, Instagram, MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
+import { Save, Loader2, Facebook, Linkedin, Instagram, MessageCircle, Mail, Phone, MapPin, Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface FooterSettings {
   site_title: string;
@@ -20,11 +20,14 @@ interface FooterSettings {
   linkedin_url: string;
   instagram_url: string;
   pinterest_url: string;
+  logo_url: string;
 }
 
 export default function FooterSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const [settings, setSettings] = useState<FooterSettings>({
@@ -39,6 +42,7 @@ export default function FooterSettingsPage() {
     linkedin_url: '',
     instagram_url: '',
     pinterest_url: '',
+    logo_url: '',
   });
 
   useEffect(() => {
@@ -65,9 +69,48 @@ export default function FooterSettingsPage() {
         linkedin_url: data.linkedin_url || '',
         instagram_url: data.instagram_url || '',
         pinterest_url: data.pinterest_url || '',
+        logo_url: data.logo_url || '',
       });
     }
     setLoading(false);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Error', description: 'Please upload an image file.', variant: 'destructive' });
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'Error', description: 'Image must be less than 2MB.', variant: 'destructive' });
+      return;
+    }
+
+    setUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `logo-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError, data } = await supabase.storage
+      .from('media')
+      .upload(fileName, file, { upsert: true });
+
+    if (uploadError) {
+      toast({ title: 'Upload Failed', description: uploadError.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fileName);
+    setSettings({ ...settings, logo_url: publicUrl });
+    setUploading(false);
+    toast({ title: 'Success', description: 'Logo uploaded successfully!' });
+  };
+
+  const removeLogo = () => {
+    setSettings({ ...settings, logo_url: '' });
   };
 
   const handleSave = async () => {
@@ -130,6 +173,67 @@ export default function FooterSettingsPage() {
             <CardTitle>Brand Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Logo Upload */}
+            <div className="space-y-2">
+              <Label>Website Logo</Label>
+              <p className="text-xs text-muted-foreground">This logo will appear on all pages including the landing page</p>
+              
+              {settings.logo_url ? (
+                <div className="relative inline-block">
+                  <img 
+                    src={settings.logo_url} 
+                    alt="Logo Preview" 
+                    className="h-16 object-contain border rounded-lg p-2 bg-background"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6"
+                    onClick={removeLogo}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">Click to upload logo</p>
+                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+              
+              {settings.logo_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Change Logo
+                </Button>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="site_title">Site Title / Brand Name</Label>
               <Input
