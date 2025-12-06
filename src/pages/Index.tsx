@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { TestimonialCard } from "@/components/TestimonialCard";
+import { ProjectsSection } from "@/components/ProjectsSection";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -606,6 +607,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+      {/* Projects Section */}
+      <ProjectsSection />
 
       <Footer />
       <WhatsAppChat phoneNumber="+447426468550" />
