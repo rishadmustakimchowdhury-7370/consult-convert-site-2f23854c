@@ -5,11 +5,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { MathChallenge } from '@/components/MathChallenge';
 import { WhatsAppChat } from '@/components/WhatsAppChat';
+import { TestimonialCard } from '@/components/TestimonialCard';
 import {
   ArrowRight, CheckCircle, Star, Zap, Shield, Clock, Users,
   Code, ShoppingCart, Palette, Globe, Search, Megaphone,
@@ -31,6 +33,16 @@ interface SiteSettings {
   whatsapp_url: string | null;
 }
 
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  company: string | null;
+  content: string;
+  rating: number | null;
+  image_url: string | null;
+}
+
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Code, ShoppingCart, Palette, Globe, Search, Megaphone
 };
@@ -42,17 +54,13 @@ const benefits = [
   { icon: Users, title: 'Dedicated Team', description: 'Expert professionals at your service' },
 ];
 
-const testimonials = [
-  { name: 'John Smith', company: 'Tech Corp', content: 'Excellent service! They delivered our ecommerce site on time and exceeded expectations.', rating: 5 },
-  { name: 'Sarah Johnson', company: 'Fashion Hub', content: 'Professional team with great attention to detail. Highly recommend!', rating: 5 },
-  { name: 'Mike Brown', company: 'Local Business', content: 'Affordable and high-quality web design. Very satisfied with the results.', rating: 5 },
-];
-
 export default function Landing() {
   const [services, setServices] = useState<Service[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -66,7 +74,7 @@ export default function Landing() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [servicesRes, settingsRes] = await Promise.all([
+      const [servicesRes, settingsRes, testimonialsRes] = await Promise.all([
         supabase
           .from('services')
           .select('id, title, slug, short_description, icon_name')
@@ -76,11 +84,17 @@ export default function Landing() {
           .from('site_settings')
           .select('logo_url, contact_phone, contact_email, whatsapp_url')
           .limit(1)
-          .single()
+          .single(),
+        supabase
+          .from('testimonials')
+          .select('id, name, role, company, content, rating, image_url')
+          .order('created_at', { ascending: false })
+          .limit(6)
       ]);
 
       if (servicesRes.data) setServices(servicesRes.data);
       if (settingsRes.data) setSettings(settingsRes.data);
+      if (testimonialsRes.data) setTestimonials(testimonialsRes.data);
     };
 
     fetchData();
@@ -136,12 +150,94 @@ export default function Landing() {
     }
 
     setIsSubmitting(false);
+    setIsDialogOpen(false);
     navigate('/thank-you');
   };
 
-  const scrollToForm = () => {
-    document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
+  const resetForm = () => {
+    setFormData({ name: '', email: '', phone: '', service: '', message: '' });
+    setIsVerified(false);
   };
+
+  const LeadForm = () => (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-2">
+        <Label htmlFor="popup-name">Full Name *</Label>
+        <Input
+          id="popup-name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Your full name"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="popup-email">Email Address *</Label>
+        <Input
+          id="popup-email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          placeholder="your@email.com"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="popup-phone">Phone Number</Label>
+        <Input
+          id="popup-phone"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          placeholder="+44..."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Service Needed *</Label>
+        <Select
+          value={formData.service}
+          onValueChange={(value) => setFormData({ ...formData, service: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a service" />
+          </SelectTrigger>
+          <SelectContent>
+            {services.map((service) => (
+              <SelectItem key={service.id} value={service.title}>
+                {service.title}
+              </SelectItem>
+            ))}
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="popup-message">Message</Label>
+        <Textarea
+          id="popup-message"
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          placeholder="Tell us about your project..."
+          rows={3}
+        />
+      </div>
+
+      <MathChallenge onVerified={setIsVerified} />
+
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full"
+        disabled={isSubmitting || !isVerified}
+      >
+        {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
+        <ArrowRight className="w-5 h-5 ml-2" />
+      </Button>
+    </form>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,10 +261,20 @@ export default function Landing() {
             >
               <MessageCircle className="w-5 h-5 text-white" />
             </a>
-            <Button onClick={scrollToForm}>
-              Get Started
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+              <DialogTrigger asChild>
+                <Button>
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">Get Your Free Quote</DialogTitle>
+                </DialogHeader>
+                <LeadForm />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </header>
@@ -195,14 +301,23 @@ export default function Landing() {
               From stunning websites to powerful marketing strategies, we help UK businesses grow online. Get a free consultation today!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button
-                size="lg"
-                onClick={scrollToForm}
-                className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all group"
-              >
-                Get a Free Quote
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+                <DialogTrigger asChild>
+                  <Button
+                    size="lg"
+                    className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all group"
+                  >
+                    Get a Free Quote
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl">Get Your Free Quote</DialogTitle>
+                  </DialogHeader>
+                  <LeadForm />
+                </DialogContent>
+              </Dialog>
               <Button
                 size="lg"
                 variant="outline"
@@ -262,10 +377,20 @@ export default function Landing() {
           </div>
 
           <div className="text-center">
-            <Button size="lg" onClick={scrollToForm}>
-              Get Started Today
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+              <DialogTrigger asChild>
+                <Button size="lg">
+                  Get Started Today
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">Get Your Free Quote</DialogTitle>
+                </DialogHeader>
+                <LeadForm />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </section>
@@ -278,28 +403,30 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground">Trusted by businesses across the UK</p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-                <CardContent className="p-6">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">"{testimonial.content}"</p>
-                  <div>
-                    <p className="font-bold">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.company}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {testimonials.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <div key={testimonial.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+                  <TestimonialCard
+                    name={testimonial.name}
+                    role={testimonial.role || undefined}
+                    company={testimonial.company || undefined}
+                    content={testimonial.content}
+                    rating={testimonial.rating || 5}
+                    image_url={testimonial.image_url}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground py-12">
+              <p>No testimonials available yet.</p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Lead Form */}
+      {/* Lead Form Section */}
       <section id="lead-form" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -342,83 +469,7 @@ export default function Landing() {
 
               <Card className="shadow-2xl border-2">
                 <CardContent className="p-8">
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name *</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Your full name"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="your@email.com"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+44..."
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Service Needed *</Label>
-                      <Select
-                        value={formData.service}
-                        onValueChange={(value) => setFormData({ ...formData, service: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a service" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {services.map((service) => (
-                            <SelectItem key={service.id} value={service.title}>
-                              {service.title}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
-                      <Textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        placeholder="Tell us about your project..."
-                        rows={3}
-                      />
-                    </div>
-
-                    <MathChallenge onVerified={setIsVerified} />
-
-                    <Button
-                      type="submit"
-                      size="lg"
-                      className="w-full"
-                      disabled={isSubmitting || !isVerified}
-                    >
-                      {isSubmitting ? 'Submitting...' : 'Get Free Quote'}
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </form>
+                  <LeadForm />
                 </CardContent>
               </Card>
             </div>
@@ -427,14 +478,54 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border bg-card">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© {new Date().getFullYear()} Manha Tech. All rights reserved.</p>
+      <footer className="py-12 bg-card border-t border-border">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <div>
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} alt="Logo" className="h-10 mb-4" />
+              ) : (
+                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block mb-4">
+                  Manha Tech
+                </span>
+              )}
+              <p className="text-muted-foreground">
+                Professional digital services for businesses across the UK.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold mb-4">Contact</h4>
+              <div className="space-y-2 text-muted-foreground">
+                <p>{settings?.contact_phone || '+447426468550'}</p>
+                <p>{settings?.contact_email || 'info@manhateck.com'}</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-bold mb-4">Quick Links</h4>
+              <div className="space-y-2">
+                <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+                  <DialogTrigger asChild>
+                    <button className="text-muted-foreground hover:text-primary transition-colors block">
+                      Get a Quote
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl">Get Your Free Quote</DialogTitle>
+                    </DialogHeader>
+                    <LeadForm />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-border pt-8 text-center text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} Manha Tech. All rights reserved.</p>
+          </div>
         </div>
       </footer>
 
-      {/* WhatsApp Chat Widget */}
-      <WhatsAppChat phoneNumber={settings?.contact_phone || '+447426468550'} />
+      <WhatsAppChat />
     </div>
   );
 }
