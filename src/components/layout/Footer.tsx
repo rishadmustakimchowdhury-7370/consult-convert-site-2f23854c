@@ -16,6 +16,7 @@ interface MenuItem {
 interface SiteSettings {
   site_title: string | null;
   site_description: string | null;
+  logo_url: string | null;
   contact_email: string | null;
   contact_phone: string | null;
   contact_phone_secondary: string | null;
@@ -44,7 +45,7 @@ export const Footer = () => {
         .order('sort_order', { ascending: true }),
       supabase
         .from('site_settings')
-        .select('site_title, site_description, contact_email, contact_phone, contact_phone_secondary, contact_address, whatsapp_url, facebook_url, linkedin_url, instagram_url')
+        .select('site_title, site_description, logo_url, contact_email, contact_phone, contact_phone_secondary, contact_address, whatsapp_url, facebook_url, linkedin_url, instagram_url')
         .limit(1)
         .maybeSingle()
     ]);
@@ -68,12 +69,18 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">M</span>
-              </div>
-              <span className="text-2xl font-bold">{settings?.site_title || 'Manhateck'}</span>
-            </div>
+            <Link to="/" className="flex items-center space-x-2 group">
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
+              ) : (
+                <>
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
+                    <span className="text-white font-bold text-xl">M</span>
+                  </div>
+                  <span className="text-2xl font-bold">{settings?.site_title || 'Manhateck'}</span>
+                </>
+              )}
+            </Link>
             <p className="text-sm text-background/80">
               {settings?.site_description || 'Delivering premium digital solutions that transform your business and drive real results.'}
             </p>

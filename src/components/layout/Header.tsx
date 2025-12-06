@@ -25,10 +25,16 @@ interface MenuItem {
   is_active: boolean;
 }
 
+interface SiteSettings {
+  logo_url: string | null;
+  site_title: string | null;
+}
+
 export const Header = ({ onConsultationClick }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -40,20 +46,31 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
   }, []);
 
   useEffect(() => {
-    fetchMenuItems();
+    fetchData();
   }, []);
 
-  const fetchMenuItems = async () => {
-    const { data } = await supabase
-      .from('navigation_menu')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  const fetchData = async () => {
+    const [menuRes, settingsRes] = await Promise.all([
+      supabase
+        .from('navigation_menu')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('site_settings')
+        .select('logo_url, site_title')
+        .limit(1)
+        .maybeSingle()
+    ]);
 
-    if (data) {
-      setMenuItems(data);
+    if (menuRes.data) {
+      setMenuItems(menuRes.data);
+    }
+    if (settingsRes.data) {
+      setSettings(settingsRes.data);
     }
   };
+
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -79,12 +96,18 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-white font-bold text-xl">A</span>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Agency
-            </span>
+            {settings?.logo_url ? (
+              <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
+            ) : (
+              <>
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
+                  <span className="text-white font-bold text-xl">A</span>
+                </div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Agency
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
