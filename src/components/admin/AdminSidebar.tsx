@@ -23,6 +23,7 @@ import { useState } from 'react';
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
   { icon: Briefcase, label: 'Services', path: '/admin/services' },
+  { icon: FolderOpen, label: 'Projects', path: '/admin/projects' },
   { icon: FileText, label: 'Blog Posts', path: '/admin/blogs' },
   { icon: FolderOpen, label: 'Categories', path: '/admin/categories' },
   { icon: Files, label: 'Pages', path: '/admin/pages' },
@@ -30,6 +31,7 @@ const menuItems = [
   { icon: Menu, label: 'Menu Manager', path: '/admin/menu' },
   { icon: Image, label: 'Media', path: '/admin/media' },
   { icon: Search, label: 'SEO Tools', path: '/admin/seo' },
+  { icon: Search, label: 'SEO Verification', path: '/admin/seo-verification' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 

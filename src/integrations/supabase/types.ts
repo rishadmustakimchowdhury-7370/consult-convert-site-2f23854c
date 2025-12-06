@@ -336,6 +336,98 @@ export type Database = {
         }
         Relationships: []
       }
+      project_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          cost_amount: number | null
+          cover_image: string | null
+          created_at: string
+          creation_date: string
+          delivery_date: string | null
+          earning_amount: number | null
+          id: string
+          is_public: boolean | null
+          project_description: string | null
+          project_name: string
+          status: Database["public"]["Enums"]["project_status"]
+          updated_at: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          cost_amount?: number | null
+          cover_image?: string | null
+          created_at?: string
+          creation_date?: string
+          delivery_date?: string | null
+          earning_amount?: number | null
+          id?: string
+          is_public?: boolean | null
+          project_description?: string | null
+          project_name: string
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          cost_amount?: number | null
+          cover_image?: string | null
+          created_at?: string
+          creation_date?: string
+          delivery_date?: string | null
+          earning_amount?: number | null
+          id?: string
+          is_public?: boolean | null
+          project_description?: string | null
+          project_name?: string
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           content: string | null
@@ -399,6 +491,8 @@ export type Database = {
       site_settings: {
         Row: {
           admin_email: string | null
+          bing_verification_file: string | null
+          bing_verification_meta: string | null
           contact_address: string | null
           contact_email: string | null
           contact_phone: string | null
@@ -408,6 +502,8 @@ export type Database = {
           global_meta_description: string | null
           global_meta_title: string | null
           google_analytics_script: string | null
+          google_verification_file: string | null
+          google_verification_meta: string | null
           id: string
           instagram_url: string | null
           linkedin_url: string | null
@@ -422,6 +518,8 @@ export type Database = {
         }
         Insert: {
           admin_email?: string | null
+          bing_verification_file?: string | null
+          bing_verification_meta?: string | null
           contact_address?: string | null
           contact_email?: string | null
           contact_phone?: string | null
@@ -431,6 +529,8 @@ export type Database = {
           global_meta_description?: string | null
           global_meta_title?: string | null
           google_analytics_script?: string | null
+          google_verification_file?: string | null
+          google_verification_meta?: string | null
           id?: string
           instagram_url?: string | null
           linkedin_url?: string | null
@@ -445,6 +545,8 @@ export type Database = {
         }
         Update: {
           admin_email?: string | null
+          bing_verification_file?: string | null
+          bing_verification_meta?: string | null
           contact_address?: string | null
           contact_email?: string | null
           contact_phone?: string | null
@@ -454,6 +556,8 @@ export type Database = {
           global_meta_description?: string | null
           global_meta_title?: string | null
           google_analytics_script?: string | null
+          google_verification_file?: string | null
+          google_verification_meta?: string | null
           id?: string
           instagram_url?: string | null
           linkedin_url?: string | null
@@ -544,6 +648,14 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       content_status: "draft" | "published"
+      project_status:
+        | "lead"
+        | "proposal"
+        | "approved"
+        | "in_progress"
+        | "review"
+        | "completed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -673,6 +785,15 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       content_status: ["draft", "published"],
+      project_status: [
+        "lead",
+        "proposal",
+        "approved",
+        "in_progress",
+        "review",
+        "completed",
+        "cancelled",
+      ],
     },
   },
 } as const

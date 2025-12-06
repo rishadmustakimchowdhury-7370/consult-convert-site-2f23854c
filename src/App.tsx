@@ -14,6 +14,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ServicePage from "./pages/services/ServicePage";
 import ThankYou from "./pages/ThankYou";
 import NotFound from "./pages/NotFound";
+import PublicProjects from "./pages/Projects";
+import Landing from "./pages/Landing";
 
 // Admin Pages
 import AdminAuth from "./pages/admin/AdminAuth";
@@ -30,6 +32,9 @@ import Categories from "./pages/admin/Categories";
 import Testimonials from "./pages/admin/Testimonials";
 import ServicesAdmin from "./pages/admin/Services";
 import MenuManager from "./pages/admin/MenuManager";
+import AdminProjects from "./pages/admin/Projects";
+import ProjectEditor from "./pages/admin/ProjectEditor";
+import SEOVerification from "./pages/admin/SEOVerification";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +56,8 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/services/:slug" element={<ServicePage />} />
             <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/projects" element={<PublicProjects />} />
+            <Route path="/landing" element={<Landing />} />
 
             {/* Admin Auth */}
             <Route path="/admin/login" element={<AdminAuth />} />
@@ -70,6 +77,10 @@ const App = () => (
               <Route path="menu" element={<MenuManager />} />
               <Route path="media" element={<MediaManager />} />
               <Route path="seo" element={<SEOTools />} />
+              <Route path="seo-verification" element={<SEOVerification />} />
+              <Route path="projects" element={<AdminProjects />} />
+              <Route path="projects/new" element={<ProjectEditor />} />
+              <Route path="projects/:id" element={<ProjectEditor />} />
               <Route path="settings" element={<Settings />} />
             </Route>
 
