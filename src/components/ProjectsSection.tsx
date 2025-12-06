@@ -67,7 +67,8 @@ export function ProjectsSection() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
-            <div
+            <Link
+              to={`/projects/${project.id}`}
               key={project.id}
               className="group rounded-2xl overflow-hidden border-2 border-border hover:border-primary/50 bg-card transition-all duration-300 hover:shadow-xl animate-fade-in-up"
               style={{ animationDelay: `${index * 100}ms` }}
@@ -93,7 +94,7 @@ export function ProjectsSection() {
                   Client: {project.client_name}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
