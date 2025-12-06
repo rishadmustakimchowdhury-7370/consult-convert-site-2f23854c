@@ -395,7 +395,7 @@ export default function Landing() {
                       />
                     </div>
 
-                    <MathChallenge onVerify={setIsVerified} />
+                    <MathChallenge onVerified={setIsVerified} />
 
                     <Button
                       type="submit"

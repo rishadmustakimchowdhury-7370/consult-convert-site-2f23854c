@@ -41,14 +41,29 @@ export default function ProjectEditor() {
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState<ProjectFile[]>([]);
 
-  const [formData, setFormData] = useState({
+  type ProjectStatus = 'lead' | 'proposal' | 'approved' | 'in_progress' | 'review' | 'completed' | 'cancelled';
+  
+  const [formData, setFormData] = useState<{
+    project_name: string;
+    client_name: string;
+    client_email: string;
+    client_phone: string;
+    project_description: string;
+    cover_image: string;
+    status: ProjectStatus;
+    creation_date: string;
+    delivery_date: string;
+    earning_amount: number;
+    cost_amount: number;
+    is_public: boolean;
+  }>({
     project_name: '',
     client_name: '',
     client_email: '',
     client_phone: '',
     project_description: '',
     cover_image: '',
-    status: 'lead' as const,
+    status: 'lead',
     creation_date: new Date().toISOString().split('T')[0],
     delivery_date: '',
     earning_amount: 0,
@@ -82,7 +97,7 @@ export default function ProjectEditor() {
         client_phone: data.client_phone || '',
         project_description: data.project_description || '',
         cover_image: data.cover_image || '',
-        status: data.status || 'lead',
+        status: (data.status as ProjectStatus) || 'lead',
         creation_date: data.creation_date || new Date().toISOString().split('T')[0],
         delivery_date: data.delivery_date || '',
         earning_amount: data.earning_amount || 0,
