@@ -216,7 +216,7 @@ export default function SEOTools() {
               {scores.map((item) => (
                 <Link
                   key={`${item.item.type}-${item.item.id}`}
-                  to={item.item.type === 'blog' ? `/admin/blogs/${item.item.id}` : `/admin/pages/${item.item.id}`}
+                  to={item.item.type === 'blog' ? `/visage/blogs/${item.item.id}` : `/visage/pages/${item.item.id}`}
                   className="block"
                 >
                   <div className="flex items-center gap-4 p-4 rounded-lg border hover:bg-secondary/50 transition-colors">

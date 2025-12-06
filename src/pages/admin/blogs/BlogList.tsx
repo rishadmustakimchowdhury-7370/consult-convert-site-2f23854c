@@ -96,7 +96,7 @@ export default function BlogList() {
           <p className="text-muted-foreground">Manage your blog posts</p>
         </div>
         <Button asChild>
-          <Link to="/admin/blogs/new">
+          <Link to="/visage/blogs/new">
             <Plus className="w-4 h-4 mr-2" />
             New Blog
           </Link>
@@ -116,7 +116,7 @@ export default function BlogList() {
             <div className="text-center py-8 text-muted-foreground">
               <p>No blog posts yet.</p>
               <Button variant="outline" className="mt-4" asChild>
-                <Link to="/admin/blogs/new">Create your first blog</Link>
+                <Link to="/visage/blogs/new">Create your first blog</Link>
               </Button>
             </div>
           ) : (
@@ -158,7 +158,7 @@ export default function BlogList() {
                     </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/blogs/${blog.id}`}>
+                        <Link to={`/visage/blogs/${blog.id}`}>
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>

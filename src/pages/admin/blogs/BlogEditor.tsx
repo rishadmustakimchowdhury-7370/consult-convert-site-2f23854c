@@ -62,7 +62,7 @@ export default function BlogEditor() {
         .then(({ data, error }) => {
           if (error) {
             toast({ title: 'Error', description: error.message, variant: 'destructive' });
-            navigate('/admin/blogs');
+            navigate('/visage/blogs');
           } else if (data) {
             setTitle(data.title || '');
             setSlug(data.slug || '');
@@ -136,7 +136,7 @@ export default function BlogEditor() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Saved', description: 'Blog post saved successfully.' });
-      navigate('/admin/blogs');
+      navigate('/visage/blogs');
     }
   };
 
@@ -153,7 +153,7 @@ export default function BlogEditor() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/blogs')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/visage/blogs')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>

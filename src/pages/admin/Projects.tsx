@@ -148,7 +148,7 @@ export default function Projects() {
           <p className="text-muted-foreground">Manage your client projects</p>
         </div>
         <Button asChild>
-          <Link to="/admin/projects/new">
+          <Link to="/visage/projects/new">
             <Plus className="w-4 h-4 mr-2" />
             New Project
           </Link>
@@ -292,7 +292,7 @@ export default function Projects() {
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="icon" asChild>
-                            <Link to={`/admin/projects/${project.id}`}>
+                            <Link to={`/visage/projects/${project.id}`}>
                               <Edit className="w-4 h-4" />
                             </Link>
                           </Button>
