@@ -85,31 +85,37 @@ const processSteps = [
   {
     step: 1,
     title: "Discovery & Strategy",
-    description: "We understand your business goals, target audience, and vision.",
+    description: "We understand your business goals, target audience, and create a tailored roadmap.",
     icon: Lightbulb,
   },
   {
     step: 2,
-    title: "Design & Development",
-    description: "We create visually stunning, high-performance websites.",
+    title: "Design & Prototype",
+    description: "We create visually stunning mockups and interactive prototypes for approval.",
     icon: Palette,
   },
   {
     step: 3,
-    title: "SEO, Marketing & AI Integration",
-    description: "We optimize your website, run digital campaigns, and automate workflows.",
-    icon: Search,
+    title: "Development",
+    description: "We build high-performance, responsive websites using modern technologies.",
+    icon: Code,
   },
   {
     step: 4,
-    title: "Testing & Launch",
-    description: "Comprehensive testing for speed, performance, and mobile readiness.",
-    icon: Rocket,
+    title: "SEO & Marketing",
+    description: "We optimize for search engines and implement digital marketing strategies.",
+    icon: Search,
   },
   {
     step: 5,
-    title: "Support & Optimization",
-    description: "Ongoing monitoring, updates, and optimization to ensure growth.",
+    title: "Testing & Launch",
+    description: "Rigorous testing for speed, security, and mobile readiness before going live.",
+    icon: Rocket,
+  },
+  {
+    step: 6,
+    title: "Support & Growth",
+    description: "Ongoing monitoring, updates, and optimization to ensure continuous growth.",
     icon: HeadphonesIcon,
   },
 ];
@@ -397,73 +403,35 @@ const Index = () => {
               How Manhateck Works
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              A proven 5-step process designed to transform your digital presence and accelerate business growth
+              A proven 6-step process designed to transform your digital presence and accelerate business growth
             </p>
           </div>
 
-          {/* Process Steps - Horizontal Flow */}
-          <div className="max-w-7xl mx-auto">
-            {/* Desktop: Horizontal connected cards */}
-            <div className="hidden lg:block relative">
-              {/* Connecting line */}
-              <div className="absolute top-[72px] left-[10%] right-[10%] h-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full opacity-30"></div>
-              
-              <div className="grid grid-cols-5 gap-4">
-                {processSteps.map((step, index) => (
-                  <div
-                    key={step.step}
-                    className="group relative animate-fade-in-up"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {/* Step number circle */}
-                    <div className="relative z-10 mx-auto mb-6 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300">
-                      <span className="text-2xl font-bold text-primary-foreground">{step.step}</span>
-                      <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-0 group-hover:opacity-75"></div>
-                    </div>
-                    
-                    {/* Card */}
-                    <div className="relative p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group-hover:-translate-y-2 h-full">
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative z-10">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300">
-                          <step.icon className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{step.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Tablet/Mobile: Vertical timeline */}
-            <div className="lg:hidden space-y-6">
+          {/* Process Steps - 2 Rows × 3 Columns Grid */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {processSteps.map((step, index) => (
                 <div
                   key={step.step}
-                  className="group flex gap-4 animate-fade-in-up"
+                  className="group relative animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  {/* Left side: Step number & line */}
-                  <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                      <span className="text-xl font-bold text-primary-foreground">{step.step}</span>
-                    </div>
-                    {index < processSteps.length - 1 && (
-                      <div className="w-0.5 flex-1 my-3 bg-gradient-to-b from-primary to-accent/30 rounded-full"></div>
-                    )}
-                  </div>
-                  
-                  {/* Right side: Content card */}
-                  <div className="flex-1 pb-6">
-                    <div className="p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                          <step.icon className="w-5 h-5 text-primary" />
+                  <div className="relative p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group-hover:-translate-y-2 h-full">
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <div className="relative z-10">
+                      {/* Step number badge */}
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          <span className="text-xl font-bold text-primary-foreground">{step.step}</span>
                         </div>
-                        <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{step.title}</h3>
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                          <step.icon className="w-6 h-6 text-primary" />
+                        </div>
                       </div>
+                      
+                      <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{step.title}</h3>
                       <p className="text-muted-foreground leading-relaxed">{step.description}</p>
                     </div>
                   </div>
@@ -472,16 +440,27 @@ const Index = () => {
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="mt-16 text-center">
-            <Button
-              size="lg"
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all group px-8 py-6 text-lg"
-            >
-              Start Your Journey Today
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
+          {/* CTA - Prominent & Separated */}
+          <div className="mt-20 relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-full max-w-lg h-24 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-full blur-3xl"></div>
+            </div>
+            <div className="relative bg-gradient-to-r from-primary to-accent rounded-2xl p-8 md:p-12 max-w-3xl mx-auto text-center shadow-2xl">
+              <h3 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">
+                Ready to Transform Your Business?
+              </h3>
+              <p className="text-primary-foreground/90 mb-8 text-lg">
+                Let's discuss how we can help you achieve your digital goals
+              </p>
+              <Button
+                size="lg"
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-background text-foreground hover:bg-background/90 shadow-xl hover:shadow-2xl transition-all group px-10 py-7 text-lg font-semibold"
+              >
+                Book Your Free Consultation
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
