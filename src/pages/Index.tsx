@@ -378,52 +378,110 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Our Process Section */}
-      <section className="py-20 md:py-28 bg-section-bg">
-        <div className="container mx-auto px-4">
+      {/* Our Process Section - Creative Design */}
+      <section className="py-20 md:py-28 bg-gradient-to-br from-background via-primary/5 to-accent/5 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary/10 backdrop-blur-sm rounded-full text-primary text-sm font-semibold border border-primary/20">
               <Target className="w-4 h-4" />
               Our Process
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">
               How Manhateck Works
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              A proven 5-step process to transform your digital presence
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              A proven 5-step process designed to transform your digital presence and accelerate business growth
             </p>
           </div>
-          <div className="max-w-5xl mx-auto">
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-primary hidden md:block"></div>
+
+          {/* Process Steps - Horizontal Flow */}
+          <div className="max-w-7xl mx-auto">
+            {/* Desktop: Horizontal connected cards */}
+            <div className="hidden lg:block relative">
+              {/* Connecting line */}
+              <div className="absolute top-[72px] left-[10%] right-[10%] h-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full opacity-30"></div>
               
-              <div className="space-y-8 md:space-y-12">
+              <div className="grid grid-cols-5 gap-4">
                 {processSteps.map((step, index) => (
                   <div
                     key={step.step}
-                    className={`flex items-start gap-6 md:gap-12 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''} animate-fade-in-up`}
-                    style={{ animationDelay: `${index * 150}ms` }}
+                    className="group relative animate-fade-in-up"
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className={`flex-1 ${index % 2 === 1 ? 'md:text-right' : ''}`}>
-                      <div className={`p-6 md:p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 ${index % 2 === 1 ? 'md:ml-auto' : 'md:mr-auto'} max-w-md`}>
-                        <div className={`flex items-center gap-4 mb-4 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg flex-shrink-0">
-                            <step.icon className="w-6 h-6 text-primary-foreground" />
-                          </div>
-                          <div className="text-sm font-semibold text-primary">Step {step.step}</div>
+                    {/* Step number circle */}
+                    <div className="relative z-10 mx-auto mb-6 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-2xl font-bold text-primary-foreground">{step.step}</span>
+                      <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-0 group-hover:opacity-75"></div>
+                    </div>
+                    
+                    {/* Card */}
+                    <div className="relative p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group-hover:-translate-y-2 h-full">
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative z-10">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300">
+                          <step.icon className="w-6 h-6 text-primary" />
                         </div>
-                        <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                        <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{step.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
                       </div>
                     </div>
-                    {/* Center dot for desktop */}
-                    <div className="hidden md:flex items-center justify-center w-6 h-6 rounded-full bg-primary border-4 border-background shadow-lg z-10 flex-shrink-0"></div>
-                    <div className="flex-1 hidden md:block"></div>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Tablet/Mobile: Vertical timeline */}
+            <div className="lg:hidden space-y-6">
+              {processSteps.map((step, index) => (
+                <div
+                  key={step.step}
+                  className="group flex gap-4 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  {/* Left side: Step number & line */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-xl font-bold text-primary-foreground">{step.step}</span>
+                    </div>
+                    {index < processSteps.length - 1 && (
+                      <div className="w-0.5 flex-1 my-3 bg-gradient-to-b from-primary to-accent/30 rounded-full"></div>
+                    )}
+                  </div>
+                  
+                  {/* Right side: Content card */}
+                  <div className="flex-1 pb-6">
+                    <div className="p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                          <step.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{step.title}</h3>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-16 text-center">
+            <Button
+              size="lg"
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all group px-8 py-6 text-lg"
+            >
+              Start Your Journey Today
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
         </div>
       </section>
