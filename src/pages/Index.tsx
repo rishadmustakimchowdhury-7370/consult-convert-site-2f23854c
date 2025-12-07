@@ -190,33 +190,35 @@ const Index = () => {
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 lg:py-36 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-accent/5"></div>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent"></div>
+      <section className="relative min-h-[90vh] flex items-center py-16 md:py-20 lg:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/8"></div>
+        <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-primary/8 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-3xl"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="space-y-8 animate-fade-in-up">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Content - Takes 5 columns on large screens */}
+            <div className="lg:col-span-5 space-y-6 animate-fade-in-up order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
                 <Rocket className="w-4 h-4" />
                 Transform Your Business with Manhateck
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
                 Professional Website Design, SEO & AI Automation Services in the{" "}
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   UK
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 Welcome to Manhateck, your trusted UK partner for Website Design, SEO, Digital Marketing, and AI Automation Services. We help businesses of all sizes create a strong online presence, attract more customers, and grow efficiently.
               </p>
-              <p className="text-base text-muted-foreground leading-relaxed max-w-xl">
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                 Whether you need a WordPress website, Shopify ecommerce store, local SEO, digital marketing, or AI-powered automation, Manhateck delivers solutions tailored for business success in the UK.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Button
                   size="lg"
                   onClick={() => setIsDialogOpen(true)}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all group"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-base md:text-lg px-6 md:px-8 py-5 md:py-6 shadow-xl hover:shadow-2xl transition-all group"
                 >
                   Book a Free Consultation
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -225,20 +227,45 @@ const Index = () => {
                   size="lg"
                   variant="outline"
                   onClick={() => document.getElementById('why-choose')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-lg px-8 py-6 border-2 hover:border-primary hover:bg-primary/5"
+                  className="text-base md:text-lg px-6 md:px-8 py-5 md:py-6 border-2 hover:border-primary hover:bg-primary/5"
                 >
                   Learn More
                 </Button>
               </div>
             </div>
-            <div className="animate-scale-in relative flex items-center justify-center">
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl"></div>
-              <div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl">
+            {/* Image - Takes 7 columns on large screens for larger display */}
+            <div className="lg:col-span-7 animate-scale-in relative order-1 lg:order-2">
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/25 to-accent/25 rounded-3xl blur-3xl opacity-60"></div>
+              <div className="absolute -inset-3 bg-gradient-to-br from-primary/15 via-transparent to-accent/15 rounded-3xl"></div>
+              <div className="relative">
                 <img
                   src={manhateckHero}
                   alt="Professional Website Design, SEO & AI Automation Services"
-                  className="relative rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[16/9]"
+                  className="relative rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[16/10] ring-1 ring-primary/10"
                 />
+                {/* Floating badges for credibility */}
+                <div className="absolute -bottom-4 -left-4 md:-bottom-6 md:-left-6 bg-background/95 backdrop-blur-sm rounded-xl p-3 md:p-4 shadow-xl border border-border/50 animate-fade-in-up">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Award className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm font-semibold text-foreground">100+ Projects</p>
+                      <p className="text-xs text-muted-foreground">Delivered Successfully</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 bg-background/95 backdrop-blur-sm rounded-xl p-3 md:p-4 shadow-xl border border-border/50 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                      <Star className="w-5 h-5 md:w-6 md:h-6 text-accent fill-accent" />
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm font-semibold text-foreground">5-Star Rated</p>
+                      <p className="text-xs text-muted-foreground">UK Agency</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
