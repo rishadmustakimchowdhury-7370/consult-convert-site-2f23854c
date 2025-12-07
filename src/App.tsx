@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -41,60 +42,62 @@ import FooterSettings from "./pages/admin/FooterSettings";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/services/:slug" element={<ServicePage />} />
-            <Route path="/thank-you" element={<ThankYou />} />
-            <Route path="/projects" element={<PublicProjects />} />
-            <Route path="/projects/:id" element={<ProjectDetails />} />
-            <Route path="/landing" element={<Landing />} />
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/services/:slug" element={<ServicePage />} />
+              <Route path="/thank-you" element={<ThankYou />} />
+              <Route path="/projects" element={<PublicProjects />} />
+              <Route path="/projects/:id" element={<ProjectDetails />} />
+              <Route path="/landing" element={<Landing />} />
 
-            {/* Admin Auth */}
-            <Route path="/visage/login" element={<AdminAuth />} />
+              {/* Admin Auth */}
+              <Route path="/visage/login" element={<AdminAuth />} />
 
-            {/* Admin Routes */}
-            <Route path="/visage" element={<AdminLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="services" element={<ServicesAdmin />} />
-              <Route path="blogs" element={<BlogList />} />
-              <Route path="blogs/new" element={<BlogEditor />} />
-              <Route path="blogs/:id" element={<BlogEditor />} />
-              <Route path="categories" element={<Categories />} />
-              <Route path="pages" element={<PageList />} />
-              <Route path="pages/new" element={<PageEditor />} />
-              <Route path="pages/:id" element={<PageEditor />} />
-              <Route path="testimonials" element={<Testimonials />} />
-              <Route path="menu" element={<MenuManager />} />
-              <Route path="media" element={<MediaManager />} />
-              <Route path="seo" element={<SEOTools />} />
-              <Route path="seo-verification" element={<SEOVerification />} />
-              <Route path="projects" element={<AdminProjects />} />
-              <Route path="projects/new" element={<ProjectEditor />} />
-              <Route path="projects/:id" element={<ProjectEditor />} />
-              <Route path="footer" element={<FooterSettings />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
+              {/* Admin Routes */}
+              <Route path="/visage" element={<AdminLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="services" element={<ServicesAdmin />} />
+                <Route path="blogs" element={<BlogList />} />
+                <Route path="blogs/new" element={<BlogEditor />} />
+                <Route path="blogs/:id" element={<BlogEditor />} />
+                <Route path="categories" element={<Categories />} />
+                <Route path="pages" element={<PageList />} />
+                <Route path="pages/new" element={<PageEditor />} />
+                <Route path="pages/:id" element={<PageEditor />} />
+                <Route path="testimonials" element={<Testimonials />} />
+                <Route path="menu" element={<MenuManager />} />
+                <Route path="media" element={<MediaManager />} />
+                <Route path="seo" element={<SEOTools />} />
+                <Route path="seo-verification" element={<SEOVerification />} />
+                <Route path="projects" element={<AdminProjects />} />
+                <Route path="projects/new" element={<ProjectEditor />} />
+                <Route path="projects/:id" element={<ProjectEditor />} />
+                <Route path="footer" element={<FooterSettings />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;
