@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -300,12 +301,12 @@ const Index = () => {
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {services.map((service, index) => {
+              {services.map((service, index) => {
               const ServiceIcon = iconMap[service.icon_name || 'Code'] || Code;
               return (
-                <a
+                <Link
                   key={service.id}
-                  href={`/services/${service.slug}`}
+                  to={`/services/${service.slug}`}
                   className="group block p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-300 animate-fade-in-up relative overflow-hidden"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
@@ -321,7 +322,7 @@ const Index = () => {
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </div>
                   </div>
-                </a>
+                </Link>
               );
             })}
             {services.length === 0 && !isLoading && (
