@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
@@ -12,14 +13,13 @@ import {
   Code, Megaphone, Lightbulb, Palette, TrendingUp, PenTool, 
   CheckCircle, Users, Clock, Shield, ShoppingCart, Search, 
   Smartphone, Zap, Award, Globe, ArrowRight, Star, Youtube,
-  Video, Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle
+  Video, Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle,
+  Rocket, Target, HeadphonesIcon, Building2, GraduationCap, 
+  Stethoscope, Home, Wrench, Briefcase
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Autoplay from "embla-carousel-autoplay";
-import ecommerceHero from "@/assets/ecommerce-hero.jpg";
-import wordpressDesign from "@/assets/wordpress-design.jpg";
-import seoServices from "@/assets/seo-services.jpg";
-import smallBusinessSuccess from "@/assets/small-business-success.jpg";
+import manhateckHero from "@/assets/manhateck-hero.jpg";
 
 interface Testimonial {
   id: string;
@@ -43,100 +43,105 @@ interface Service {
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Code, ShoppingCart, Palette, Globe, Search, Youtube, Megaphone, Video, 
   Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle, Smartphone, Zap, 
-  Award, Star, TrendingUp, Users, Clock, Shield
+  Award, Star, TrendingUp, Users, Clock, Shield, Rocket, Target, 
+  HeadphonesIcon, Building2, GraduationCap, Stethoscope, Home, Wrench, Briefcase
 };
 
 const whyChooseFeatures = [
   {
-    icon: Code,
-    title: "Expertise in Web Design & Development Service",
-    description: "Years of experience in creating visually stunning and highly functional ecommerce platforms that perform exceptionally.",
-  },
-  {
-    icon: Palette,
-    title: "Specialized WordPress Website Design Services",
-    description: "Bespoke WordPress solutions with custom plugins and feature-rich designs that stand out in the digital marketplace.",
-  },
-  {
-    icon: Users,
-    title: "Professional Services for Enhanced User Experience",
-    description: "Fast-loading pages, intuitive navigation, and responsive design to keep customers engaged and returning.",
-  },
-  {
-    icon: Shield,
-    title: "Cost-Effective Small Business Website Design Services",
-    description: "Budget-friendly solutions perfect for smaller enterprises looking to carve out a strong digital presence.",
-  },
-];
-
-const keyFeatures = [
-  {
-    icon: Globe,
-    title: "Comprehensive Website Design and Development",
-    description: "End-to-end solutions covering every stage from initial concept to execution, adaptable for all industries.",
-    image: wordpressDesign,
-  },
-  {
-    icon: Search,
-    title: "Integrated Website Design and SEO Services",
-    description: "Built-in SEO strategies ensuring your site ranks well and drives organic traffic from UK customers.",
-    image: seoServices,
-  },
-  {
-    icon: Award,
-    title: "Affordable and High-Quality Deliverables",
-    description: "Exceptional value without cutting corners—impressive returns on investment for UK clients.",
-    image: smallBusinessSuccess,
-  },
-];
-
-const benefits = [
-  {
-    icon: ShoppingCart,
-    title: "Drive Sales and Revenue",
-    description: "A well-optimized ecommerce website significantly improves conversion rates, turning visitors into loyal customers.",
-  },
-  {
-    icon: Star,
-    title: "Enhance Brand Identity",
-    description: "Custom designs that align with and enhance your business identity through colors, typography, and premium elements.",
+    icon: Rocket,
+    title: "Fast Delivery Without Compromising Quality",
+    description: "We deliver projects on time while maintaining the highest standards of quality and attention to detail.",
   },
   {
     icon: TrendingUp,
-    title: "Ensure SEO and Growth Potential",
-    description: "On-page optimization, mobile responsiveness, and strategic keyword placement for maximum visibility.",
+    title: "Proven Results with Measurable Growth",
+    description: "Our strategies are data-driven, ensuring you see real, trackable improvements in your business metrics.",
   },
+  {
+    icon: Target,
+    title: "UK-Focused Digital Strategies",
+    description: "We understand the UK market and create strategies specifically designed for local business success.",
+  },
+  {
+    icon: Bot,
+    title: "AI-Driven Optimization",
+    description: "Leverage cutting-edge AI technology for websites, SEO, and marketing automation.",
+  },
+  {
+    icon: Shield,
+    title: "Affordable Packages for All Sizes",
+    description: "Budget-friendly solutions perfect for startups to established enterprises looking to grow.",
+  },
+  {
+    icon: HeadphonesIcon,
+    title: "Dedicated Support for Ongoing Growth",
+    description: "Continuous support and optimization to ensure your digital presence keeps evolving.",
+  },
+];
+
+const processSteps = [
+  {
+    step: 1,
+    title: "Discovery & Strategy",
+    description: "We understand your business goals, target audience, and vision.",
+    icon: Lightbulb,
+  },
+  {
+    step: 2,
+    title: "Design & Development",
+    description: "We create visually stunning, high-performance websites.",
+    icon: Palette,
+  },
+  {
+    step: 3,
+    title: "SEO, Marketing & AI Integration",
+    description: "We optimize your website, run digital campaigns, and automate workflows.",
+    icon: Search,
+  },
+  {
+    step: 4,
+    title: "Testing & Launch",
+    description: "Comprehensive testing for speed, performance, and mobile readiness.",
+    icon: Rocket,
+  },
+  {
+    step: 5,
+    title: "Support & Optimization",
+    description: "Ongoing monitoring, updates, and optimization to ensure growth.",
+    icon: HeadphonesIcon,
+  },
+];
+
+const industries = [
+  { icon: Briefcase, title: "Small Businesses & Startups" },
+  { icon: ShoppingCart, title: "Ecommerce Stores" },
+  { icon: Building2, title: "Real Estate & Construction" },
+  { icon: Stethoscope, title: "Healthcare & Medical" },
+  { icon: GraduationCap, title: "Education & Online Coaching" },
+  { icon: Wrench, title: "Local Service Providers" },
 ];
 
 const faqs = [
   {
-    question: "What Is Included in Ecommerce Website Design?",
-    answer: "Our services include end-to-end solutions such as web design, development, SEO, mobile optimization, and ongoing support. Each aspect is carefully tailored to your business goals.",
+    question: "What services does Manhateck provide in the UK?",
+    answer: "We offer website design, SEO, digital marketing, Google Ads, and AI automation services tailored for UK businesses.",
   },
   {
-    question: "How Much Does an Ecommerce Website Cost?",
-    answer: "The cost depends on factors like size, complexity, and features required. At Manha Tech, we specialize in affordable website design services without compromising quality, making it easier for businesses of all sizes to invest in their online future.",
+    question: "How much does a website cost in the UK?",
+    answer: "Costs vary based on features, platform, and complexity. Simple sites start affordably, while custom solutions are priced per project. Contact us for a free quote.",
   },
   {
-    question: "How Long Does It Take to Develop an Ecommerce Website?",
-    answer: "Project timelines can vary based on your website's complexity. However, you can typically expect delivery within 4-8 weeks for most ecommerce projects.",
+    question: "Do you offer SEO with website design?",
+    answer: "Yes! We provide combined packages for faster rankings and better ROI. All our websites are built with SEO best practices from the ground up.",
   },
   {
-    question: "Do You Offer Support and Maintenance Services?",
-    answer: "Yes, we provide ongoing support and maintenance to ensure your website runs smoothly, including updates, performance checks, and technical assistance.",
-  },
-];
-
-const ukBusinessReasons = [
-  {
-    icon: Smartphone,
-    title: "Adapt to Changing Consumer Trends",
-    description: "More UK consumers are shopping online than ever before. Stay ahead of growing consumer demand.",
+    question: "What is AI automation, and how can it help?",
+    answer: "AI automates repetitive tasks such as CRM, lead generation, and customer support, saving time and increasing efficiency for your business.",
   },
   {
-    icon: Zap,
-    title: "Stay Competitive in a Digitally Driven Market",
-    description: "A standout ecommerce site makes all the difference in capturing market share in the competitive online marketplace.",
+    question: "How long does it take to build a website?",
+    answer: "Typically 7–21 days depending on the project scope. We'll provide a clear timeline during your free consultation.",
   },
 ];
 
@@ -175,6 +180,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Professional Website Design, SEO & AI Services UK | Manhateck</title>
+        <meta name="description" content="UK-based Manhateck offers website design, SEO, digital marketing, and AI automation services to grow your business efficiently." />
+        <meta name="keywords" content="Professional Website Design UK, SEO Services UK, AI Automation UK, Digital Marketing UK, Manhateck" />
+        <link rel="canonical" href="https://manhateck.com" />
+      </Helmet>
+      
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}
@@ -185,20 +197,20 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="space-y-8 animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
-                <ShoppingCart className="w-4 h-4" />
-                Professional Ecommerce Solutions
+                <Rocket className="w-4 h-4" />
+                Transform Your Business with Manhateck
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-                Ecommerce Website Design Services -{" "}
+                Professional Website Design, SEO & AI Automation Services in the{" "}
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Manha Tech
+                  UK
                 </span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl">
-                Drive your business forward with bespoke ecommerce website design services in the UK. Today, having a robust online store is no longer optional—it's a critical factor in staying competitive, boosting customer engagement, and driving sales.
+                Welcome to Manhateck, your trusted UK partner for Website Design, SEO, Digital Marketing, and AI Automation Services. We help businesses of all sizes create a strong online presence, attract more customers, and grow efficiently.
               </p>
               <p className="text-base text-muted-foreground leading-relaxed max-w-xl">
-                At Manha Tech, we specialize in designing ecommerce websites tailored to businesses of all sizes—from startups to established enterprises. Our commitment to excellence, coupled with cost-effective solutions, makes us the ideal partner for both small businesses and larger corporations.
+                Whether you need a WordPress website, Shopify ecommerce store, local SEO, digital marketing, or AI-powered automation, Manhateck delivers solutions tailored for business success in the UK.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
@@ -223,13 +235,22 @@ const Index = () => {
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl"></div>
               <div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl">
                 <img
-                  src={ecommerceHero}
-                  alt="Ecommerce Website Design Services - Professional online store interface showcasing modern web design"
-                  className="relative rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[4/3]"
+                  src={manhateckHero}
+                  alt="Professional Website Design, SEO & AI Automation Services"
+                  className="relative rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[16/9]"
                 />
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Tagline Section */}
+      <section className="py-12 md:py-16 bg-gradient-to-r from-primary to-accent">
+        <div className="container mx-auto px-4">
+          <p className="text-center text-xl md:text-2xl lg:text-3xl font-semibold text-primary-foreground max-w-4xl mx-auto leading-relaxed">
+            We don't just build websites — we create digital ecosystems that attract customers, generate leads, and automate workflows.
+          </p>
         </div>
       </section>
 
@@ -242,13 +263,13 @@ const Index = () => {
           <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
               <Zap className="w-4 h-4" />
-              Our Services
+              Our Core Services
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              Comprehensive Digital Solutions for Your Business
+              Comprehensive Digital Solutions for UK Businesses
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              From web development to digital marketing, we offer end-to-end services to help your business thrive in the digital landscape.
+              From web development to AI automation, we offer end-to-end services to help your business thrive in the digital landscape.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -296,108 +317,115 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Why Choose Manha Tech Section */}
+      {/* Why UK Businesses Choose Manhateck Section */}
       <section id="why-choose" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <Award className="w-4 h-4" />
+              Why Choose Us
+            </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              Why Choose Manha Tech for Ecommerce Website Design?
+              Why UK Businesses Choose Manhateck
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              We bring years of experience, cutting-edge technology, and a passion for excellence to every project.
+              We combine creativity, technology, and automation to deliver high-impact digital solutions that help UK businesses stay ahead.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {whyChooseFeatures.map((feature, index) => (
               <div
                 key={feature.title}
                 className="group p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <feature.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-xl font-bold">{feature.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-                  </div>
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <feature.icon className="w-8 h-8 text-primary" />
                 </div>
+                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Key Features Section */}
+      {/* Our Process Section */}
+      <section className="py-20 md:py-28 bg-section-bg">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <Target className="w-4 h-4" />
+              Our Process
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+              How Manhateck Works
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              A proven 5-step process to transform your digital presence
+            </p>
+          </div>
+          <div className="max-w-5xl mx-auto">
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-primary hidden md:block"></div>
+              
+              <div className="space-y-8 md:space-y-12">
+                {processSteps.map((step, index) => (
+                  <div
+                    key={step.step}
+                    className={`flex items-start gap-6 md:gap-12 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''} animate-fade-in-up`}
+                    style={{ animationDelay: `${index * 150}ms` }}
+                  >
+                    <div className={`flex-1 ${index % 2 === 1 ? 'md:text-right' : ''}`}>
+                      <div className={`p-6 md:p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 ${index % 2 === 1 ? 'md:ml-auto' : 'md:mr-auto'} max-w-md`}>
+                        <div className={`flex items-center gap-4 mb-4 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg flex-shrink-0">
+                            <step.icon className="w-6 h-6 text-primary-foreground" />
+                          </div>
+                          <div className="text-sm font-semibold text-primary">Step {step.step}</div>
+                        </div>
+                        <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                        <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                      </div>
+                    </div>
+                    {/* Center dot for desktop */}
+                    <div className="hidden md:flex items-center justify-center w-6 h-6 rounded-full bg-primary border-4 border-background shadow-lg z-10 flex-shrink-0"></div>
+                    <div className="flex-1 hidden md:block"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Industries We Serve Section */}
       <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <Globe className="w-4 h-4" />
+              Industries We Serve
+            </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              Key Features of Our Ecommerce Website Design Services
+              Industries We Serve Across the UK
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Comprehensive solutions that drive results for your online business
+              We work with businesses across various sectors, delivering tailored digital solutions
             </p>
           </div>
-          <div className="space-y-16 lg:space-y-24">
-            {keyFeatures.map((feature, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {industries.map((industry, index) => (
               <div
-                key={feature.title}
-                className={`grid lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}
-              >
-                <div className={`space-y-6 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <feature.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold">{feature.title}</h3>
-                  <p className="text-lg text-muted-foreground leading-relaxed">{feature.description}</p>
-                  <Button
-                    onClick={() => setIsDialogOpen(true)}
-                    variant="outline"
-                    className="group"
-                  >
-                    Get Started
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
-                <div className={`relative ${index % 2 === 1 ? 'lg:order-1' : ''}`}>
-                  <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl blur-xl"></div>
-                  <img
-                    src={feature.image}
-                    alt={`Ecommerce Website Design Services - ${feature.title}`}
-                    className="relative rounded-xl shadow-xl w-full"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              Benefits of Our Ecommerce Website Design Services
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Transform your online presence and drive measurable business growth
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
-              <div
-                key={benefit.title}
-                className="group text-center p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up"
+                key={industry.title}
+                className="group p-6 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 text-center animate-fade-in-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
-                  <benefit.icon className="w-10 h-10 text-primary-foreground" />
+                <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <industry.icon className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-4">{benefit.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
+                <h3 className="font-semibold text-sm">{industry.title}</h3>
               </div>
             ))}
           </div>
@@ -405,14 +433,18 @@ const Index = () => {
       </section>
 
       {/* FAQs Section */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 bg-section-bg">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <MessageCircle className="w-4 h-4" />
+              FAQs
+            </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              FAQs About Ecommerce Website Design Services
+              Frequently Asked Questions
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Get answers to your most common questions
+              Get answers to your most common questions about our services
             </p>
           </div>
           <div className="max-w-3xl mx-auto">
@@ -436,54 +468,23 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Why Essential for UK Businesses */}
-      <section className="py-20 md:py-28 bg-section-bg">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6 mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              Why Ecommerce Website Design Is Essential for UK Businesses
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Ecommerce has surged in popularity, with more consumers in the UK shopping online than ever before.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {ukBusinessReasons.map((reason, index) => (
-              <div
-                key={reason.title}
-                className="group p-8 rounded-2xl bg-card border-2 border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <reason.icon className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">{reason.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{reason.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials Section */}
       <section className="py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
-        {/* Background decoration */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto px-4 relative z-10">
-          {/* Section Header */}
           <div className="text-center space-y-6 mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
               <Star className="w-4 h-4 fill-primary" />
               Client Success Stories
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              What Our Clients Say About Our
-              <span className="block text-primary mt-2">Ecommerce Website Design Services</span>
+              What Our Clients Say About
+              <span className="block text-primary mt-2">Manhateck's Digital Services</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Don't just take our word for it—discover how UK businesses have transformed their online presence with our professional ecommerce solutions
+              Don't just take our word for it — discover how UK businesses have transformed their online presence with our professional solutions
             </p>
           </div>
           
@@ -533,7 +534,6 @@ const Index = () => {
                 <CarouselNext className="hidden md:flex -right-4 lg:-right-8 bg-background border-2 border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all shadow-lg" />
               </Carousel>
               
-              {/* Carousel indicators */}
               <div className="flex justify-center gap-2 mt-8">
                 {Array.from({ length: Math.min(4, Math.ceil(testimonials.length / 4)) }).map((_, i) => (
                   <div key={i} className="w-2 h-2 rounded-full bg-primary/30 hover:bg-primary transition-colors cursor-pointer"></div>
@@ -544,9 +544,11 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Projects Section */}
+      <ProjectsSection />
+
       {/* Final CTA Section */}
       <section className="py-24 md:py-32 bg-gradient-to-br from-primary via-primary/95 to-accent relative overflow-hidden">
-        {/* Background decorative elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
@@ -555,25 +557,22 @@ const Index = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto">
-            {/* Badge */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/15 backdrop-blur-sm rounded-full text-white/95 text-sm font-medium border border-white/20">
-                <Award className="w-4 h-4" />
-                Over a Decade of Excellence
+                <Rocket className="w-4 h-4" />
+                Ready to Transform Your Business?
               </div>
             </div>
             
-            {/* Main heading */}
             <div className="text-center space-y-6 mb-10">
               <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
-                Get Started with Manha Tech Today
+                Get Started with Manhateck Today
               </h2>
               <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-                Whether you're a small business or an established enterprise, Manha Tech is here to help you succeed. Our ecommerce website design services are designed to meet your unique needs, ensuring complete customer satisfaction.
+                Whether you're a small business or an established enterprise, Manhateck is here to help you succeed with website design, SEO, and AI automation services tailored for UK businesses.
               </p>
             </div>
             
-            {/* CTA Button */}
             <div className="flex justify-center mb-12">
               <Button
                 size="lg"
@@ -585,7 +584,6 @@ const Index = () => {
               </Button>
             </div>
             
-            {/* Trust indicators */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center border border-white/20 hover:bg-white/15 transition-colors">
                 <div className="text-3xl md:text-4xl font-bold text-white mb-2">10+</div>
@@ -607,8 +605,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-      {/* Projects Section */}
-      <ProjectsSection />
 
       <Footer />
       <WhatsAppChat phoneNumber="+447426468550" />
