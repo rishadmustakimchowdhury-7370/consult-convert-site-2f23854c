@@ -497,6 +497,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           contact_phone_secondary: string | null
+          discourage_search_engines: boolean | null
           facebook_url: string | null
           favicon_url: string | null
           global_meta_description: string | null
@@ -524,6 +525,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           contact_phone_secondary?: string | null
+          discourage_search_engines?: boolean | null
           facebook_url?: string | null
           favicon_url?: string | null
           global_meta_description?: string | null
@@ -551,6 +553,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           contact_phone_secondary?: string | null
+          discourage_search_engines?: boolean | null
           facebook_url?: string | null
           favicon_url?: string | null
           global_meta_description?: string | null
