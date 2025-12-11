@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Globe, Share2, Code, Mail, Image } from 'lucide-react';
+import { Save, Loader2, Globe, Share2, Code, Mail, Image, AlertTriangle, CheckCircle } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface SiteSettings {
   id: string;
@@ -31,6 +33,7 @@ interface SiteSettings {
   contact_phone_secondary: string | null;
   contact_address: string | null;
   admin_email: string | null;
+  discourage_search_engines: boolean | null;
 }
 
 export default function Settings() {
@@ -76,7 +79,7 @@ export default function Settings() {
     }
   };
 
-  const updateField = (field: keyof SiteSettings, value: string | number | null) => {
+  const updateField = (field: keyof SiteSettings, value: string | number | boolean | null) => {
     if (settings) {
       setSettings({ ...settings, [field]: value });
     }
@@ -227,52 +230,98 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="seo">
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO & Analytics</CardTitle>
-              <CardDescription>Global SEO settings and tracking scripts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="global-meta-title">
-                  Global Meta Title <span className="text-muted-foreground">({(settings.global_meta_title || '').length}/60)</span>
-                </Label>
-                <Input
-                  id="global-meta-title"
-                  value={settings.global_meta_title || ''}
-                  onChange={(e) => updateField('global_meta_title', e.target.value)}
-                  placeholder="Default page title for SEO"
-                  maxLength={70}
-                />
-              </div>
+          <div className="space-y-6">
+            {/* Search Engine Visibility Card */}
+            <Card className={settings.discourage_search_engines ? 'border-destructive' : 'border-green-500'}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {settings.discourage_search_engines ? (
+                    <AlertTriangle className="w-5 h-5 text-destructive" />
+                  ) : (
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  )}
+                  Search Engine Visibility
+                </CardTitle>
+                <CardDescription>Control whether search engines can index your website</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Alert variant={settings.discourage_search_engines ? 'destructive' : 'default'} className={!settings.discourage_search_engines ? 'border-green-500 bg-green-50 dark:bg-green-950' : ''}>
+                  <AlertTitle className="flex items-center gap-2">
+                    Status: {settings.discourage_search_engines ? 'NOT VISIBLE' : 'VISIBLE'} to Google
+                  </AlertTitle>
+                  <AlertDescription>
+                    {settings.discourage_search_engines 
+                      ? 'Your website is currently hidden from search engines. Pages have noindex/nofollow meta tags and robots.txt blocks crawlers.'
+                      : 'Your website is visible to search engines. Google and other crawlers can index your content.'}
+                  </AlertDescription>
+                </Alert>
 
-              <div className="space-y-2">
-                <Label htmlFor="global-meta-description">
-                  Global Meta Description <span className="text-muted-foreground">({(settings.global_meta_description || '').length}/160)</span>
-                </Label>
-                <Textarea
-                  id="global-meta-description"
-                  value={settings.global_meta_description || ''}
-                  onChange={(e) => updateField('global_meta_description', e.target.value)}
-                  placeholder="Default meta description for SEO"
-                  maxLength={170}
-                  rows={3}
-                />
-              </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-1">
+                    <Label htmlFor="discourage-search-engines" className="text-base font-medium">
+                      Discourage Search Engines from Crawling This Website
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      When enabled, adds noindex/nofollow meta tags and updates robots.txt to block crawlers.
+                    </p>
+                  </div>
+                  <Switch
+                    id="discourage-search-engines"
+                    checked={settings.discourage_search_engines || false}
+                    onCheckedChange={(checked) => updateField('discourage_search_engines', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="ga-script">Google Analytics Script</Label>
-                <Textarea
-                  id="ga-script"
-                  value={settings.google_analytics_script || ''}
-                  onChange={(e) => updateField('google_analytics_script', e.target.value)}
-                  placeholder="<!-- Paste your Google Analytics script here -->"
-                  rows={6}
-                  className="font-mono text-sm"
-                />
-              </div>
-            </CardContent>
-          </Card>
+            {/* Meta Settings Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Global Meta Settings</CardTitle>
+                <CardDescription>Default SEO settings applied across all pages</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="global-meta-title">
+                    Global Meta Title <span className="text-muted-foreground">({(settings.global_meta_title || '').length}/60)</span>
+                  </Label>
+                  <Input
+                    id="global-meta-title"
+                    value={settings.global_meta_title || ''}
+                    onChange={(e) => updateField('global_meta_title', e.target.value)}
+                    placeholder="Default page title for SEO"
+                    maxLength={70}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="global-meta-description">
+                    Global Meta Description <span className="text-muted-foreground">({(settings.global_meta_description || '').length}/160)</span>
+                  </Label>
+                  <Textarea
+                    id="global-meta-description"
+                    value={settings.global_meta_description || ''}
+                    onChange={(e) => updateField('global_meta_description', e.target.value)}
+                    placeholder="Default meta description for SEO"
+                    maxLength={170}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ga-script">Google Analytics Script</Label>
+                  <Textarea
+                    id="ga-script"
+                    value={settings.google_analytics_script || ''}
+                    onChange={(e) => updateField('google_analytics_script', e.target.value)}
+                    placeholder="<!-- Paste your Google Analytics script here -->"
+                    rows={6}
+                    className="font-mono text-sm"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="contact">
