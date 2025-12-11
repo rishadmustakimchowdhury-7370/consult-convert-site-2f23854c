@@ -8,6 +8,7 @@ import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
+import { FontSize } from './extensions/FontSize';
 import { useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -36,17 +38,15 @@ import {
   AlignRight,
   AlignJustify,
   Heading1,
-  Heading2,
-  Heading3,
-  Heading4,
-  Heading5,
-  Heading6,
   Palette,
   Highlighter,
   Upload,
   Loader2,
   ExternalLink,
   X,
+  Type,
+  Pilcrow,
+  ChevronDown,
 } from 'lucide-react';
 
 interface AdvancedRichTextEditorProps {
@@ -68,6 +68,20 @@ const HIGHLIGHT_COLORS = [
   '#ECFCCB', '#D9F99D', '#BEF264', '#A3E635',
   '#CFFAFE', '#A5F3FC', '#67E8F9', '#22D3EE',
   '#FCE7F3', '#FBCFE8', '#F9A8D4', '#F472B6',
+];
+
+const FONT_SIZES = [
+  { label: '10px', value: '10px' },
+  { label: '12px', value: '12px' },
+  { label: '14px', value: '14px' },
+  { label: '16px', value: '16px' },
+  { label: '18px', value: '18px' },
+  { label: '20px', value: '20px' },
+  { label: '24px', value: '24px' },
+  { label: '28px', value: '28px' },
+  { label: '32px', value: '32px' },
+  { label: '36px', value: '36px' },
+  { label: '48px', value: '48px' },
 ];
 
 export default function AdvancedRichTextEditor({ content, onChange, placeholder }: AdvancedRichTextEditorProps) {
@@ -108,6 +122,7 @@ export default function AdvancedRichTextEditor({ content, onChange, placeholder 
       Underline,
       TextStyle,
       Color,
+      FontSize,
       Highlight.configure({
         multicolor: true,
       }),
@@ -243,16 +258,38 @@ export default function AdvancedRichTextEditor({ content, onChange, placeholder 
 
         <ToolbarDivider />
 
+        {/* Paragraph Button */}
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setParagraph().run()} 
+          isActive={editor.isActive('paragraph') && !editor.isActive('heading')} 
+          title="Paragraph"
+        >
+          <Pilcrow className="w-4 h-4" />
+        </ToolbarButton>
+
         {/* Headings Dropdown */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 px-2 gap-1" title="Headings">
               <Heading1 className="w-4 h-4" />
-              <span className="text-xs">Headings</span>
+              <ChevronDown className="w-3 h-3" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-40 p-1">
+          <PopoverContent className="w-44 p-1">
             <div className="space-y-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  'w-full justify-start',
+                  editor.isActive('paragraph') && !editor.isActive('heading') && 'bg-primary/10'
+                )}
+                onClick={() => editor.chain().focus().setParagraph().run()}
+              >
+                <Pilcrow className="w-4 h-4 mr-2" />
+                <span className="text-sm">Paragraph</span>
+              </Button>
+              <Separator className="my-1" />
               {[1, 2, 3, 4, 5, 6].map((level) => (
                 <Button
                   key={level}
@@ -270,15 +307,40 @@ export default function AdvancedRichTextEditor({ content, onChange, placeholder 
                   <span className="ml-2 text-muted-foreground text-xs">Heading {level}</span>
                 </Button>
               ))}
-              <Separator className="my-1" />
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Font Size Dropdown */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 px-2 gap-1" title="Font Size">
+              <Type className="w-4 h-4" />
+              <ChevronDown className="w-3 h-3" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-32 p-1">
+            <div className="space-y-1 max-h-64 overflow-y-auto">
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() => editor.chain().focus().setParagraph().run()}
+                onClick={() => editor.chain().focus().unsetFontSize().run()}
               >
-                <span className="text-sm">Normal text</span>
+                <span className="text-sm">Default</span>
               </Button>
+              <Separator className="my-1" />
+              {FONT_SIZES.map((size) => (
+                <Button
+                  key={size.value}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => editor.chain().focus().setFontSize(size.value).run()}
+                >
+                  <span style={{ fontSize: size.value }}>{size.label}</span>
+                </Button>
+              ))}
             </div>
           </PopoverContent>
         </Popover>
