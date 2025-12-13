@@ -35,6 +35,8 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -68,6 +70,22 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
     }
     if (settingsRes.data) {
       setSettings(settingsRes.data);
+      // Preload the logo image before showing
+      if (settingsRes.data.logo_url) {
+        const img = new Image();
+        img.onload = () => {
+          setLogoLoaded(true);
+          setIsLoading(false);
+        };
+        img.onerror = () => {
+          setIsLoading(false);
+        };
+        img.src = settingsRes.data.logo_url;
+      } else {
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
     }
   };
 
@@ -95,19 +113,21 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            {settings?.logo_url ? (
+          <Link to="/" className="flex items-center space-x-2 group h-10">
+            {isLoading ? (
+              <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+            ) : settings?.logo_url && logoLoaded ? (
               <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
-            ) : (
+            ) : !settings?.logo_url ? (
               <>
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-                  <span className="text-white font-bold text-xl">A</span>
+                  <span className="text-primary-foreground font-bold text-xl">A</span>
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   Agency
                 </span>
               </>
-            )}
+            ) : null}
           </Link>
 
           {/* Desktop Navigation */}
