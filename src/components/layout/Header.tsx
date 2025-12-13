@@ -35,8 +35,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [logoLoaded, setLogoLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [logoReady, setLogoReady] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -73,19 +72,14 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
       // Preload the logo image before showing
       if (settingsRes.data.logo_url) {
         const img = new Image();
-        img.onload = () => {
-          setLogoLoaded(true);
-          setIsLoading(false);
-        };
-        img.onerror = () => {
-          setIsLoading(false);
-        };
+        img.onload = () => setLogoReady(true);
+        img.onerror = () => setLogoReady(true);
         img.src = settingsRes.data.logo_url;
       } else {
-        setIsLoading(false);
+        setLogoReady(true);
       }
     } else {
-      setIsLoading(false);
+      setLogoReady(true);
     }
   };
 
@@ -114,11 +108,11 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group h-10">
-            {isLoading ? (
-              <div className="h-10 w-32 bg-muted animate-pulse rounded" />
-            ) : settings?.logo_url && logoLoaded ? (
+            {!logoReady ? (
+              <div className="h-10 w-32 bg-muted/50 rounded" />
+            ) : settings?.logo_url ? (
               <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
-            ) : !settings?.logo_url ? (
+            ) : (
               <>
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
                   <span className="text-primary-foreground font-bold text-xl">A</span>
@@ -127,7 +121,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
                   Agency
                 </span>
               </>
-            ) : null}
+            )}
           </Link>
 
           {/* Desktop Navigation */}

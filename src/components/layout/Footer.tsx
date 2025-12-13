@@ -31,6 +31,7 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [logoReady, setLogoReady] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -55,6 +56,17 @@ export const Footer = () => {
     }
     if (settingsRes.data) {
       setSettings(settingsRes.data);
+      // Preload the logo image before showing
+      if (settingsRes.data.logo_url) {
+        const img = new Image();
+        img.onload = () => setLogoReady(true);
+        img.onerror = () => setLogoReady(true);
+        img.src = settingsRes.data.logo_url;
+      } else {
+        setLogoReady(true);
+      }
+    } else {
+      setLogoReady(true);
     }
   };
 
@@ -69,13 +81,15 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center space-x-2 group">
-              {settings?.logo_url ? (
+            <Link to="/" className="flex items-center space-x-2 group h-10">
+              {!logoReady ? (
+                <div className="h-10 w-32 bg-background/20 rounded" />
+              ) : settings?.logo_url ? (
                 <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
               ) : (
                 <>
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-                    <span className="text-white font-bold text-xl">M</span>
+                    <span className="text-primary-foreground font-bold text-xl">M</span>
                   </div>
                   <span className="text-2xl font-bold">{settings?.site_title || 'Manhateck'}</span>
                 </>
