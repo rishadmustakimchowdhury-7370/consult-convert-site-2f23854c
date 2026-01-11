@@ -16,11 +16,19 @@ const toWhatsAppHref = (value?: string) => {
 export const WhatsAppChat = ({
   whatsappLink = "https://wa.me/447426468550",
 }: WhatsAppChatProps) => {
+  const href = toWhatsAppHref(whatsappLink);
+
   return (
     <a
-      href={toWhatsAppHref(whatsappLink)}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={(e) => {
+        // In some embedded previews, navigating inside the iframe gets blocked by WhatsApp (X-Frame-Options).
+        // Force a real new tab/window instead.
+        e.preventDefault();
+        window.open(href, "_blank", "noopener,noreferrer");
+      }}
       className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
       aria-label="Chat on WhatsApp"
     >
