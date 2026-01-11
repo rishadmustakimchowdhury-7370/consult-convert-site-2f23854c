@@ -35,21 +35,10 @@ const withCacheBuster = (url: string, version?: string | null) => {
   return `${url}${joiner}v=${encodeURIComponent(v)}`;
 };
 
-const toWhatsAppHref = (value?: string | null, fallbackPhone?: string | null) => {
-  const v = (value || "").trim();
-  if (v) {
-    // If someone entered a phone number instead of a URL
-    if (!v.startsWith("http://") && !v.startsWith("https://")) {
-      const phone = v.replace(/[^0-9]/g, "");
-      if (phone) return `https://wa.me/${phone}`;
-    }
-
-    // If someone entered a URL, prefer converting to wa.me using the phone fallback (requested behavior)
-    // so the button always opens a WhatsApp chat/profile for the phone number.
-  }
-
+const toWhatsAppHref = (_value?: string | null, fallbackPhone?: string | null) => {
+  // Always open a chat to the phone number (more reliable than wa.me in some environments)
   const phone = (fallbackPhone || "447426468550").replace(/[^0-9]/g, "");
-  return `https://wa.me/${phone}`;
+  return `https://api.whatsapp.com/send?phone=${phone}`;
 };
 
 export const Footer = () => {

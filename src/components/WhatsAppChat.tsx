@@ -6,11 +6,13 @@ interface WhatsAppChatProps {
 }
 
 const toWhatsAppHref = (value?: string) => {
+  // Always open chat to the phone number (works across more devices/browsers than wa.me in some cases)
   const v = (value || "").trim();
-  if (!v) return "https://wa.me/447426468550";
-  if (v.startsWith("http://") || v.startsWith("https://")) return v;
-  const phone = v.replace(/[^0-9]/g, "");
-  return `https://wa.me/${phone}`;
+  const phone = (v && !v.startsWith("http://") && !v.startsWith("https://")
+    ? v
+    : "+447426468550").replace(/[^0-9]/g, "");
+
+  return `https://api.whatsapp.com/send?phone=${phone}`;
 };
 
 export const WhatsAppChat = ({
