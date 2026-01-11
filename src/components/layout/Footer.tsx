@@ -167,12 +167,10 @@ export const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => {
-                    e.preventDefault();
-                    window.open(
-                      toWhatsAppHref(null, settings?.contact_phone),
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
+                    const url = toWhatsAppHref(null, settings?.contact_phone);
+                    const w = window.open(url, "_blank", "noopener,noreferrer");
+                    // If popups are blocked, allow the normal <a target="_blank"> behavior.
+                    if (w) e.preventDefault();
                   }}
                   className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
                   aria-label="WhatsApp"
@@ -201,17 +199,19 @@ export const Footer = () => {
                   >
                     <Linkedin className="w-5 h-5" />
                   </a>
-                  <a
-                    href={toWhatsAppHref(null, settings?.contact_phone)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      window.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
-                    }}
-                    className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
-                    aria-label="WhatsApp"
-                  >
+                    <a
+                      href={toWhatsAppHref(null, settings?.contact_phone)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        const url = toWhatsAppHref(null, settings?.contact_phone);
+                        const w = window.open(url, "_blank", "noopener,noreferrer");
+                        // If popups are blocked, allow the normal <a target="_blank"> behavior.
+                        if (w) e.preventDefault();
+                      }}
+                      className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
+                      aria-label="WhatsApp"
+                    >
                     <MessageCircle className="w-5 h-5" />
                   </a>
                 </>
@@ -347,12 +347,10 @@ export const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => {
-                    e.preventDefault();
-                    window.open(
-                      toWhatsAppHref(null, settings?.contact_phone),
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
+                    const url = toWhatsAppHref(null, settings?.contact_phone);
+                    const w = window.open(url, "_blank", "noopener,noreferrer");
+                    // If popups are blocked, allow the normal <a target="_blank"> behavior.
+                    if (w) e.preventDefault();
                   }}
                   className="hover:text-background transition-colors"
                 >
