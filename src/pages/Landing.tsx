@@ -259,12 +259,13 @@ export default function Landing() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {
-                e.preventDefault();
-                window.open(
+                const w = window.open(
                   "https://wa.me/447426468550",
                   "_blank",
                   "noopener,noreferrer"
                 );
+                // If popups are blocked, allow the normal <a target="_blank"> behavior.
+                if (w) e.preventDefault();
               }}
               className="w-10 h-10 bg-[#25D366] hover:bg-[#128C7E] rounded-full flex items-center justify-center transition-colors"
               aria-label="WhatsApp"
