@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -41,6 +41,12 @@ const formSchema = z.object({
   budget: z.string().min(1, "Please select your budget range"),
 });
 
+interface Service {
+  id: string;
+  title: string;
+  slug: string;
+}
+
 interface ConsultationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -49,7 +55,20 @@ interface ConsultationDialogProps {
 export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const { data } = await supabase
+        .from("services")
+        .select("id, title, slug")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (data) setServices(data);
+    };
+    fetchServices();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -170,12 +189,15 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-popover">
-                      <SelectItem value="web-development">Web Development</SelectItem>
-                      <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
-                      <SelectItem value="brand-strategy">Brand Strategy</SelectItem>
-                      <SelectItem value="uiux-design">UI/UX Design</SelectItem>
-                      <SelectItem value="seo-services">SEO Services</SelectItem>
-                      <SelectItem value="content-creation">Content Creation</SelectItem>
+                      {services.length > 0 ? (
+                        services.map((svc) => (
+                          <SelectItem key={svc.id} value={svc.slug}>
+                            {svc.title}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="general-inquiry">General Inquiry</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
