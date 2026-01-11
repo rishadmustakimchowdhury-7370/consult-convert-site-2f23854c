@@ -188,7 +188,7 @@ export const Footer = () => {
                     <Linkedin className="w-5 h-5" />
                   </a>
                   <a
-                    href="https://wa.me/447426468550"
+                    href="https://wa.link/xfpx1f"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
@@ -324,7 +324,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-start space-x-3">
                 <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href={settings?.whatsapp_url || 'https://wa.me/447426468550'} target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
+                <a href={settings?.whatsapp_url || 'https://wa.link/xfpx1f'} target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
                   WhatsApp: {settings?.contact_phone || '+44 742 646 8550'}
                 </a>
               </li>
