@@ -255,7 +255,7 @@ export default function Landing() {
           </Link>
           <div className="flex items-center gap-3">
             <a
-              href="https://wa.link/xfpx1f"
+              href="https://wa.me/447426468550"
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 bg-[#25D366] hover:bg-[#128C7E] rounded-full flex items-center justify-center transition-colors"

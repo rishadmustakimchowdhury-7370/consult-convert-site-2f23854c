@@ -35,6 +35,17 @@ const withCacheBuster = (url: string, version?: string | null) => {
   return `${url}${joiner}v=${encodeURIComponent(v)}`;
 };
 
+const toWhatsAppHref = (value?: string | null, fallbackPhone?: string | null) => {
+  const v = (value || "").trim();
+  if (v) {
+    if (v.startsWith("http://") || v.startsWith("https://")) return v;
+    const phone = v.replace(/[^0-9]/g, "");
+    if (phone) return `https://wa.me/${phone}`;
+  }
+  const phone = (fallbackPhone || "447426468550").replace(/[^0-9]/g, "");
+  return `https://wa.me/${phone}`;
+};
+
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -188,7 +199,7 @@ export const Footer = () => {
                     <Linkedin className="w-5 h-5" />
                   </a>
                   <a
-                    href="https://wa.link/xfpx1f"
+                    href={toWhatsAppHref(null, settings?.contact_phone)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
@@ -324,7 +335,12 @@ export const Footer = () => {
               </li>
               <li className="flex items-start space-x-3">
                 <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href={settings?.whatsapp_url || 'https://wa.link/xfpx1f'} target="_blank" rel="noopener noreferrer" className="hover:text-background transition-colors">
+                <a
+                  href={toWhatsAppHref(settings?.whatsapp_url, settings?.contact_phone)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-background transition-colors"
+                >
                   WhatsApp: {settings?.contact_phone || '+44 742 646 8550'}
                 </a>
               </li>
