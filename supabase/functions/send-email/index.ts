@@ -81,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
       .limit(1)
       .maybeSingle();
 
-    const adminEmails = ["mustakimchy21@gmail.com", "info@manhateck.com"];
+    const adminEmails = ["info@manhateck.com"];
     const siteTitle = settings?.site_title || "Manhateck";
 
     // Save submission to database
