@@ -292,7 +292,7 @@ const Contact = () => {
       </section>
 
       <Footer />
-      <WhatsAppChat phoneNumber="+447426468550" />
+      <WhatsAppChat />
       <ConsultationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
   );
