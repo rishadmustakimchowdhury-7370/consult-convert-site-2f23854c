@@ -36,9 +36,9 @@ const withCacheBuster = (url: string, version?: string | null) => {
 };
 
 const toWhatsAppHref = (_value?: string | null, fallbackPhone?: string | null) => {
-  // Always open a chat to the phone number (more reliable than wa.me in some environments)
+  // Always open a chat to the phone number using wa.me
   const phone = (fallbackPhone || "447426468550").replace(/[^0-9]/g, "");
-  return `https://api.whatsapp.com/send?phone=${phone}`;
+  return `https://wa.me/${phone}`;
 };
 
 export const Footer = () => {

@@ -255,13 +255,13 @@ export default function Landing() {
           </Link>
           <div className="flex items-center gap-3">
             <a
-              href="https://api.whatsapp.com/send?phone=447426468550"
+              href="https://wa.me/447426468550"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {
                 e.preventDefault();
                 window.open(
-                  "https://api.whatsapp.com/send?phone=447426468550",
+                  "https://wa.me/447426468550",
                   "_blank",
                   "noopener,noreferrer"
                 );
