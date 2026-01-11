@@ -166,12 +166,6 @@ export const Footer = () => {
                   href={toWhatsAppHref(null, settings?.contact_phone)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => {
-                    const url = toWhatsAppHref(null, settings?.contact_phone);
-                    const w = window.open(url, "_blank", "noopener,noreferrer");
-                    // If popups are blocked, allow the normal <a target="_blank"> behavior.
-                    if (w) e.preventDefault();
-                  }}
                   className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
                   aria-label="WhatsApp"
                 >
@@ -203,12 +197,6 @@ export const Footer = () => {
                       href={toWhatsAppHref(null, settings?.contact_phone)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={(e) => {
-                        const url = toWhatsAppHref(null, settings?.contact_phone);
-                        const w = window.open(url, "_blank", "noopener,noreferrer");
-                        // If popups are blocked, allow the normal <a target="_blank"> behavior.
-                        if (w) e.preventDefault();
-                      }}
                       className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
                       aria-label="WhatsApp"
                     >
@@ -346,12 +334,6 @@ export const Footer = () => {
                   href={toWhatsAppHref(null, settings?.contact_phone)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => {
-                    const url = toWhatsAppHref(null, settings?.contact_phone);
-                    const w = window.open(url, "_blank", "noopener,noreferrer");
-                    // If popups are blocked, allow the normal <a target="_blank"> behavior.
-                    if (w) e.preventDefault();
-                  }}
                   className="hover:text-background transition-colors"
                 >
                   WhatsApp: {settings?.contact_phone || "+44 742 646 8550"}

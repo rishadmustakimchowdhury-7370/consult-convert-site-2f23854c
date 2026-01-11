@@ -225,15 +225,6 @@ const Contact = () => {
                         href="https://wa.me/447426468550"
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => {
-                          const w = window.open(
-                            "https://wa.me/447426468550",
-                            "_blank",
-                            "noopener,noreferrer"
-                          );
-                          // If popups are blocked, allow the normal <a target="_blank"> behavior.
-                          if (w) e.preventDefault();
-                        }}
                         className="text-muted-foreground hover:text-[#25D366] transition-colors"
                       >
                         +44 742 646 8550
