@@ -25,6 +25,12 @@ export const WhatsAppChat = ({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={(e) => {
+        // Prevent opening inside embedded frames; force a real new tab/window.
+        e.preventDefault();
+        const opener: Window | null = window.top ?? window;
+        opener.open(href, "_blank", "noopener,noreferrer");
+      }}
       className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
       aria-label="Chat on WhatsApp"
     >

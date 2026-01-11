@@ -258,6 +258,11 @@ export default function Landing() {
               href="https://wa.me/447426468550"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                const opener: Window | null = window.top ?? window;
+                opener.open("https://wa.me/447426468550", "_blank", "noopener,noreferrer");
+              }}
               className="w-10 h-10 bg-[#25D366] hover:bg-[#128C7E] rounded-full flex items-center justify-center transition-colors"
               aria-label="WhatsApp"
             >
