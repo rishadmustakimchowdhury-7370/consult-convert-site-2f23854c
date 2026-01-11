@@ -25,11 +25,6 @@ export const WhatsAppChat = ({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={(e) => {
-        // Try window.open first (works in many environments); if blocked, let the normal link open.
-        const w = window.open(href, "_blank", "noopener,noreferrer");
-        if (w) e.preventDefault();
-      }}
       className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
       aria-label="Chat on WhatsApp"
     >
