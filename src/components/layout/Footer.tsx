@@ -17,6 +17,7 @@ interface SiteSettings {
   site_title: string | null;
   site_description: string | null;
   logo_url: string | null;
+  updated_at?: string | null;
   contact_email: string | null;
   contact_phone: string | null;
   contact_phone_secondary: string | null;
@@ -26,6 +27,13 @@ interface SiteSettings {
   linkedin_url: string | null;
   instagram_url: string | null;
 }
+
+const withCacheBuster = (url: string, version?: string | null) => {
+  const v = (version || "").trim();
+  if (!v) return url;
+  const joiner = url.includes("?") ? "&" : "?";
+  return `${url}${joiner}v=${encodeURIComponent(v)}`;
+};
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -40,28 +48,37 @@ export const Footer = () => {
   const fetchData = async () => {
     const [menuRes, settingsRes] = await Promise.all([
       supabase
-        .from('navigation_menu')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true }),
+        .from("navigation_menu")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
       supabase
-        .from('site_settings')
-        .select('site_title, site_description, logo_url, contact_email, contact_phone, contact_phone_secondary, contact_address, whatsapp_url, facebook_url, linkedin_url, instagram_url')
+        .from("site_settings")
+        .select(
+          "site_title, site_description, logo_url, updated_at, contact_email, contact_phone, contact_phone_secondary, contact_address, whatsapp_url, facebook_url, linkedin_url, instagram_url"
+        )
         .limit(1)
-        .maybeSingle()
+        .maybeSingle(),
     ]);
 
     if (menuRes.data) {
       setMenuItems(menuRes.data);
     }
+
     if (settingsRes.data) {
-      setSettings(settingsRes.data);
-      // Preload the logo image before showing
-      if (settingsRes.data.logo_url) {
+      const nextSettings = settingsRes.data;
+      setSettings(nextSettings);
+
+      const nextLogoSrc = nextSettings.logo_url
+        ? withCacheBuster(nextSettings.logo_url, nextSettings.updated_at)
+        : null;
+
+      if (nextLogoSrc) {
+        setLogoReady(false);
         const img = new Image();
         img.onload = () => setLogoReady(true);
         img.onerror = () => setLogoReady(true);
-        img.src = settingsRes.data.logo_url;
+        img.src = nextLogoSrc;
       } else {
         setLogoReady(true);
       }
@@ -85,13 +102,19 @@ export const Footer = () => {
               {!logoReady ? (
                 <div className="h-10 w-32 bg-background/20 rounded" />
               ) : settings?.logo_url ? (
-                <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
+                <img
+                  src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                  alt={settings?.site_title || "Logo"}
+                  className="h-10"
+                />
               ) : (
                 <>
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
                     <span className="text-primary-foreground font-bold text-xl">M</span>
                   </div>
-                  <span className="text-2xl font-bold">{settings?.site_title || 'Manhateck'}</span>
+                  <span className="text-2xl font-bold">
+                    {settings?.site_title || "Manhateck"}
+                  </span>
                 </>
               )}
             </Link>
