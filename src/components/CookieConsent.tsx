@@ -4,27 +4,62 @@ import { X, Cookie } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const COOKIE_CONSENT_KEY = "cookie-consent-accepted";
+const COOKIE_NAME = "mh_cookie_consent";
+
+const readCookie = (name: string) => {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.split("=")[1] || "") : null;
+};
+
+const writeCookie = (name: string, value: string) => {
+  if (typeof document === "undefined") return;
+  // 180 days
+  const maxAge = 60 * 60 * 24 * 180;
+  document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
+};
 
 export const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+    // Some browsers/extensions block localStorage; we support both cookie + localStorage.
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(COOKIE_CONSENT_KEY);
+    } catch {
+      stored = null;
+    }
+
+    const cookieVal = readCookie(COOKIE_NAME);
+    const consent = stored ?? cookieVal;
+
     if (consent === null) {
-      // Show popup after a short delay for better UX
-      const timer = setTimeout(() => setIsVisible(true), 1500);
+      const timer = setTimeout(() => setIsVisible(true), 300);
       return () => clearTimeout(timer);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, "true");
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, "true");
+    } catch {
+      // ignore
+    }
+    writeCookie(COOKIE_NAME, "true");
     setIsVisible(false);
   };
 
   const handleDecline = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, "false");
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, "false");
+    } catch {
+      // ignore
+    }
+    writeCookie(COOKIE_NAME, "false");
     setIsVisible(false);
   };
 

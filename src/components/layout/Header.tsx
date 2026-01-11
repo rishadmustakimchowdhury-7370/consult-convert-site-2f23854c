@@ -28,7 +28,15 @@ interface MenuItem {
 interface SiteSettings {
   logo_url: string | null;
   site_title: string | null;
+  updated_at?: string | null;
 }
+
+const withCacheBuster = (url: string, version?: string | null) => {
+  const v = (version || "").trim();
+  if (!v) return url;
+  const joiner = url.includes("?") ? "&" : "?";
+  return `${url}${joiner}v=${encodeURIComponent(v)}`;
+};
 
 export const Header = ({ onConsultationClick }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -53,28 +61,36 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
   const fetchData = async () => {
     const [menuRes, settingsRes] = await Promise.all([
       supabase
-        .from('navigation_menu')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true }),
+        .from("navigation_menu")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
       supabase
-        .from('site_settings')
-        .select('logo_url, site_title')
+        .from("site_settings")
+        .select("logo_url, site_title, updated_at")
         .limit(1)
-        .maybeSingle()
+        .maybeSingle(),
     ]);
 
     if (menuRes.data) {
       setMenuItems(menuRes.data);
     }
+
     if (settingsRes.data) {
-      setSettings(settingsRes.data);
-      // Preload the logo image before showing
-      if (settingsRes.data.logo_url) {
+      const nextSettings = settingsRes.data;
+      setSettings(nextSettings);
+
+      // Cache-bust so the browser cannot show a stale cached logo first.
+      const nextLogoSrc = nextSettings.logo_url
+        ? withCacheBuster(nextSettings.logo_url, nextSettings.updated_at)
+        : null;
+
+      if (nextLogoSrc) {
+        setLogoReady(false);
         const img = new Image();
         img.onload = () => setLogoReady(true);
         img.onerror = () => setLogoReady(true);
-        img.src = settingsRes.data.logo_url;
+        img.src = nextLogoSrc;
       } else {
         setLogoReady(true);
       }
@@ -111,7 +127,11 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
             {!logoReady ? (
               <div className="h-10 w-32 bg-muted/50 rounded" />
             ) : settings?.logo_url ? (
-              <img src={settings.logo_url} alt={settings?.site_title || 'Logo'} className="h-10" />
+              <img
+                src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                alt={settings?.site_title || "Logo"}
+                className="h-10"
+              />
             ) : (
               <>
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
