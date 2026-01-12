@@ -196,6 +196,122 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          invoice_id: string
+          line_total: number
+          quantity: number
+          service_name: string
+          sort_order: number | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_id: string
+          line_total?: number
+          quantity?: number
+          service_name: string
+          sort_order?: number | null
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_id?: string
+          line_total?: number
+          quantity?: number
+          service_name?: string
+          sort_order?: number | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          client_address: string | null
+          client_company: string | null
+          client_email: string
+          client_name: string
+          created_at: string
+          currency: string
+          discount_amount: number | null
+          discount_percentage: number | null
+          due_date: string
+          id: string
+          invoice_date: string
+          invoice_number: string
+          notes: string | null
+          paid_at: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          subtotal: number
+          tax_amount: number | null
+          tax_rate: number | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          client_address?: string | null
+          client_company?: string | null
+          client_email: string
+          client_name: string
+          created_at?: string
+          currency?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          due_date: string
+          id?: string
+          invoice_date?: string
+          invoice_number: string
+          notes?: string | null
+          paid_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          client_address?: string | null
+          client_company?: string | null
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          currency?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          due_date?: string
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          notes?: string | null
+          paid_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string | null
@@ -640,6 +756,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_invoice_number: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -651,6 +768,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       content_status: "draft" | "published"
+      invoice_status: "draft" | "sent" | "paid" | "overdue"
       project_status:
         | "lead"
         | "proposal"
@@ -788,6 +906,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       content_status: ["draft", "published"],
+      invoice_status: ["draft", "sent", "paid", "overdue"],
       project_status: [
         "lead",
         "proposal",
