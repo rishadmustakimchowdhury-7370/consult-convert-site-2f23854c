@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.86.2";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -215,7 +216,7 @@ function generateEmailHTML(invoice: any): string {
           </div>
 
           <p style="color: #6B7280; font-size: 14px; text-align: center;">
-            The invoice is attached as a PDF to this email.
+            The invoice is attached as an HTML file to this email.
           </p>
 
           <!-- Closing -->
@@ -250,54 +251,50 @@ async function sendEmailWithSMTP(
   to: string,
   subject: string,
   htmlContent: string,
-  pdfContent: string,
+  attachmentContent: string,
   invoiceNumber: string
 ): Promise<void> {
   const smtpPassword = Deno.env.get("SMTP_PASSWORD");
+  
   if (!smtpPassword) {
     throw new Error("SMTP_PASSWORD not configured");
   }
 
-  // Use Resend API as fallback since SMTP in Deno edge functions is complex
-  // The SMTP_PASSWORD will be used as a Resend API key alternative
-  const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  
-  if (!resendApiKey) {
-    throw new Error("RESEND_API_KEY not configured for email sending");
-  }
-
-  // Convert HTML to base64 for PDF attachment simulation
-  // Note: In production, you'd use a proper PDF generation service
-  const pdfBase64 = btoa(unescape(encodeURIComponent(pdfContent)));
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
+  const client = new SMTPClient({
+    connection: {
+      hostname: "smtp.gmail.com",
+      port: 465,
+      tls: true,
+      auth: {
+        username: "info@manhateck.com",
+        password: smtpPassword,
+      },
     },
-    body: JSON.stringify({
+  });
+
+  try {
+    // Convert HTML content to base64 for attachment
+    const attachmentBase64 = btoa(unescape(encodeURIComponent(attachmentContent)));
+
+    await client.send({
       from: "ManhaTeck Billing <info@manhateck.com>",
       to: [to],
       subject: subject,
+      content: "Please view this email in an HTML-capable email client.",
       html: htmlContent,
       attachments: [
         {
           filename: `${invoiceNumber}.html`,
-          content: pdfBase64,
-          type: "text/html",
+          content: attachmentBase64,
+          encoding: "base64",
+          contentType: "text/html",
         },
       ],
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("Resend API error:", error);
-    throw new Error(`Failed to send email: ${error}`);
+    });
+    console.log("Invoice email sent successfully via SMTP");
+  } finally {
+    await client.close();
   }
-
-  console.log("Email sent successfully via Resend");
 }
 
 serve(async (req: Request): Promise<Response> => {

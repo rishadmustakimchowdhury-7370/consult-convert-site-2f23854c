@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,28 +22,37 @@ interface EmailRequest {
   };
 }
 
-async function sendEmail(to: string[], subject: string, html: string, from: string) {
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-    },
-    body: JSON.stringify({
-      from,
-      to,
-      subject,
-      html,
-    }),
-  });
+async function sendEmail(to: string[], subject: string, html: string): Promise<void> {
+  const smtpPassword = Deno.env.get("SMTP_PASSWORD");
   
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("Resend API error:", error);
-    throw new Error(`Failed to send email: ${error}`);
+  if (!smtpPassword) {
+    throw new Error("SMTP_PASSWORD not configured");
   }
-  
-  return response.json();
+
+  const client = new SMTPClient({
+    connection: {
+      hostname: "smtp.gmail.com",
+      port: 465,
+      tls: true,
+      auth: {
+        username: "info@manhateck.com",
+        password: smtpPassword,
+      },
+    },
+  });
+
+  try {
+    await client.send({
+      from: "ManhaTeck <info@manhateck.com>",
+      to: to,
+      subject: subject,
+      content: "Please view this email in an HTML-capable email client.",
+      html: html,
+    });
+    console.log("Email sent successfully via SMTP");
+  } finally {
+    await client.close();
+  }
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -82,7 +90,7 @@ const handler = async (req: Request): Promise<Response> => {
       .maybeSingle();
 
     const adminEmails = ["info@manhateck.com"];
-    const siteTitle = settings?.site_title || "Manhateck";
+    const siteTitle = settings?.site_title || "ManhaTeck";
 
     // Save submission to database
     await supabase.from("contact_submissions").insert({
@@ -103,67 +111,89 @@ const handler = async (req: Request): Promise<Response> => {
     // Send notification to admin
     const adminEmailContent = type === "consultation" 
       ? `
-        <h2>New Consultation Request</h2>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>WhatsApp:</strong> ${data.phone || "Not provided"}</p>
-        <p><strong>Service:</strong> ${data.service || "Not specified"}</p>
-        <p><strong>Available Date:</strong> ${data.availableDate || "Not specified"}</p>
-        <p><strong>Available Time:</strong> ${data.availableTime || "Not specified"}</p>
-        <p><strong>Budget:</strong> ${data.budget || "Not specified"}</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">New Consultation Request</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Name:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.name}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Email:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.email}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>WhatsApp:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.phone || "Not provided"}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Service:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.service || "Not specified"}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Available Date:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.availableDate || "Not specified"}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Available Time:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.availableTime || "Not specified"}</td></tr>
+            <tr><td style="padding: 10px 0;"><strong>Budget:</strong></td><td style="padding: 10px 0;">${data.budget || "Not specified"}</td></tr>
+          </table>
+          <p style="color: #666; margin-top: 20px; font-size: 12px;">This email was sent from the ManhaTeck website contact form.</p>
+        </div>
       `
       : `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Subject:</strong> ${data.subject || "Not provided"}</p>
-        <p><strong>Message:</strong></p>
-        <p>${data.message || "No message"}</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">New Contact Form Submission</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Name:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.name}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Email:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.email}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Subject:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.subject || "Not provided"}</td></tr>
+          </table>
+          <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
+            <strong>Message:</strong>
+            <p style="margin-top: 10px;">${data.message || "No message"}</p>
+          </div>
+          <p style="color: #666; margin-top: 20px; font-size: 12px;">This email was sent from the ManhaTeck website contact form.</p>
+        </div>
       `;
 
-    // Using Resend's default sender until custom domain is verified
-    // To use info@manhateck.com, verify your domain at https://resend.com/domains
-    const senderEmail = "onboarding@resend.dev";
-
     // Send admin notification
-    const adminResult = await sendEmail(
+    await sendEmail(
       adminEmails,
       type === "consultation" 
         ? `New Consultation Request from ${data.name}` 
         : `New Contact Form Submission from ${data.name}`,
-      adminEmailContent,
-      `${siteTitle} <${senderEmail}>`
+      adminEmailContent
     );
 
-    console.log("Admin email sent:", adminResult);
+    console.log("Admin email sent");
 
     // Send thank you email to user
     const userEmailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Thank You for Contacting Us!</h1>
-        <p>Dear ${data.name},</p>
-        <p>We have received your ${type === "consultation" ? "consultation request" : "message"} and appreciate you reaching out to us.</p>
-        <p>Our team will review your inquiry and get back to you within 24 hours.</p>
-        <br/>
-        <p>Best regards,</p>
-        <p><strong>The ${siteTitle} Team</strong></p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
-        <p style="color: #666; font-size: 12px;">
-          Email: info@manhateck.com<br/>
-          Phone: +447426468550<br/>
-          Address: Suite A, 82 James Carter Road, Mildenhall, Bury St. Edmunds, United Kingdom, IP28 7DE
-        </p>
+        <div style="background: linear-gradient(135deg, #0066cc 0%, #004499 100%); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">ManhaTeck</h1>
+        </div>
+        <div style="padding: 30px;">
+          <h2 style="color: #333;">Thank You for Contacting Us!</h2>
+          <p>Dear ${data.name},</p>
+          <p>We have received your ${type === "consultation" ? "consultation request" : "message"} and appreciate you reaching out to us.</p>
+          <p>Our team will review your inquiry and get back to you within 24 hours.</p>
+          <div style="background-color: #f0f7ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; color: #0066cc;"><strong>What happens next?</strong></p>
+            <ul style="color: #555; margin-top: 10px;">
+              <li>Our team will review your request</li>
+              <li>We'll prepare a personalized response</li>
+              <li>You'll hear from us within 24 hours</li>
+            </ul>
+          </div>
+          <p>Best regards,</p>
+          <p><strong>The ${siteTitle} Team</strong></p>
+        </div>
+        <div style="background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+          <p style="color: #666; font-size: 12px; margin: 0;">
+            Email: info@manhateck.com<br/>
+            Phone: +447426468550<br/>
+            Address: Suite A, 82 James Carter Road, Mildenhall, Bury St. Edmunds, United Kingdom, IP28 7DE
+          </p>
+          <p style="color: #999; font-size: 11px; margin-top: 10px;">
+            © ${new Date().getFullYear()} ManhaTeck. All rights reserved.
+          </p>
+        </div>
       </div>
     `;
 
-    const userResult = await sendEmail(
+    await sendEmail(
       [data.email],
-      "Thank you for contacting us!",
-      userEmailContent,
-      `${siteTitle} <${senderEmail}>`
+      "Thank you for contacting ManhaTeck!",
+      userEmailContent
     );
 
-    console.log("User email sent:", userResult);
+    console.log("User thank you email sent");
 
     return new Response(
       JSON.stringify({ success: true, message: "Emails sent successfully" }),
