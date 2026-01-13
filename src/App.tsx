@@ -41,6 +41,8 @@ import AdminProjects from "./pages/admin/Projects";
 import ProjectEditor from "./pages/admin/ProjectEditor";
 import SEOVerification from "./pages/admin/SEOVerification";
 import FooterSettings from "./pages/admin/FooterSettings";
+import Invoices from "./pages/admin/Invoices";
+import InvoiceEditor from "./pages/admin/InvoiceEditor";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +93,9 @@ const App = () => (
                 <Route path="projects" element={<AdminProjects />} />
                 <Route path="projects/new" element={<ProjectEditor />} />
                 <Route path="projects/:id" element={<ProjectEditor />} />
+                <Route path="invoices" element={<Invoices />} />
+                <Route path="invoices/new" element={<InvoiceEditor />} />
+                <Route path="invoices/:id" element={<InvoiceEditor />} />
                 <Route path="footer" element={<FooterSettings />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
