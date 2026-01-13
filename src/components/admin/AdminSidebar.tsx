@@ -17,6 +17,7 @@ import {
   Briefcase,
   Menu,
   Layout,
+  Receipt,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', path: '/visage' },
   { icon: Briefcase, label: 'Services', path: '/visage/services' },
   { icon: FolderOpen, label: 'Projects', path: '/visage/projects' },
+  { icon: Receipt, label: 'Invoices', path: '/visage/invoices' },
   { icon: FileText, label: 'Blog Posts', path: '/visage/blogs' },
   { icon: FolderOpen, label: 'Categories', path: '/visage/categories' },
   { icon: Files, label: 'Pages', path: '/visage/pages' },
