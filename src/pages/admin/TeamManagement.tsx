@@ -250,7 +250,7 @@ export default function TeamManagement() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -403,7 +403,7 @@ export default function TeamManagement() {
                 <Label htmlFor="role">Role</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value) =>
+                  onValueChange={(value: AppRole) =>
                     setFormData({ ...formData, role: value })
                   }
                 >
@@ -443,7 +443,7 @@ export default function TeamManagement() {
                 <Label htmlFor="edit-role">Role</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(value) =>
+                  onValueChange={(value: AppRole) =>
                     setFormData({ ...formData, role: value })
                   }
                 >
@@ -469,6 +469,6 @@ export default function TeamManagement() {
           </DialogContent>
         </Dialog>
       </div>
-    </AdminLayout>
+    </>
   );
 }
