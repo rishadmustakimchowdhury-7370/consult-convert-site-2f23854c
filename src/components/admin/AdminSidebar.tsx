@@ -18,6 +18,7 @@ import {
   Menu,
   Layout,
   Receipt,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -36,6 +37,7 @@ const menuItems = [
   { icon: Search, label: 'SEO Tools', path: '/visage/seo' },
   { icon: Search, label: 'SEO Verification', path: '/visage/seo-verification' },
   { icon: Layout, label: 'Footer Settings', path: '/visage/footer' },
+  { icon: Users, label: 'Team', path: '/visage/team' },
   { icon: Settings, label: 'Settings', path: '/visage/settings' },
 ];
 
