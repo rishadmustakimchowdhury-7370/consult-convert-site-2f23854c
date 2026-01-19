@@ -45,7 +45,7 @@ interface InvoiceFormData {
   notes: string;
 }
 
-const predefinedServices = [
+const defaultServices = [
   "Website Design & Development",
   "eCommerce Store Development",
   "SaaS / Web Application Development",
@@ -68,6 +68,9 @@ export default function InvoiceEditor() {
   const isNew = id === "new" || !id;
   const [showPreview, setShowPreview] = useState(false);
   const [sendingInvoice, setSendingInvoice] = useState(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string | undefined>(id === "new" ? undefined : id);
+  const [customServices, setCustomServices] = useState<string[]>([]);
+  const [newServiceName, setNewServiceName] = useState("");
 
   const [formData, setFormData] = useState<InvoiceFormData>({
     invoice_number: "",
@@ -260,7 +263,10 @@ export default function InvoiceEditor() {
     onSuccess: (invoiceId) => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       toast({ title: "Invoice saved successfully" });
-      if (isNew) {
+      if (invoiceId) {
+        setCurrentInvoiceId(invoiceId);
+      }
+      if (isNew && invoiceId) {
         navigate(`/visage/invoices/${invoiceId}`);
       }
     },
@@ -273,11 +279,16 @@ export default function InvoiceEditor() {
   const sendMutation = useMutation({
     mutationFn: async () => {
       setSendingInvoice(true);
-      // Save first
-      await saveMutation.mutateAsync();
+      // Save first and get the invoice ID
+      const savedInvoiceId = await saveMutation.mutateAsync();
+      
+      const invoiceIdToSend = savedInvoiceId || currentInvoiceId;
+      if (!invoiceIdToSend) {
+        throw new Error("Invoice must be saved before sending");
+      }
       
       const { data, error } = await supabase.functions.invoke("send-invoice", {
-        body: { invoiceId: id || formData.invoice_number },
+        body: { invoiceId: invoiceIdToSend },
       });
 
       if (error) throw error;
@@ -425,10 +436,22 @@ export default function InvoiceEditor() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Service Items</CardTitle>
-            <Button size="sm" onClick={addItem}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add Item
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => {
+                const name = prompt("Enter new service name:");
+                if (name && name.trim()) {
+                  setCustomServices(prev => [...prev, name.trim()]);
+                  toast({ title: "Service added", description: `"${name.trim()}" added to services list` });
+                }
+              }}>
+                <Plus className="h-4 w-4 mr-1" />
+                New Service
+              </Button>
+              <Button size="sm" onClick={addItem}>
+                <Plus className="h-4 w-4 mr-1" />
+                Add Item
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -438,17 +461,30 @@ export default function InvoiceEditor() {
                     <Label className="text-xs">Service</Label>
                     <Select
                       value={item.service_name}
-                      onValueChange={(value) => updateItem(index, "service_name", value)}
+                      onValueChange={(value) => {
+                        if (value === "__custom__") {
+                          const customName = prompt("Enter custom service name:");
+                          if (customName && customName.trim()) {
+                            setCustomServices(prev => [...prev, customName.trim()]);
+                            updateItem(index, "service_name", customName.trim());
+                          }
+                        } else {
+                          updateItem(index, "service_name", value);
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select service" />
                       </SelectTrigger>
                       <SelectContent>
-                        {predefinedServices.map((service) => (
+                        {[...defaultServices, ...customServices].map((service) => (
                           <SelectItem key={service} value={service}>
                             {service}
                           </SelectItem>
                         ))}
+                        <SelectItem value="__custom__" className="text-primary font-medium">
+                          + Add Custom Service
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
