@@ -120,6 +120,10 @@ export default function TeamManagement() {
     }
 
     try {
+      // Get current user email for "invited by" info
+      const { data: currentUser } = await supabase.auth.getUser();
+      const invitedBy = currentUser?.user?.email || "System";
+
       // First, create the user via Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -158,9 +162,30 @@ export default function TeamManagement() {
           console.error("Error adding team member:", memberError);
         }
 
+        // Send email notifications via edge function
+        try {
+          const response = await supabase.functions.invoke("team-invite", {
+            body: {
+              memberName: formData.full_name,
+              memberEmail: formData.email,
+              memberRole: formData.role,
+              tempPassword: formData.password,
+              invitedBy: invitedBy,
+            },
+          });
+
+          if (response.error) {
+            console.error("Error sending invite emails:", response.error);
+          } else {
+            console.log("Team invite emails sent successfully");
+          }
+        } catch (emailError) {
+          console.error("Error invoking team-invite function:", emailError);
+        }
+
         toast({
           title: "Team Member Invited",
-          description: `${formData.full_name} has been added to the team`,
+          description: `${formData.full_name} has been added and notified via email`,
         });
 
         setIsInviteDialogOpen(false);
