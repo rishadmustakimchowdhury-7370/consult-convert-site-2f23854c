@@ -110,10 +110,10 @@ export default function TeamManagement() {
   };
 
   const handleInviteTeamMember = async () => {
-    if (!formData.email || !formData.password || !formData.full_name) {
+    if (!formData.email || !formData.full_name) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in name and email",
         variant: "destructive",
       });
       return;
@@ -124,34 +124,78 @@ export default function TeamManagement() {
       const { data: currentUser } = await supabase.auth.getUser();
       const invitedBy = currentUser?.user?.email || "System";
 
-      // First, create the user via Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/visage/login`,
-          data: {
-            full_name: formData.full_name,
+      let userId: string | null = null;
+      let isExistingUser = false;
+
+      // Check if user already exists in profiles
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("email", formData.email)
+        .maybeSingle();
+
+      if (existingProfile?.user_id) {
+        // User already exists, use their existing user_id
+        userId = existingProfile.user_id;
+        isExistingUser = true;
+        
+        // Check if they already have a role
+        const { data: existingRole } = await supabase
+          .from("user_roles")
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (existingRole) {
+          toast({
+            title: "User Already Has Role",
+            description: "This user already has an assigned role. Edit their existing role instead.",
+            variant: "destructive",
+          });
+          return;
+        }
+      } else {
+        // New user - password required
+        if (!formData.password) {
+          toast({
+            title: "Error",
+            description: "Password is required for new team members",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Create the user via Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/visage/login`,
+            data: {
+              full_name: formData.full_name,
+            },
           },
-        },
-      });
+        });
 
-      if (authError) throw authError;
+        if (authError) throw authError;
+        userId = authData.user?.id || null;
+      }
 
-      if (authData.user) {
+      if (userId) {
         // Add to user_roles table
         const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: authData.user.id,
+          user_id: userId,
           role: formData.role,
         });
 
         if (roleError) {
           console.error("Error adding role:", roleError);
+          throw roleError;
         }
 
         // Add to team_members table
         const { error: memberError } = await supabase.from("team_members").insert({
-          user_id: authData.user.id,
+          user_id: userId,
           email: formData.email,
           full_name: formData.full_name,
           role: formData.role,
@@ -169,8 +213,9 @@ export default function TeamManagement() {
               memberName: formData.full_name,
               memberEmail: formData.email,
               memberRole: formData.role,
-              tempPassword: formData.password,
+              tempPassword: isExistingUser ? "(Use your existing password)" : formData.password,
               invitedBy: invitedBy,
+              isExistingUser: isExistingUser,
             },
           });
 
@@ -185,7 +230,9 @@ export default function TeamManagement() {
 
         toast({
           title: "Team Member Invited",
-          description: `${formData.full_name} has been added and notified via email`,
+          description: isExistingUser 
+            ? `${formData.full_name}'s role has been updated and they've been notified`
+            : `${formData.full_name} has been added and notified via email`,
         });
 
         setIsInviteDialogOpen(false);
