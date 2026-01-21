@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, UserPlus, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, UserPlus, Users, Mail } from "lucide-react";
 
 type AppRole = "admin" | "editor" | "manager" | "seo_manager" | "super_admin" | "user";
 
@@ -149,7 +149,23 @@ export default function TeamManagement() {
       let userId: string | null = null;
       let isExistingUser = false;
 
-      // Check if user already exists in profiles
+      // First check if user already exists in team_members
+      const { data: existingTeamMember } = await supabase
+        .from("team_members")
+        .select("*")
+        .eq("email", formData.email)
+        .maybeSingle();
+
+      if (existingTeamMember) {
+        toast({
+          title: "User Already in Team",
+          description: "This user is already a team member. Edit their role instead.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check if user already exists in profiles (registered user)
       const { data: existingProfile } = await supabase
         .from("profiles")
         .select("user_id")
@@ -157,27 +173,11 @@ export default function TeamManagement() {
         .maybeSingle();
 
       if (existingProfile?.user_id) {
-        // User already exists, use their existing user_id
+        // User already exists in system, use their existing user_id
         userId = existingProfile.user_id;
         isExistingUser = true;
-        
-        // Check if they already have a role
-        const { data: existingRole } = await supabase
-          .from("user_roles")
-          .select("*")
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        if (existingRole) {
-          toast({
-            title: "User Already Has Role",
-            description: "This user already has an assigned role. Edit their existing role instead.",
-            variant: "destructive",
-          });
-          return;
-        }
       } else {
-        // New user - password required
+        // Try to create new user - password required
         if (!formData.password) {
           toast({
             title: "Error",
@@ -199,20 +199,48 @@ export default function TeamManagement() {
           },
         });
 
-        if (authError) throw authError;
+        if (authError) {
+          // Check if user already registered (email exists in auth)
+          if (authError.message.includes("already registered") || authError.message.includes("already exists")) {
+            // User exists in auth but not in profiles - handle as existing user
+            // We need to get their user_id differently - for now show helpful message
+            toast({
+              title: "User Already Registered",
+              description: "This email is already registered. Ask them to log in first, then add them to the team.",
+              variant: "destructive",
+            });
+            return;
+          }
+          throw authError;
+        }
         userId = authData.user?.id || null;
       }
 
       if (userId) {
-        // Add to user_roles table
-        const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: userId,
-          role: formData.role,
-        });
+        // Check if they already have a role and remove it first (for re-invites)
+        const { data: existingRole } = await supabase
+          .from("user_roles")
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle();
 
-        if (roleError) {
-          console.error("Error adding role:", roleError);
-          throw roleError;
+        if (existingRole) {
+          // Update existing role
+          await supabase
+            .from("user_roles")
+            .update({ role: formData.role })
+            .eq("user_id", userId);
+        } else {
+          // Add new role
+          const { error: roleError } = await supabase.from("user_roles").insert({
+            user_id: userId,
+            role: formData.role,
+          });
+
+          if (roleError) {
+            console.error("Error adding role:", roleError);
+            throw roleError;
+          }
         }
 
         // Add to team_members table
@@ -222,10 +250,12 @@ export default function TeamManagement() {
           full_name: formData.full_name,
           role: formData.role,
           is_active: true,
+          invitation_status: "pending",
         });
 
         if (memberError) {
           console.error("Error adding team member:", memberError);
+          throw memberError;
         }
 
         // Send email notifications via edge function
@@ -253,8 +283,8 @@ export default function TeamManagement() {
         toast({
           title: "Team Member Invited",
           description: isExistingUser 
-            ? `${formData.full_name}'s role has been updated and they've been notified`
-            : `${formData.full_name} has been added and notified via email`,
+            ? `${formData.full_name} has been added to the team and notified`
+            : `${formData.full_name} has been invited and notified via email`,
         });
 
         setIsInviteDialogOpen(false);
@@ -310,24 +340,69 @@ export default function TeamManagement() {
   };
 
   const handleDeleteMember = async (member: TeamMember) => {
-    if (!confirm(`Are you sure you want to remove ${member.full_name} from the team?`)) {
+    if (!confirm(`Are you sure you want to permanently remove ${member.full_name} from the team? This will also remove their role permissions.`)) {
       return;
     }
 
     try {
-      const { error } = await supabase
+      // First delete from team_members
+      const { error: memberError } = await supabase
         .from("team_members")
         .delete()
         .eq("id", member.id);
 
-      if (error) throw error;
+      if (memberError) throw memberError;
+
+      // Also delete from user_roles so they can be re-invited with a new role
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", member.user_id);
+
+      if (roleError) {
+        console.error("Error removing user role:", roleError);
+        // Don't throw - team member was already removed
+      }
 
       toast({
         title: "Team Member Removed",
-        description: `${member.full_name} has been removed from the team`,
+        description: `${member.full_name} has been permanently removed from the team and can be re-invited`,
       });
 
       fetchMembers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResendInvite = async (member: TeamMember) => {
+    try {
+      const { data: currentUser } = await supabase.auth.getUser();
+      const invitedBy = currentUser?.user?.email || "System";
+
+      const response = await supabase.functions.invoke("team-invite", {
+        body: {
+          memberName: member.full_name,
+          memberEmail: member.email,
+          memberRole: member.role,
+          tempPassword: "(Use your existing password or reset it)",
+          invitedBy: invitedBy,
+          isExistingUser: true,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      toast({
+        title: "Invite Resent",
+        description: `Invitation email has been resent to ${member.email}`,
+      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -432,10 +507,21 @@ export default function TeamManagement() {
                     <TableCell className="text-right">
                       {isSuperAdmin && (
                         <div className="flex justify-end gap-2">
+                          {member.invitation_status === "pending" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleResendInvite(member)}
+                              title="Resend Invite"
+                            >
+                              <Mail className="w-4 h-4 text-blue-500" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => openEditDialog(member)}
+                            title="Edit Role"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -443,6 +529,7 @@ export default function TeamManagement() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteMember(member)}
+                            title="Delete Member"
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
