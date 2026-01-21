@@ -40,8 +40,11 @@ interface TeamMember {
   email: string;
   role: AppRole;
   is_active: boolean;
+  invitation_status: string | null;
   created_at: string;
 }
+
+const SUPER_ADMIN_EMAIL = "info@manhateck.com";
 
 const ROLES: { value: AppRole; label: string; description: string }[] = [
   { value: "super_admin", label: "Super Admin", description: "Full access to all features" },
@@ -75,6 +78,7 @@ export default function TeamManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [formData, setFormData] = useState<{
     email: string;
     password: string;
@@ -88,9 +92,17 @@ export default function TeamManagement() {
   });
   const { toast } = useToast();
 
+  const isSuperAdmin = currentUserEmail === SUPER_ADMIN_EMAIL;
+
   useEffect(() => {
+    fetchCurrentUser();
     fetchMembers();
   }, []);
+
+  const fetchCurrentUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    setCurrentUserEmail(data?.user?.email || null);
+  };
 
   const fetchMembers = async () => {
     setIsLoading(true);
@@ -331,10 +343,12 @@ export default function TeamManagement() {
               Manage team members and their roles
             </p>
           </div>
-          <Button onClick={() => setIsInviteDialogOpen(true)}>
-            <UserPlus className="w-4 h-4 mr-2" />
-            Invite Team Member
-          </Button>
+          {isSuperAdmin && (
+            <Button onClick={() => setIsInviteDialogOpen(true)}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Invite Team Member
+            </Button>
+          )}
         </div>
 
         {/* Role Legend */}
@@ -365,10 +379,12 @@ export default function TeamManagement() {
               <p className="text-muted-foreground mb-4">
                 Start by inviting team members to collaborate
               </p>
-              <Button onClick={() => setIsInviteDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Invite First Member
-              </Button>
+              {isSuperAdmin && (
+                <Button onClick={() => setIsInviteDialogOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Invite First Member
+                </Button>
+              )}
             </div>
           ) : (
             <Table>
@@ -393,30 +409,35 @@ export default function TeamManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={member.is_active ? "default" : "secondary"}>
-                        {member.is_active ? "Active" : "Inactive"}
+                      <Badge 
+                        variant={member.invitation_status === "accepted" ? "default" : "secondary"}
+                        className={member.invitation_status === "pending" ? "bg-yellow-500 text-white" : ""}
+                      >
+                        {member.invitation_status === "accepted" ? "Accepted" : "Pending"}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {new Date(member.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(member)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteMember(member)}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
+                      {isSuperAdmin && (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditDialog(member)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteMember(member)}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
