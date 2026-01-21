@@ -44,7 +44,7 @@ interface TeamMember {
   created_at: string;
 }
 
-const SUPER_ADMIN_EMAIL = "info@manhateck.com";
+
 
 const ROLES: { value: AppRole; label: string; description: string }[] = [
   { value: "super_admin", label: "Super Admin", description: "Full access to all features" },
@@ -78,7 +78,7 @@ export default function TeamManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [formData, setFormData] = useState<{
     email: string;
     password: string;
@@ -92,16 +92,26 @@ export default function TeamManagement() {
   });
   const { toast } = useToast();
 
-  const isSuperAdmin = currentUserEmail === SUPER_ADMIN_EMAIL;
-
   useEffect(() => {
-    fetchCurrentUser();
+    checkSuperAdminRole();
     fetchMembers();
   }, []);
 
-  const fetchCurrentUser = async () => {
-    const { data } = await supabase.auth.getUser();
-    setCurrentUserEmail(data?.user?.email || null);
+  const checkSuperAdminRole = async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user?.id) {
+      setIsSuperAdmin(false);
+      return;
+    }
+    
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userData.user.id)
+      .eq("role", "super_admin")
+      .maybeSingle();
+    
+    setIsSuperAdmin(!!roleData);
   };
 
   const fetchMembers = async () => {
