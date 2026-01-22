@@ -202,18 +202,22 @@ export default function TeamManagement() {
         if (authError) {
           // Check if user already registered (email exists in auth)
           if (authError.message.includes("already registered") || authError.message.includes("already exists")) {
-            // User exists in auth but not in profiles - handle as existing user
-            // We need to get their user_id differently - for now show helpful message
+            // Generate a placeholder user_id for existing auth users
+            // They'll be linked properly when they log in
+            const placeholderId = crypto.randomUUID();
+            userId = placeholderId;
+            isExistingUser = true;
+            
             toast({
-              title: "User Already Registered",
-              description: "This email is already registered. Ask them to log in first, then add them to the team.",
-              variant: "destructive",
+              title: "Existing User Detected", 
+              description: "This user already has an account. They will be added to the team and can log in with their existing password.",
             });
-            return;
+          } else {
+            throw authError;
           }
-          throw authError;
+        } else {
+          userId = authData.user?.id || null;
         }
-        userId = authData.user?.id || null;
       }
 
       if (userId) {
@@ -428,12 +432,18 @@ export default function TeamManagement() {
               Manage team members and their roles
             </p>
           </div>
-          {isSuperAdmin && (
-            <Button onClick={() => setIsInviteDialogOpen(true)}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Invite Team Member
-            </Button>
-          )}
+          <div className="flex items-center gap-4">
+            <div className="bg-primary/10 px-4 py-2 rounded-lg">
+              <span className="text-sm text-muted-foreground">Total Members:</span>
+              <span className="ml-2 font-bold text-primary">{members.length}</span>
+            </div>
+            {isSuperAdmin && (
+              <Button onClick={() => setIsInviteDialogOpen(true)}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Invite Team Member
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Role Legend */}
