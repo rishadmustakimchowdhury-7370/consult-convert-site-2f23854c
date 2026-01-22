@@ -13,6 +13,7 @@ interface TeamInviteRequest {
   memberRole: string;
   tempPassword: string;
   invitedBy: string;
+  createUser?: boolean; // If true, create user via admin API
 }
 
 async function sendEmail(to: string[], subject: string, html: string): Promise<void> {
@@ -68,8 +69,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { memberName, memberEmail, memberRole, tempPassword, invitedBy }: TeamInviteRequest = await req.json();
-    console.log("Processing team invite for:", memberEmail);
+    const { memberName, memberEmail, memberRole, tempPassword, invitedBy, createUser }: TeamInviteRequest = await req.json();
+    console.log("Processing team invite for:", memberEmail, "createUser:", createUser);
 
     if (!memberName || !memberEmail || !memberRole) {
       return new Response(
@@ -79,6 +80,83 @@ const handler = async (req: Request): Promise<Response> => {
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
+    }
+
+    let userId: string | null = null;
+    let userCreated = false;
+
+    // Create user via admin API if requested
+    if (createUser && tempPassword) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+      if (!supabaseUrl || !serviceRoleKey) {
+        return new Response(
+          JSON.stringify({ error: "Server configuration error" }),
+          { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+      });
+
+      // First check if user already exists in auth
+      const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+      const existingUser = existingUsers?.users?.find(u => u.email?.toLowerCase() === memberEmail.toLowerCase());
+
+      if (existingUser) {
+        console.log("User already exists in auth, using existing user_id:", existingUser.id);
+        userId = existingUser.id;
+        userCreated = false;
+      } else {
+        // Create new user via admin API
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email: memberEmail,
+          password: tempPassword,
+          email_confirm: true,
+          user_metadata: { full_name: memberName }
+        });
+
+        if (createError) {
+          console.error("Error creating user:", createError);
+          return new Response(
+            JSON.stringify({ error: createError.message }),
+            { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+
+        userId = newUser.user?.id || null;
+        userCreated = true;
+        console.log("User created successfully:", userId);
+      }
+
+      // Add role to user_roles table
+      if (userId) {
+        const { error: roleError } = await supabaseAdmin
+          .from("user_roles")
+          .upsert({ user_id: userId, role: memberRole }, { onConflict: 'user_id' });
+
+        if (roleError) {
+          console.error("Error adding role:", roleError);
+        }
+
+        // Add to team_members table
+        const { error: memberError } = await supabaseAdmin
+          .from("team_members")
+          .upsert({
+            user_id: userId,
+            email: memberEmail,
+            full_name: memberName,
+            role: memberRole,
+            is_active: true,
+            invitation_status: "pending"
+          }, { onConflict: 'user_id' });
+
+        if (memberError) {
+          console.error("Error adding team member:", memberError);
+        }
+      }
     }
 
     const superAdminEmail = "info@manhateck.com";
@@ -227,7 +305,12 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Admin notification email sent");
 
     return new Response(
-      JSON.stringify({ success: true, message: "Team invite emails sent successfully" }),
+      JSON.stringify({ 
+        success: true, 
+        message: "Team invite emails sent successfully",
+        userId: userId,
+        userCreated: userCreated
+      }),
       {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },

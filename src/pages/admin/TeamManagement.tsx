@@ -132,10 +132,10 @@ export default function TeamManagement() {
   };
 
   const handleInviteTeamMember = async () => {
-    if (!formData.email || !formData.full_name) {
+    if (!formData.email || !formData.full_name || !formData.password) {
       toast({
         title: "Error",
-        description: "Please fill in name and email",
+        description: "Please fill in name, email, and password",
         variant: "destructive",
       });
       return;
@@ -145,9 +145,6 @@ export default function TeamManagement() {
       // Get current user email for "invited by" info
       const { data: currentUser } = await supabase.auth.getUser();
       const invitedBy = currentUser?.user?.email || "System";
-
-      let userId: string | null = null;
-      let isExistingUser = false;
 
       // First check if user already exists in team_members
       const { data: existingTeamMember } = await supabase
@@ -165,137 +162,39 @@ export default function TeamManagement() {
         return;
       }
 
-      // Check if user already exists in profiles (registered user)
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("email", formData.email)
-        .maybeSingle();
+      // Use edge function to create user and send invite
+      // The edge function uses admin API to avoid "already registered" issues
+      const response = await supabase.functions.invoke("team-invite", {
+        body: {
+          memberName: formData.full_name,
+          memberEmail: formData.email,
+          memberRole: formData.role,
+          tempPassword: formData.password,
+          invitedBy: invitedBy,
+          createUser: true, // This tells edge function to create user via admin API
+        },
+      });
 
-      if (existingProfile?.user_id) {
-        // User already exists in system, use their existing user_id
-        userId = existingProfile.user_id;
-        isExistingUser = true;
-      } else {
-        // Try to create new user - password required
-        if (!formData.password) {
-          toast({
-            title: "Error",
-            description: "Password is required for new team members",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Create the user via Supabase Auth
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/visage/login`,
-            data: {
-              full_name: formData.full_name,
-            },
-          },
-        });
-
-        if (authError) {
-          // Check if user already registered (email exists in auth)
-          if (authError.message.includes("already registered") || authError.message.includes("already exists")) {
-            // Generate a placeholder user_id for existing auth users
-            // They'll be linked properly when they log in
-            const placeholderId = crypto.randomUUID();
-            userId = placeholderId;
-            isExistingUser = true;
-            
-            toast({
-              title: "Existing User Detected", 
-              description: "This user already has an account. They will be added to the team and can log in with their existing password.",
-            });
-          } else {
-            throw authError;
-          }
-        } else {
-          userId = authData.user?.id || null;
-        }
+      if (response.error) {
+        console.error("Error from team-invite function:", response.error);
+        throw new Error(response.error.message || "Failed to invite team member");
       }
 
-      if (userId) {
-        // Check if they already have a role and remove it first (for re-invites)
-        const { data: existingRole } = await supabase
-          .from("user_roles")
-          .select("*")
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        if (existingRole) {
-          // Update existing role
-          await supabase
-            .from("user_roles")
-            .update({ role: formData.role })
-            .eq("user_id", userId);
-        } else {
-          // Add new role
-          const { error: roleError } = await supabase.from("user_roles").insert({
-            user_id: userId,
-            role: formData.role,
-          });
-
-          if (roleError) {
-            console.error("Error adding role:", roleError);
-            throw roleError;
-          }
-        }
-
-        // Add to team_members table
-        const { error: memberError } = await supabase.from("team_members").insert({
-          user_id: userId,
-          email: formData.email,
-          full_name: formData.full_name,
-          role: formData.role,
-          is_active: true,
-          invitation_status: "pending",
-        });
-
-        if (memberError) {
-          console.error("Error adding team member:", memberError);
-          throw memberError;
-        }
-
-        // Send email notifications via edge function
-        try {
-          const response = await supabase.functions.invoke("team-invite", {
-            body: {
-              memberName: formData.full_name,
-              memberEmail: formData.email,
-              memberRole: formData.role,
-              tempPassword: isExistingUser ? "(Use your existing password)" : formData.password,
-              invitedBy: invitedBy,
-              isExistingUser: isExistingUser,
-            },
-          });
-
-          if (response.error) {
-            console.error("Error sending invite emails:", response.error);
-          } else {
-            console.log("Team invite emails sent successfully");
-          }
-        } catch (emailError) {
-          console.error("Error invoking team-invite function:", emailError);
-        }
-
-        toast({
-          title: "Team Member Invited",
-          description: isExistingUser 
-            ? `${formData.full_name} has been added to the team and notified`
-            : `${formData.full_name} has been invited and notified via email`,
-        });
-
-        setIsInviteDialogOpen(false);
-        setFormData({ email: "", password: "", full_name: "", role: "user" });
-        fetchMembers();
+      const result = response.data;
+      if (!result?.success) {
+        throw new Error(result?.error || "Failed to invite team member");
       }
+
+      toast({
+        title: "Team Member Invited",
+        description: `${formData.full_name} has been invited and notified via email`,
+      });
+
+      setIsInviteDialogOpen(false);
+      setFormData({ email: "", password: "", full_name: "", role: "user" });
+      fetchMembers();
     } catch (error: any) {
+      console.error("Error inviting team member:", error);
       toast({
         title: "Error",
         description: error.message,
