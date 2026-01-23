@@ -106,8 +106,22 @@ const handler = async (req: Request): Promise<Response> => {
       const existingUser = existingUsers?.users?.find(u => u.email?.toLowerCase() === memberEmail.toLowerCase());
 
       if (existingUser) {
-        console.log("User already exists in auth, using existing user_id:", existingUser.id);
+        console.log("User already exists in auth, updating password for user_id:", existingUser.id);
         userId = existingUser.id;
+        
+        // Update the existing user's password so they can login with the new temp password
+        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+          password: tempPassword,
+          email_confirm: true,
+          user_metadata: { full_name: memberName }
+        });
+        
+        if (updateError) {
+          console.error("Error updating user password:", updateError);
+        } else {
+          console.log("User password updated successfully");
+        }
+        
         userCreated = false;
       } else {
         // Create new user via admin API
