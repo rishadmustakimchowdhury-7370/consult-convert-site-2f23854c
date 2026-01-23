@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -45,12 +46,16 @@ export default function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { role, canAccess } = useUserRole();
   const [collapsed, setCollapsed] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
     navigate('/visage/login');
   };
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => canAccess(item.path));
 
   return (
     <aside
@@ -66,7 +71,14 @@ export default function AdminSidebar() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold">A</span>
             </div>
-            <span className="font-heading font-bold text-lg">Admin</span>
+            <div className="flex flex-col">
+              <span className="font-heading font-bold text-lg">Admin</span>
+              {role && (
+                <span className="text-xs text-muted-foreground capitalize">
+                  {role.replace('_', ' ')}
+                </span>
+              )}
+            </div>
           </div>
         )}
         <Button
@@ -81,7 +93,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/visage' && location.pathname.startsWith(item.path));
           
