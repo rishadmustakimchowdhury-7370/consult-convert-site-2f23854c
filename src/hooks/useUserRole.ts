@@ -113,10 +113,23 @@ export function useUserRole() {
   
   const canAccess = (path: string): boolean => {
     if (!role) return false;
-    // Check exact match or if path starts with an allowed path
-    return allowedPaths.some(
-      allowedPath => path === allowedPath || path.startsWith(allowedPath + '/')
-    );
+    
+    // Normalize the path by removing trailing slash
+    const normalizedPath = path.endsWith('/') ? path.slice(0, -1) : path;
+    
+    // Check each allowed path
+    return allowedPaths.some(allowedPath => {
+      // Exact match
+      if (normalizedPath === allowedPath) return true;
+      
+      // For dashboard (/visage), only allow exact match
+      if (allowedPath === '/visage') {
+        return normalizedPath === '/visage';
+      }
+      
+      // For other paths, allow sub-routes (e.g., /visage/blogs allows /visage/blogs/123)
+      return normalizedPath.startsWith(allowedPath + '/');
+    });
   };
 
   return { role, loading, allowedPaths, canAccess };
