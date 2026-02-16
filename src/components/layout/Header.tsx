@@ -116,7 +116,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         isScrolled
-          ? "bg-background/95 backdrop-blur-md shadow-md"
+          ? "bg-background/90 backdrop-blur-xl shadow-lg border-b border-border/50"
           : "bg-transparent"
       )}
     >
@@ -195,7 +195,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
           <div className="hidden lg:block">
             <Button
               onClick={onConsultationClick}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="btn-glow bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all"
             >
               Book Free Consultation
             </Button>
