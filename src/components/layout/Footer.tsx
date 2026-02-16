@@ -99,7 +99,7 @@ export const Footer = () => {
   );
 
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="bg-card border-t border-border/50">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -124,7 +124,7 @@ export const Footer = () => {
                 </>
               )}
             </Link>
-            <p className="text-sm text-background/80">
+            <p className="text-sm text-muted-foreground">
               {settings?.site_description || 'Delivering premium digital solutions that transform your business and drive real results.'}
             </p>
             <div className="flex space-x-4">
@@ -133,7 +133,7 @@ export const Footer = () => {
                   href={settings.facebook_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-secondary hover:bg-primary rounded-full flex items-center justify-center transition-colors"
                   aria-label="Facebook"
                 >
                   <Facebook className="w-5 h-5" />
@@ -144,7 +144,7 @@ export const Footer = () => {
                   href={settings.linkedin_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-secondary hover:bg-primary rounded-full flex items-center justify-center transition-colors"
                   aria-label="LinkedIn"
                 >
                   <Linkedin className="w-5 h-5" />
@@ -155,7 +155,7 @@ export const Footer = () => {
                   href={settings.instagram_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-secondary hover:bg-primary rounded-full flex items-center justify-center transition-colors"
                   aria-label="Instagram"
                 >
                   <Instagram className="w-5 h-5" />
@@ -171,45 +171,32 @@ export const Footer = () => {
                     const opener: Window | null = window.top ?? window;
                     opener.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
                   }}
-                  className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-secondary hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
                   aria-label="WhatsApp"
                 >
                   <MessageCircle className="w-5 h-5" />
                 </a>
               )}
-              {/* Fallback social icons if none configured */}
               {!settings?.facebook_url && !settings?.linkedin_url && !settings?.instagram_url && !settings?.whatsapp_url && (
                 <>
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
-                    aria-label="Facebook"
-                  >
+                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-secondary hover:bg-primary rounded-full flex items-center justify-center transition-colors" aria-label="Facebook">
                     <Facebook className="w-5 h-5" />
                   </a>
-                  <a
-                    href="https://linkedin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 bg-background/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
-                    aria-label="LinkedIn"
-                  >
+                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-secondary hover:bg-primary rounded-full flex items-center justify-center transition-colors" aria-label="LinkedIn">
                     <Linkedin className="w-5 h-5" />
                   </a>
-                    <a
-                      href={toWhatsAppHref(null, settings?.contact_phone)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const opener: Window | null = window.top ?? window;
-                        opener.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
-                      }}
-                      className="w-10 h-10 bg-background/10 hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
-                      aria-label="WhatsApp"
-                    >
+                  <a
+                    href={toWhatsAppHref(null, settings?.contact_phone)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const opener: Window | null = window.top ?? window;
+                      opener.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
+                    }}
+                    className="w-10 h-10 bg-secondary hover:bg-[#25D366] rounded-full flex items-center justify-center transition-colors"
+                    aria-label="WhatsApp"
+                  >
                     <MessageCircle className="w-5 h-5" />
                   </a>
                 </>
@@ -217,7 +204,7 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links - Dynamic from database */}
+          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
@@ -225,52 +212,23 @@ export const Footer = () => {
                 footerMenuItems.map((item) => (
                   <li key={item.id}>
                     {item.link.startsWith('http') ? (
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-background/80 hover:text-background transition-colors"
-                      >
+                      <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                         {item.title}
                       </a>
                     ) : (
-                      <Link
-                        to={item.link}
-                        className="text-sm text-background/80 hover:text-background transition-colors"
-                      >
+                      <Link to={item.link} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                         {item.title}
                       </Link>
                     )}
                   </li>
                 ))
               ) : (
-                // Fallback links if no menu items configured
                 <>
-                  <li>
-                    <Link to="/" className="text-sm text-background/80 hover:text-background transition-colors">
-                      Home
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/about" className="text-sm text-background/80 hover:text-background transition-colors">
-                      About Us
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/services" className="text-sm text-background/80 hover:text-background transition-colors">
-                      Services
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/blog" className="text-sm text-background/80 hover:text-background transition-colors">
-                      Blog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/contact" className="text-sm text-background/80 hover:text-background transition-colors">
-                      Contact
-                    </Link>
-                  </li>
+                  <li><Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home</Link></li>
+                  <li><Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
+                  <li><Link to="/services" className="text-sm text-muted-foreground hover:text-primary transition-colors">Services</Link></li>
+                  <li><Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
+                  <li><Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
                 </>
               )}
             </ul>
@@ -280,59 +238,31 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
-              <li>
-                <Link
-                  to="/services/web-development"
-                  className="text-sm text-background/80 hover:text-background transition-colors"
-                >
-                  Web Development
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/services/digital-marketing"
-                  className="text-sm text-background/80 hover:text-background transition-colors"
-                >
-                  Digital Marketing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/services/uiux-design"
-                  className="text-sm text-background/80 hover:text-background transition-colors"
-                >
-                  UI/UX Design
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/services/seo-services"
-                  className="text-sm text-background/80 hover:text-background transition-colors"
-                >
-                  SEO Services
-                </Link>
-              </li>
+              <li><Link to="/services/web-development" className="text-sm text-muted-foreground hover:text-primary transition-colors">Web Development</Link></li>
+              <li><Link to="/services/digital-marketing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Digital Marketing</Link></li>
+              <li><Link to="/services/uiux-design" className="text-sm text-muted-foreground hover:text-primary transition-colors">UI/UX Design</Link></li>
+              <li><Link to="/services/seo-services" className="text-sm text-muted-foreground hover:text-primary transition-colors">SEO Services</Link></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3 text-sm text-background/80">
+            <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start space-x-3">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href={`mailto:${settings?.contact_email || 'info@manhateck.com'}`} className="hover:text-background transition-colors">
+                <a href={`mailto:${settings?.contact_email || 'info@manhateck.com'}`} className="hover:text-primary transition-colors">
                   {settings?.contact_email || 'info@manhateck.com'}
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <div>
-                  <a href={`tel:${settings?.contact_phone || '+447426468550'}`} className="hover:text-background transition-colors block">
+                  <a href={`tel:${settings?.contact_phone || '+447426468550'}`} className="hover:text-primary transition-colors block">
                     {settings?.contact_phone || '+44 742 646 8550'}
                   </a>
                   {(settings?.contact_phone_secondary || !settings) && (
-                    <a href={`tel:${settings?.contact_phone_secondary || '+8801839697370'}`} className="hover:text-background transition-colors block">
+                    <a href={`tel:${settings?.contact_phone_secondary || '+8801839697370'}`} className="hover:text-primary transition-colors block">
                       {settings?.contact_phone_secondary || '+880 183 969 7370'}
                     </a>
                   )}
@@ -349,7 +279,7 @@ export const Footer = () => {
                     const opener: Window | null = window.top ?? window;
                     opener.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
                   }}
-                  className="hover:text-background transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   WhatsApp: {settings?.contact_phone || "+44 742 646 8550"}
                 </a>
@@ -375,13 +305,13 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-background/20 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-sm text-background/60">
-            © {currentYear} {settings?.site_title || 'Manhateck'}. All rights reserved.
+        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <p className="text-sm text-muted-foreground">
+            © {currentYear} {settings?.site_title || 'Manha Teck'}. All rights reserved.
           </p>
           <Link
             to="/privacy-policy"
-            className="text-sm text-background/60 hover:text-background transition-colors"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             Privacy Policy
           </Link>
