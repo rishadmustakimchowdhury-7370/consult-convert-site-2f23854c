@@ -4,12 +4,12 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface EmailRequest {
-  type: "contact" | "consultation" | "admin_notification";
-  data: {
+  type: "contact" | "consultation" | "admin_notification" | "landing_lead";
+  data?: {
     name: string;
     email: string;
     phone?: string;
@@ -20,6 +20,16 @@ interface EmailRequest {
     availableDate?: string;
     availableTime?: string;
   };
+  // Also support flat body (landing page sends flat)
+  name?: string;
+  email?: string;
+  phone?: string;
+  subject?: string;
+  message?: string;
+  service?: string;
+  budget?: string;
+  availableDate?: string;
+  availableTime?: string;
 }
 
 async function sendEmail(to: string[], subject: string, html: string): Promise<void> {
@@ -63,7 +73,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, data }: EmailRequest = await req.json();
+    const body: EmailRequest = await req.json();
+    const type = body.type;
+    // Normalize: support both { type, data: {...} } and flat { type, name, email, ... }
+    const data = body.data || {
+      name: body.name || "",
+      email: body.email || "",
+      phone: body.phone,
+      subject: body.subject,
+      message: body.message,
+      service: body.service,
+      budget: body.budget,
+      availableDate: body.availableDate,
+      availableTime: body.availableTime,
+    };
     console.log("Processing email request:", type, data);
 
     // Basic validation
@@ -109,8 +132,12 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Submission saved to database");
 
     // Send notification to admin
-    const adminEmailContent = type === "consultation" 
-      ? `
+    let adminEmailContent: string;
+    let adminSubject: string;
+
+    if (type === "consultation") {
+      adminSubject = `New Consultation Request from ${data.name}`;
+      adminEmailContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">New Consultation Request</h2>
           <table style="width: 100%; border-collapse: collapse;">
@@ -122,10 +149,30 @@ const handler = async (req: Request): Promise<Response> => {
             <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Available Time:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.availableTime || "Not specified"}</td></tr>
             <tr><td style="padding: 10px 0;"><strong>Budget:</strong></td><td style="padding: 10px 0;">${data.budget || "Not specified"}</td></tr>
           </table>
-          <p style="color: #666; margin-top: 20px; font-size: 12px;">This email was sent from the ManhaTeck website contact form.</p>
+          <p style="color: #666; margin-top: 20px; font-size: 12px;">This email was sent from the ManhaTeck website consultation form.</p>
         </div>
-      `
-      : `
+      `;
+    } else if (type === "landing_lead") {
+      adminSubject = `🔥 New Landing Page Lead from ${data.name}`;
+      adminEmailContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; border-bottom: 2px solid #ff6600; padding-bottom: 10px;">🔥 New Landing Page Lead</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Name:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.name}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Email:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.email}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.phone || "Not provided"}</td></tr>
+            <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Service:</strong></td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${data.service || "Not specified"}</td></tr>
+          </table>
+          <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
+            <strong>Message:</strong>
+            <p style="margin-top: 10px;">${data.message || "No message"}</p>
+          </div>
+          <p style="color: #666; margin-top: 20px; font-size: 12px;">This lead came from the ManhaTeck landing page.</p>
+        </div>
+      `;
+    } else {
+      adminSubject = `New Contact Form Submission from ${data.name}`;
+      adminEmailContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">New Contact Form Submission</h2>
           <table style="width: 100%; border-collapse: collapse;">
@@ -139,14 +186,13 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           <p style="color: #666; margin-top: 20px; font-size: 12px;">This email was sent from the ManhaTeck website contact form.</p>
         </div>
-      `;
+      `; 
+    }
 
     // Send admin notification
     await sendEmail(
       adminEmails,
-      type === "consultation" 
-        ? `New Consultation Request from ${data.name}` 
-        : `New Contact Form Submission from ${data.name}`,
+      adminSubject,
       adminEmailContent
     );
 
