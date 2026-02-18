@@ -3,15 +3,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { Button } from "@/components/ui/button";
-import { Target, Eye, Award, Users } from "lucide-react";
+import { Target, Eye, Award } from "lucide-react";
 import aboutBg from "@/assets/about-bg.jpg";
-
-const teamMembers = [
-  { name: "Alex Johnson", role: "CEO & Founder", initials: "AJ" },
-  { name: "Sarah Miller", role: "Creative Director", initials: "SM" },
-  { name: "David Chen", role: "Head of Development", initials: "DC" },
-  { name: "Emma Williams", role: "Marketing Lead", initials: "EW" },
-];
 
 const milestones = [
   { number: "500+", label: "Projects Completed" },
@@ -88,35 +81,6 @@ const About = () => {
                 Excellence, integrity, innovation, and client success guide everything we do. We believe in transparency, accountability, and continuous improvement.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-4xl font-bold">Meet Our Team</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Talented professionals passionate about your success
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member, index) => (
-              <div
-                key={member.name}
-                className="text-center space-y-4 animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <span className="text-white font-bold text-3xl">{member.initials}</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">{member.name}</h3>
-                  <p className="text-muted-foreground">{member.role}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
