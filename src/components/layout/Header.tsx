@@ -289,14 +289,14 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group h-10">
+          <Link to="/" className="flex items-center space-x-2 group">
             {!logoReady ? (
-              <div className="h-10 w-32 bg-muted/50 rounded" />
+              <div className="h-14 w-40 bg-muted/50 rounded" />
             ) : settings?.logo_url ? (
               <img
                 src={withCacheBuster(settings.logo_url, settings.updated_at)}
                 alt={settings?.site_title || "Logo"}
-                className="h-10"
+                className="h-14 max-h-16 w-auto object-contain"
               />
             ) : (
               <>

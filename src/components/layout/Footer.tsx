@@ -104,14 +104,14 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center space-x-2 group h-10">
+            <Link to="/" className="flex items-center space-x-2 group">
               {!logoReady ? (
-                <div className="h-10 w-32 bg-background/20 rounded" />
+                <div className="h-14 w-40 bg-background/20 rounded" />
               ) : settings?.logo_url ? (
                 <img
                   src={withCacheBuster(settings.logo_url, settings.updated_at)}
                   alt={settings?.site_title || "Logo"}
-                  className="h-10"
+                  className="h-14 max-h-16 w-auto object-contain"
                 />
               ) : (
                 <>
