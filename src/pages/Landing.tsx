@@ -315,7 +315,7 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center">
             {settings?.logo_url ? (
-              <img src={settings.logo_url} alt="Manha Teck" className="w-48 md:w-64 h-auto object-contain" />
+              <img src={settings.logo_url} alt="Manha Teck" className="max-h-14 w-auto max-w-[200px] object-contain" />
             ) : (
               <span className="text-2xl md:text-3xl font-bold gradient-text">Manha Teck</span>
             )}
