@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, GripVertical, Menu, ChevronRight, FileText, Link as LinkIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, GripVertical, Menu, ChevronRight, ChevronDown, FileText, Link as LinkIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -36,6 +36,9 @@ export default function MenuManager() {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [preselectedParent, setPreselectedParent] = useState<string | null>(null);
   const [linkType, setLinkType] = useState<'custom' | 'page'>('custom');
+  const [dragItem, setDragItem] = useState<string | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     title: '',
     link: '',
@@ -58,6 +61,12 @@ export default function MenuManager() {
 
       if (error) throw error;
       setMenuItems(data || []);
+      // Auto-expand items that have children
+      const parents = new Set<string>();
+      (data || []).forEach(item => {
+        if (item.parent_id) parents.add(item.parent_id);
+      });
+      setExpandedItems(parents);
     } catch (error) {
       console.error('Error fetching menu items:', error);
       toast({ title: 'Error fetching menu items', variant: 'destructive' });
@@ -81,6 +90,33 @@ export default function MenuManager() {
     }
   };
 
+  const getChildren = useCallback((parentId: string) => {
+    return menuItems.filter(item => item.parent_id === parentId).sort((a, b) => a.sort_order - b.sort_order);
+  }, [menuItems]);
+
+  const getRootItems = useCallback(() => {
+    return menuItems.filter(item => !item.parent_id).sort((a, b) => a.sort_order - b.sort_order);
+  }, [menuItems]);
+
+  // Get all possible parent items (any item can be a parent)
+  const getAllPossibleParents = useCallback((excludeId?: string): MenuItem[] => {
+    return menuItems.filter(item => item.id !== excludeId);
+  }, [menuItems]);
+
+  // Get depth of an item
+  const getDepth = useCallback((itemId: string): number => {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item || !item.parent_id) return 0;
+    return 1 + getDepth(item.parent_id);
+  }, [menuItems]);
+
+  // Get parent label with hierarchy
+  const getParentLabel = useCallback((item: MenuItem): string => {
+    const depth = getDepth(item.id);
+    const prefix = '—'.repeat(depth);
+    return prefix ? `${prefix} ${item.title}` : item.title;
+  }, [getDepth]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -89,13 +125,16 @@ export default function MenuManager() {
       return;
     }
 
+    const parentId = formData.parent_id === 'none' ? null : formData.parent_id;
+    const siblings = parentId ? getChildren(parentId) : getRootItems();
+
     const menuData = {
       title: formData.title.trim(),
       link: formData.link.trim(),
       location: formData.location,
-      parent_id: formData.parent_id === 'none' ? null : formData.parent_id,
+      parent_id: parentId,
       is_active: formData.is_active,
-      sort_order: editingItem ? editingItem.sort_order : menuItems.length,
+      sort_order: editingItem ? editingItem.sort_order : siblings.length,
     };
 
     try {
@@ -125,24 +164,19 @@ export default function MenuManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this menu item?')) return;
+    if (!confirm('Are you sure you want to delete this menu item and all its children?')) return;
 
     try {
-      // First delete any child items
-      const { error: childError } = await supabase
-        .from('navigation_menu')
-        .delete()
-        .eq('parent_id', id);
+      // Recursively delete all descendants
+      const deleteRecursive = async (parentId: string) => {
+        const children = menuItems.filter(item => item.parent_id === parentId);
+        for (const child of children) {
+          await deleteRecursive(child.id);
+        }
+        await supabase.from('navigation_menu').delete().eq('id', parentId);
+      };
 
-      if (childError) throw childError;
-
-      // Then delete the item itself
-      const { error } = await supabase
-        .from('navigation_menu')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await deleteRecursive(id);
       
       toast({ title: 'Menu item deleted successfully' });
       fetchMenuItems();
@@ -192,11 +226,7 @@ export default function MenuManager() {
   };
 
   const handlePredefinedSelect = (title: string, link: string) => {
-    setFormData({
-      ...formData,
-      title: title,
-      link: link,
-    });
+    setFormData({ ...formData, title, link });
   };
 
   const resetForm = () => {
@@ -213,106 +243,205 @@ export default function MenuManager() {
     setIsDialogOpen(false);
   };
 
-  const parentMenuItems = menuItems.filter(item => !item.parent_id);
-  const getSubItems = (parentId: string) => menuItems.filter(item => item.parent_id === parentId);
+  const toggleExpand = (id: string) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDragItem(itemId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverItem(itemId);
+  };
+
+  const handleDragEnd = () => {
+    setDragItem(null);
+    setDragOverItem(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!dragItem || dragItem === targetId) {
+      handleDragEnd();
+      return;
+    }
+
+    const draggedItem = menuItems.find(i => i.id === dragItem);
+    const targetItem = menuItems.find(i => i.id === targetId);
+    if (!draggedItem || !targetItem) {
+      handleDragEnd();
+      return;
+    }
+
+    // Move dragged item to same parent as target, right after target
+    const targetParentId = targetItem.parent_id;
+    const siblings = menuItems
+      .filter(i => i.parent_id === targetParentId && i.id !== dragItem)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    const targetIndex = siblings.findIndex(i => i.id === targetId);
+    siblings.splice(targetIndex + 1, 0, { ...draggedItem, parent_id: targetParentId });
+
+    // Update sort orders
+    try {
+      const updates = siblings.map((item, index) => 
+        supabase
+          .from('navigation_menu')
+          .update({ sort_order: index, parent_id: targetParentId })
+          .eq('id', item.id)
+      );
+      await Promise.all(updates);
+      toast({ title: 'Menu order updated' });
+      fetchMenuItems();
+    } catch (error) {
+      console.error('Error reordering:', error);
+      toast({ title: 'Error reordering menu', variant: 'destructive' });
+    }
+
+    handleDragEnd();
+  };
+
+  // Move item up/down within its siblings
+  const moveItem = async (itemId: string, direction: 'up' | 'down') => {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    const siblings = menuItems
+      .filter(i => i.parent_id === item.parent_id)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    const currentIndex = siblings.findIndex(i => i.id === itemId);
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    if (targetIndex < 0 || targetIndex >= siblings.length) return;
+
+    // Swap sort orders
+    const currentOrder = siblings[currentIndex].sort_order;
+    const targetOrder = siblings[targetIndex].sort_order;
+
+    try {
+      await Promise.all([
+        supabase.from('navigation_menu').update({ sort_order: targetOrder }).eq('id', siblings[currentIndex].id),
+        supabase.from('navigation_menu').update({ sort_order: currentOrder }).eq('id', siblings[targetIndex].id),
+      ]);
+      fetchMenuItems();
+    } catch (error) {
+      console.error('Error moving item:', error);
+    }
+  };
 
   const getLocationBadge = (location: string) => {
     switch (location) {
       case 'header':
-        return <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Header</span>;
+        return <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Header</span>;
       case 'footer':
-        return <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Footer</span>;
+        return <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Footer</span>;
       case 'both':
-        return <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Header & Footer</span>;
+        return <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">Both</span>;
       default:
         return null;
     }
   };
 
-  const renderMenuItem = (item: MenuItem, location: 'header' | 'footer') => {
-    const subItems = getSubItems(item.id);
-    const isHeaderOrBoth = item.location === 'header' || item.location === 'both';
-    const isFooterOrBoth = item.location === 'footer' || item.location === 'both';
-    
-    if (location === 'header' && !isHeaderOrBoth) return null;
-    if (location === 'footer' && !isFooterOrBoth) return null;
+  const renderMenuTree = (parentId: string | null, depth: number, locationFilter: 'header' | 'footer') => {
+    const items = menuItems
+      .filter(item => item.parent_id === parentId)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    const filteredItems = parentId === null
+      ? items.filter(item => item.location === locationFilter || item.location === 'both')
+      : items; // Children inherit visibility from parent
+
+    if (filteredItems.length === 0) return null;
 
     return (
-      <div key={item.id} className="space-y-1">
-        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-          <div className="flex items-center gap-3">
-            <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-            <div>
-              <p className="font-medium">{item.title}</p>
-              <p className="text-sm text-muted-foreground">{item.link}</p>
-            </div>
-            {getLocationBadge(item.location)}
-            {!item.is_active && (
-              <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">
-                Inactive
-              </span>
-            )}
-            {subItems.length > 0 && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                {subItems.length} submenu{subItems.length > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => handleAddSubmenu(item)}
-              className="text-xs"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              Add Submenu
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
-          </div>
-        </div>
-        
-        {subItems.length > 0 && (
-          <div className="ml-6 space-y-1 border-l-2 border-primary/20 pl-4">
-            {subItems.map((subItem) => (
-              <div 
-                key={subItem.id} 
-                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+      <div className={depth > 0 ? 'ml-6 border-l-2 border-primary/20 pl-3 space-y-1' : 'space-y-1'}>
+        {filteredItems.map((item) => {
+          const children = getChildren(item.id);
+          const hasChildren = children.length > 0;
+          const isExpanded = expandedItems.has(item.id);
+          const isDragging = dragItem === item.id;
+          const isDragOver = dragOverItem === item.id;
+
+          return (
+            <div key={item.id}>
+              <div
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.id)}
+                onDragOver={(e) => handleDragOver(e, item.id)}
+                onDrop={(e) => handleDrop(e, item.id)}
+                onDragEnd={handleDragEnd}
+                className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                  isDragging ? 'opacity-50' : ''
+                } ${isDragOver ? 'ring-2 ring-primary bg-primary/10' : 'bg-muted/50 hover:bg-muted'}`}
               >
-                <div className="flex items-center gap-3">
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium text-sm">{subItem.title}</p>
-                    <p className="text-xs text-muted-foreground">{subItem.link}</p>
+                <div className="flex items-center gap-2 min-w-0">
+                  <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab shrink-0" />
+                  {hasChildren && (
+                    <button onClick={() => toggleExpand(item.id)} className="shrink-0">
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  )}
+                  {!hasChildren && depth > 0 && (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{item.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">{item.link}</p>
                   </div>
-                  {!subItem.is_active && (
-                    <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded">
+                  {depth === 0 && getLocationBadge(item.location)}
+                  {!item.is_active && (
+                    <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded shrink-0">
                       Inactive
                     </span>
                   )}
+                  {hasChildren && (
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded shrink-0">
+                      {children.length}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(subItem)}>
-                    <Pencil className="w-4 h-4" />
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleAddSubmenu(item)}
+                    className="text-xs h-7 px-2"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Sub
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(subItem.id)}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(item)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(item.id)}>
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+
+              {hasChildren && isExpanded && renderMenuTree(item.id, depth + 1, locationFilter)}
+            </div>
+          );
+        })}
       </div>
     );
   };
 
-  // Predefined pages/sections that can be added
   const predefinedLinks = [
     { title: 'Home', link: '/' },
     { title: 'About Us', link: '/about' },
@@ -331,7 +460,7 @@ export default function MenuManager() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Menu Manager</h1>
-          <p className="text-muted-foreground mt-1">Manage your website navigation menus</p>
+          <p className="text-muted-foreground mt-1">Drag & drop to reorder. Add unlimited nested submenus.</p>
         </div>
         <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
           <Plus className="w-4 h-4 mr-2" />
@@ -356,7 +485,6 @@ export default function MenuManager() {
               </div>
             )}
 
-            {/* Link Type Tabs */}
             {!editingItem && (
               <Tabs value={linkType} onValueChange={(v) => setLinkType(v as 'custom' | 'page')}>
                 <TabsList className="grid w-full grid-cols-2">
@@ -371,7 +499,6 @@ export default function MenuManager() {
                 </TabsList>
                 
                 <TabsContent value="page" className="space-y-3 mt-4">
-                  {/* Predefined Sections */}
                   <div>
                     <Label className="text-sm font-medium">Website Sections</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
@@ -390,7 +517,6 @@ export default function MenuManager() {
                     </div>
                   </div>
                   
-                  {/* Dynamic Pages */}
                   {pages.length > 0 && (
                     <div>
                       <Label className="text-sm font-medium">Published Pages</Label>
@@ -466,9 +592,9 @@ export default function MenuManager() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">No parent (top level)</SelectItem>
-                    {parentMenuItems.map((item) => (
+                    {getAllPossibleParents(editingItem?.id).map((item) => (
                       <SelectItem key={item.id} value={item.id}>
-                        {item.title}
+                        {getParentLabel(item)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -506,14 +632,9 @@ export default function MenuManager() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {parentMenuItems
-                .filter(item => item.location === 'header' || item.location === 'both')
-                .map((item) => renderMenuItem(item, 'header'))}
-              {parentMenuItems.filter(item => item.location === 'header' || item.location === 'both').length === 0 && (
-                <p className="text-muted-foreground text-center py-8">No header menu items yet. Click "Add Menu Item" to create one.</p>
-              )}
-            </div>
+            {renderMenuTree(null, 0, 'header') || (
+              <p className="text-muted-foreground text-center py-8">No header menu items yet. Click "Add Menu Item" to create one.</p>
+            )}
           </CardContent>
         </Card>
 
@@ -525,14 +646,9 @@ export default function MenuManager() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {parentMenuItems
-                .filter(item => item.location === 'footer' || item.location === 'both')
-                .map((item) => renderMenuItem(item, 'footer'))}
-              {parentMenuItems.filter(item => item.location === 'footer' || item.location === 'both').length === 0 && (
-                <p className="text-muted-foreground text-center py-8">No footer menu items yet. Click "Add Menu Item" to create one.</p>
-              )}
-            </div>
+            {renderMenuTree(null, 0, 'footer') || (
+              <p className="text-muted-foreground text-center py-8">No footer menu items yet. Click "Add Menu Item" to create one.</p>
+            )}
           </CardContent>
         </Card>
       </div>
