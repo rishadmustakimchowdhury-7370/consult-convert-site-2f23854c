@@ -104,20 +104,30 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center group">
+            <Link to="/" className="flex items-center gap-4 group">
               {!logoReady ? (
-                <div className="h-16 w-48 bg-background/20 rounded" />
+                <div className="h-12 w-12 bg-background/20 rounded-lg animate-pulse" />
               ) : settings?.logo_url ? (
-                <img
-                  src={withCacheBuster(settings.logo_url, settings.updated_at)}
-                  alt={settings?.site_title || "Logo"}
-                  className="max-h-16 w-auto max-w-[220px] object-contain"
-                />
+                <div className="relative">
+                  <img
+                    src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                    alt={settings?.site_title || "Logo"}
+                    className="h-12 md:h-14 w-auto object-contain drop-shadow-[0_0_8px_hsl(210_100%_55%/0.4)]"
+                  />
+                </div>
               ) : (
-                <span className="text-2xl md:text-3xl font-bold">
-                  {settings?.site_title || "Manhateck"}
-                </span>
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-neon">
+                  <span className="text-primary-foreground font-bold text-2xl">M</span>
+                </div>
               )}
+              <div className="flex flex-col">
+                <span className="text-lg md:text-xl font-extrabold tracking-wide text-foreground uppercase leading-tight">
+                  {settings?.site_title || "ManhaTeck"}
+                </span>
+                <span className="text-[10px] md:text-xs font-medium tracking-widest text-primary/80 uppercase leading-tight">
+                  Cybersecurity & Digital Solutions
+                </span>
+              </div>
             </Link>
             <p className="text-sm text-muted-foreground">
               {settings?.site_description || 'Delivering premium digital solutions that transform your business and drive real results.'}

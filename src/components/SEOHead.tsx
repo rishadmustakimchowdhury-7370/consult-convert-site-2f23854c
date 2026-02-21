@@ -14,14 +14,25 @@ export function SEOHead({ title, description }: SEOHeadProps) {
   useEffect(() => {
     if (!settings?.favicon_url) return;
 
-    let link = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'icon';
-      document.head.appendChild(link);
-    }
-    link.type = 'image/png';
-    link.href = settings.favicon_url;
+    const faviconUrl = `${settings.favicon_url}${settings.favicon_url.includes('?') ? '&' : '?'}v=${Date.now()}`;
+
+    // Update or create standard favicon
+    const updateLink = (rel: string, type?: string) => {
+      let link = document.querySelector(`link[rel='${rel}']`) as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      if (type) link.type = type;
+      link.href = faviconUrl;
+    };
+
+    updateLink('icon', 'image/png');
+    updateLink('apple-touch-icon');
+
+    // Also update shortcut icon for legacy browsers
+    updateLink('shortcut icon', 'image/png');
   }, [settings?.favicon_url]);
 
   if (loading) return null;

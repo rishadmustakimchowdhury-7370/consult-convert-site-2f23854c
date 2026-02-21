@@ -313,12 +313,20 @@ export default function Landing() {
       {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center gap-4">
             {settings?.logo_url ? (
-              <img src={settings.logo_url} alt="Manha Teck" className="max-h-14 w-auto max-w-[200px] object-contain" />
+              <div className="relative">
+                <img src={settings.logo_url} alt="Manha Teck" className="h-11 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_hsl(210_100%_55%/0.4)]" />
+              </div>
             ) : (
-              <span className="text-2xl md:text-3xl font-bold gradient-text">Manha Teck</span>
+              <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-neon">
+                <span className="text-primary-foreground font-bold text-xl">M</span>
+              </div>
             )}
+            <div className="flex flex-col">
+              <span className="text-lg md:text-xl font-extrabold tracking-wide text-foreground uppercase leading-tight">ManhaTeck</span>
+              <span className="text-[10px] md:text-xs font-medium tracking-widest text-primary/80 uppercase leading-tight">Cybersecurity & Digital Solutions</span>
+            </div>
           </Link>
           <div className="flex items-center gap-3">
             <a

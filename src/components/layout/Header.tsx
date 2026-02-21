@@ -22,6 +22,7 @@ interface MenuItem {
 interface SiteSettings {
   logo_url: string | null;
   site_title: string | null;
+  site_description: string | null;
   updated_at?: string | null;
 }
 
@@ -240,7 +241,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
         .order("sort_order", { ascending: true }),
       supabase
         .from("site_settings")
-        .select("logo_url, site_title, updated_at")
+        .select("logo_url, site_title, site_description, updated_at")
         .limit(1)
         .maybeSingle(),
     ]);
@@ -288,21 +289,31 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center group">
+          {/* Logo / Branding */}
+          <Link to="/" className="flex items-center gap-4 group shrink-0">
             {!logoReady ? (
-              <div className="h-16 w-48 bg-muted/50 rounded" />
+              <div className="h-12 w-12 bg-muted/50 rounded-lg animate-pulse" />
             ) : settings?.logo_url ? (
-              <img
-                src={withCacheBuster(settings.logo_url, settings.updated_at)}
-                alt={settings?.site_title || "Logo"}
-                className="max-h-14 w-auto max-w-[200px] object-contain"
-              />
+              <div className="relative">
+                <img
+                  src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                  alt={settings?.site_title || "Logo"}
+                  className="h-11 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_hsl(210_100%_55%/0.4)]"
+                />
+              </div>
             ) : (
-              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {settings?.site_title || "Manha Teck"}
-              </span>
+              <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-neon">
+                <span className="text-primary-foreground font-bold text-xl">M</span>
+              </div>
             )}
+            <div className="flex flex-col">
+              <span className="text-lg md:text-xl font-extrabold tracking-wide text-foreground uppercase leading-tight">
+                {settings?.site_title || "ManhaTeck"}
+              </span>
+              <span className="text-[10px] md:text-xs font-medium tracking-widest text-primary/80 uppercase leading-tight">
+                {settings?.site_description ? settings.site_description.substring(0, 40) : "Cybersecurity & Digital Solutions"}
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
