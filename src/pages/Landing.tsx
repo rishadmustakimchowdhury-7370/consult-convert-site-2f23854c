@@ -360,8 +360,8 @@ export default function Landing() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-5 py-2.5 glass-card rounded-full text-primary text-sm font-medium">
-              <div className="w-2 h-2 rounded-full bg-primary animate-glow-pulse" />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 px-6 py-3 glass-card rounded-full text-primary text-base md:text-lg font-semibold">
+              <div className="w-2.5 h-2.5 rounded-full bg-primary animate-glow-pulse" />
               AI-Driven Digital Engineering & Cybersecurity
             </motion.div>
 
@@ -370,7 +370,7 @@ export default function Landing() {
               <span className="gradient-text">Advanced SEO Solutions</span>
             </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="text-xl md:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto font-medium">
               Manha Teck builds AI-powered automation systems, high-performance websites, enterprise cybersecurity solutions, and data-driven SEO strategies designed to scale modern businesses.
             </motion.p>
 
