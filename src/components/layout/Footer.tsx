@@ -104,29 +104,19 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center group">
               {!logoReady ? (
-                <div className="h-12 w-40 bg-background/20 rounded" />
+                <div className="h-16 w-48 bg-background/20 rounded" />
               ) : settings?.logo_url ? (
-                <>
-                  <img
-                    src={withCacheBuster(settings.logo_url, settings.updated_at)}
-                    alt={settings?.site_title || "Logo"}
-                    className="h-12 w-auto object-contain"
-                  />
-                  <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-                    {settings?.site_title || "Manha Teck"}
-                  </span>
-                </>
+                <img
+                  src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                  alt={settings?.site_title || "Logo"}
+                  className="h-16 md:h-20 w-auto object-contain"
+                />
               ) : (
-                <>
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-                    <span className="text-primary-foreground font-bold text-xl">M</span>
-                  </div>
-                  <span className="text-xl md:text-2xl font-bold">
-                    {settings?.site_title || "Manhateck"}
-                  </span>
-                </>
+                <span className="text-2xl md:text-3xl font-bold">
+                  {settings?.site_title || "Manhateck"}
+                </span>
               )}
             </Link>
             <p className="text-sm text-muted-foreground">
