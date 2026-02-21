@@ -1,15 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
   onConsultationClick: () => void;
@@ -36,6 +30,192 @@ const withCacheBuster = (url: string, version?: string | null) => {
   if (!v) return url;
   const joiner = url.includes("?") ? "&" : "?";
   return `${url}${joiner}v=${encodeURIComponent(v)}`;
+};
+
+// Recursive dropdown component for nested menus
+const NestedDropdown = ({
+  item,
+  menuItems,
+  depth = 0,
+}: {
+  item: MenuItem;
+  menuItems: MenuItem[];
+  depth?: number;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const children = menuItems
+    .filter((i) => i.parent_id === item.id)
+    .sort((a, b) => a.sort_order - b.sort_order);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
+  };
+
+  if (children.length === 0) {
+    // Leaf node
+    return (
+      <Link
+        to={item.link}
+        className="block px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
+      >
+        {item.title}
+      </Link>
+    );
+  }
+
+  // Node with children - show flyout submenu
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="flex items-center justify-between px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer whitespace-nowrap">
+        <Link to={item.link} className="flex-1">
+          {item.title}
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 ml-2 shrink-0" />
+      </div>
+      {isOpen && (
+        <div
+          className={cn(
+            "absolute z-50 min-w-[200px] bg-popover border border-border rounded-lg shadow-xl py-1",
+            depth === 0 ? "left-full top-0 -mt-1" : "left-full top-0 -mt-1"
+          )}
+        >
+          {children.map((child) => (
+            <NestedDropdown
+              key={child.id}
+              item={child}
+              menuItems={menuItems}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Top-level dropdown for parent items with children
+const TopLevelDropdown = ({
+  item,
+  menuItems,
+}: {
+  item: MenuItem;
+  menuItems: MenuItem[];
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const children = menuItems
+    .filter((i) => i.parent_id === item.id)
+    .sort((a, b) => a.sort_order - b.sort_order);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
+  };
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button className="flex items-center space-x-1 text-sm font-medium text-foreground hover:text-primary transition-colors outline-none">
+        <Link to={item.link}>{item.title}</Link>
+        <ChevronDown className="w-4 h-4" />
+      </button>
+      {isOpen && (
+        <div className="absolute z-50 left-0 top-full mt-2 min-w-[220px] bg-popover border border-border rounded-lg shadow-xl py-1">
+          <Link
+            to={item.link}
+            className="block px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors font-medium whitespace-nowrap"
+          >
+            All {item.title}
+          </Link>
+          <div className="h-px bg-border mx-2 my-1" />
+          {children.map((child) => (
+            <NestedDropdown
+              key={child.id}
+              item={child}
+              menuItems={menuItems}
+              depth={0}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Mobile recursive menu
+const MobileMenuItem = ({
+  item,
+  menuItems,
+  depth,
+  onClose,
+}: {
+  item: MenuItem;
+  menuItems: MenuItem[];
+  depth: number;
+  onClose: () => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const children = menuItems
+    .filter((i) => i.parent_id === item.id)
+    .sort((a, b) => a.sort_order - b.sort_order);
+  const location = useLocation();
+
+  return (
+    <div>
+      <div className="flex items-center" style={{ paddingLeft: `${depth * 16}px` }}>
+        <Link
+          to={item.link}
+          onClick={onClose}
+          className={cn(
+            "flex-1 py-2 text-sm font-medium transition-colors hover:text-primary",
+            location.pathname === item.link ? "text-primary" : "text-foreground"
+          )}
+        >
+          {item.title}
+        </Link>
+        {children.length > 0 && (
+          <button onClick={() => setIsOpen(!isOpen)} className="p-1">
+            {isOpen ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+        )}
+      </div>
+      {isOpen &&
+        children.map((child) => (
+          <MobileMenuItem
+            key={child.id}
+            item={child}
+            menuItems={menuItems}
+            depth={depth + 1}
+            onClose={onClose}
+          />
+        ))}
+    </div>
+  );
 };
 
 export const Header = ({ onConsultationClick }: HeaderProps) => {
@@ -72,15 +252,12 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
         .maybeSingle(),
     ]);
 
-    if (menuRes.data) {
-      setMenuItems(menuRes.data);
-    }
+    if (menuRes.data) setMenuItems(menuRes.data);
 
     if (settingsRes.data) {
       const nextSettings = settingsRes.data;
       setSettings(nextSettings);
 
-      // Cache-bust so the browser cannot show a stale cached logo first.
       const nextLogoSrc = nextSettings.logo_url
         ? withCacheBuster(nextSettings.logo_url, nextSettings.updated_at)
         : null;
@@ -99,17 +276,13 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
     }
   };
 
-
   const isActive = (path: string) => location.pathname === path;
 
   // Filter header menu items (parent items only)
   const headerParentItems = menuItems.filter(
-    item => (item.location === 'header' || item.location === 'both') && !item.parent_id
+    (item) =>
+      (item.location === "header" || item.location === "both") && !item.parent_id
   );
-
-  // Get submenu items for a parent
-  const getSubItems = (parentId: string) => 
-    menuItems.filter(item => item.parent_id === parentId);
 
   return (
     <header
@@ -147,35 +320,18 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
             {headerParentItems.map((item) => {
-              const subItems = getSubItems(item.id);
-              
-              if (subItems.length > 0) {
-                // Item has submenu - render dropdown
+              const children = menuItems.filter((i) => i.parent_id === item.id);
+
+              if (children.length > 0) {
                 return (
-                  <DropdownMenu key={item.id}>
-                    <DropdownMenuTrigger className="flex items-center space-x-1 text-sm font-medium text-foreground hover:text-primary transition-colors outline-none">
-                      <span>{item.title}</span>
-                      <ChevronDown className="w-4 h-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 bg-popover">
-                      <DropdownMenuItem asChild>
-                        <Link to={item.link} className="w-full cursor-pointer">
-                          All {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                      {subItems.map((subItem) => (
-                        <DropdownMenuItem key={subItem.id} asChild>
-                          <Link to={subItem.link} className="w-full cursor-pointer">
-                            {subItem.title}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <TopLevelDropdown
+                    key={item.id}
+                    item={item}
+                    menuItems={menuItems}
+                  />
                 );
               }
 
-              // Regular link without submenu
               return (
                 <Link
                   key={item.id}
@@ -212,36 +368,16 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-4 space-y-2 animate-fade-in">
-            {headerParentItems.map((item) => {
-              const subItems = getSubItems(item.id);
-              
-              return (
-                <div key={item.id}>
-                  <Link
-                    to={item.link}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "block py-2 text-sm font-medium transition-colors hover:text-primary",
-                      isActive(item.link) ? "text-primary" : "text-foreground"
-                    )}
-                  >
-                    {item.title}
-                  </Link>
-                  {/* Show submenus */}
-                  {subItems.map((subItem) => (
-                    <Link
-                      key={subItem.id}
-                      to={subItem.link}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block py-2 pl-4 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {subItem.title}
-                    </Link>
-                  ))}
-                </div>
-              );
-            })}
+          <div className="lg:hidden py-4 space-y-1 animate-fade-in">
+            {headerParentItems.map((item) => (
+              <MobileMenuItem
+                key={item.id}
+                item={item}
+                menuItems={menuItems}
+                depth={0}
+                onClose={() => setIsMobileMenuOpen(false)}
+              />
+            ))}
             <Button
               onClick={() => {
                 onConsultationClick();
