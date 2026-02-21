@@ -142,13 +142,6 @@ const TopLevelDropdown = ({
       </button>
       {isOpen && (
         <div className="absolute z-50 left-0 top-full mt-2 min-w-[220px] bg-popover border border-border rounded-lg shadow-xl py-1">
-          <Link
-            to={item.link}
-            className="block px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors font-medium whitespace-nowrap"
-          >
-            All {item.title}
-          </Link>
-          <div className="h-px bg-border mx-2 my-1" />
           {children.map((child) => (
             <NestedDropdown
               key={child.id}
