@@ -111,7 +111,7 @@ export const Footer = () => {
                 <img
                   src={withCacheBuster(settings.logo_url, settings.updated_at)}
                   alt={settings?.site_title || "Logo"}
-                  className="w-48 md:w-64 h-auto object-contain"
+                  className="max-h-16 w-auto max-w-[220px] object-contain"
                 />
               ) : (
                 <span className="text-2xl md:text-3xl font-bold">
