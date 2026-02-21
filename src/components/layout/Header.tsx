@@ -289,29 +289,19 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center group">
             {!logoReady ? (
-              <div className="h-12 w-40 bg-muted/50 rounded" />
+              <div className="h-16 w-48 bg-muted/50 rounded" />
             ) : settings?.logo_url ? (
-              <>
-                <img
-                  src={withCacheBuster(settings.logo_url, settings.updated_at)}
-                  alt={settings?.site_title || "Logo"}
-                  className="h-12 w-auto object-contain"
-                />
-                <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-                  {settings?.site_title || "Manha Teck"}
-                </span>
-              </>
+              <img
+                src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                alt={settings?.site_title || "Logo"}
+                className="h-16 md:h-20 w-auto object-contain"
+              />
             ) : (
-              <>
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-                  <span className="text-primary-foreground font-bold text-xl">M</span>
-                </div>
-                <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {settings?.site_title || "Manha Teck"}
-                </span>
-              </>
+              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {settings?.site_title || "Manha Teck"}
+              </span>
             )}
           </Link>
 
