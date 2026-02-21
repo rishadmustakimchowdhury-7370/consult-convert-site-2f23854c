@@ -296,7 +296,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
               <img
                 src={withCacheBuster(settings.logo_url, settings.updated_at)}
                 alt={settings?.site_title || "Logo"}
-                className="h-28 md:h-36 w-auto object-contain"
+                className="w-48 md:w-64 h-auto object-contain"
               />
             ) : (
               <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">

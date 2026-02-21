@@ -23,6 +23,9 @@ export function SEOHead({ title, description }: SEOHeadProps) {
       )}
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      {settings?.favicon_url && (
+        <link rel="icon" href={settings.favicon_url} type="image/png" />
+      )}
     </Helmet>
   );
 }
