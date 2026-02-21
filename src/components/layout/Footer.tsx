@@ -104,21 +104,26 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center space-x-2 group">
+            <Link to="/" className="flex items-center gap-3 group">
               {!logoReady ? (
-                <div className="h-14 w-40 bg-background/20 rounded" />
+                <div className="h-12 w-40 bg-background/20 rounded" />
               ) : settings?.logo_url ? (
-                <img
-                  src={withCacheBuster(settings.logo_url, settings.updated_at)}
-                  alt={settings?.site_title || "Logo"}
-                  className="h-14 max-h-16 w-auto object-contain"
-                />
+                <>
+                  <img
+                    src={withCacheBuster(settings.logo_url, settings.updated_at)}
+                    alt={settings?.site_title || "Logo"}
+                    className="h-12 w-auto object-contain"
+                  />
+                  <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+                    {settings?.site_title || "Manha Teck"}
+                  </span>
+                </>
               ) : (
                 <>
                   <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
                     <span className="text-primary-foreground font-bold text-xl">M</span>
                   </div>
-                  <span className="text-2xl font-bold">
+                  <span className="text-xl md:text-2xl font-bold">
                     {settings?.site_title || "Manhateck"}
                   </span>
                 </>

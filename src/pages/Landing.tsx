@@ -313,11 +313,14 @@ export default function Landing() {
       {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center gap-3">
             {settings?.logo_url ? (
-              <img src={settings.logo_url} alt="Manha Teck" className="h-14 max-h-16 w-auto object-contain" />
+              <>
+                <img src={settings.logo_url} alt="Manha Teck" className="h-12 w-auto object-contain" />
+                <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Manha Teck</span>
+              </>
             ) : (
-              <span className="text-3xl font-bold gradient-text">Manha Teck</span>
+              <span className="text-2xl md:text-3xl font-bold gradient-text">Manha Teck</span>
             )}
           </Link>
           <div className="flex items-center gap-3">
