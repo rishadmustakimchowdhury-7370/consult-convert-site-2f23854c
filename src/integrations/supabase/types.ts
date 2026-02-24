@@ -552,6 +552,7 @@ export type Database = {
       }
       services: {
         Row: {
+          canonical_url: string | null
           content: string | null
           cover_image: string | null
           created_at: string | null
@@ -571,6 +572,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          canonical_url?: string | null
           content?: string | null
           cover_image?: string | null
           created_at?: string | null
@@ -590,6 +592,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          canonical_url?: string | null
           content?: string | null
           cover_image?: string | null
           created_at?: string | null
