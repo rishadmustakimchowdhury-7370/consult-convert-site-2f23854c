@@ -12,6 +12,7 @@ import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, He
 import { toast } from '@/hooks/use-toast';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
+import { calculateSEOScore } from '@/utils/seoScoring';
 
 interface Feature {
   icon: string;
@@ -118,6 +119,15 @@ export default function ServicesAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const seoResult = calculateSEOScore({
+      title: formData.title,
+      slug: formData.slug,
+      metaTitle: formData.meta_title,
+      metaDescription: formData.meta_description,
+      content: formData.content,
+      focusKeyword: '',
+    });
+
     const serviceData = {
       title: formData.title,
       slug: formData.slug,
@@ -134,6 +144,7 @@ export default function ServicesAdmin() {
       is_active: formData.is_active,
       is_featured: formData.is_featured,
       sort_order: editingService ? editingService.sort_order : services.length,
+      seo_score: seoResult.score,
     };
 
     if (editingService) {

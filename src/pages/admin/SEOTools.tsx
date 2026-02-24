@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search, FileText, Files, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader2, Search, FileText, Files, TrendingUp, AlertTriangle, CheckCircle, Wrench, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { calculateSEOScore } from '@/utils/seoScoring';
 
 interface ContentItem {
   id: string;
@@ -16,7 +17,7 @@ interface ContentItem {
   meta_description: string | null;
   focus_keyword: string | null;
   content: string | null;
-  type: 'blog' | 'page';
+  type: 'blog' | 'page' | 'service';
 }
 
 interface SEOScore {
@@ -29,78 +30,39 @@ export default function SEOTools() {
   const [loading, setLoading] = useState(true);
   const [scores, setScores] = useState<SEOScore[]>([]);
 
-  const calculateSEOScore = (item: ContentItem): SEOScore => {
-    const issues: string[] = [];
-    let passed = 0;
-    const total = 6;
+  const computeScore = (item: ContentItem): SEOScore => {
+    const result = calculateSEOScore({
+      title: item.title,
+      slug: item.slug,
+      metaTitle: item.meta_title || '',
+      metaDescription: item.meta_description || '',
+      content: item.content || '',
+      focusKeyword: item.focus_keyword || '',
+    });
 
-    // Check meta title
-    if (item.meta_title && item.meta_title.length >= 50 && item.meta_title.length <= 60) {
-      passed++;
-    } else {
-      issues.push('Meta title should be 50-60 characters');
-    }
+    const issues = result.checks
+      .filter(c => !c.passed)
+      .map(c => c.label);
 
-    // Check meta description
-    if (item.meta_description && item.meta_description.length >= 120 && item.meta_description.length <= 160) {
-      passed++;
-    } else {
-      issues.push('Meta description should be 120-160 characters');
-    }
-
-    // Check focus keyword
-    if (item.focus_keyword && item.focus_keyword.trim()) {
-      passed++;
-    } else {
-      issues.push('Focus keyword not set');
-    }
-
-    // Check keyword in title
-    if (item.focus_keyword && item.title.toLowerCase().includes(item.focus_keyword.toLowerCase())) {
-      passed++;
-    } else if (item.focus_keyword) {
-      issues.push('Focus keyword not in title');
-    }
-
-    // Check content length
-    const plainContent = item.content?.replace(/<[^>]*>/g, '') || '';
-    const wordCount = plainContent.split(/\s+/).filter(Boolean).length;
-    if (wordCount >= 300) {
-      passed++;
-    } else {
-      issues.push(`Content too short (${wordCount} words, need 300+)`);
-    }
-
-    // Check slug has keyword
-    if (item.focus_keyword && item.slug.includes(item.focus_keyword.toLowerCase().replace(/\s+/g, '-'))) {
-      passed++;
-    } else if (item.focus_keyword) {
-      issues.push('Focus keyword not in URL');
-    }
-
-    return {
-      item,
-      score: Math.round((passed / total) * 100),
-      issues,
-    };
+    return { item, score: result.score, issues };
   };
 
   useEffect(() => {
     const fetchContent = async () => {
-      const [blogsResult, pagesResult] = await Promise.all([
+      const [blogsResult, pagesResult, servicesResult] = await Promise.all([
         supabase.from('blogs').select('id, title, slug, meta_title, meta_description, focus_keyword, content'),
         supabase.from('pages').select('id, title, slug, meta_title, meta_description, focus_keyword, content'),
+        supabase.from('services').select('id, title, slug, meta_title, meta_description, content'),
       ]);
 
       const blogs = (blogsResult.data || []).map(b => ({ ...b, type: 'blog' as const }));
       const pages = (pagesResult.data || []).map(p => ({ ...p, type: 'page' as const }));
-      
-      const allContent = [...blogs, ...pages];
-      const calculatedScores = allContent.map(calculateSEOScore);
-      
-      // Sort by score ascending (worst first)
+      const services = (servicesResult.data || []).map(s => ({ ...s, type: 'service' as const, focus_keyword: null }));
+
+      const allContent = [...blogs, ...pages, ...services];
+      const calculatedScores = allContent.map(computeScore);
       calculatedScores.sort((a, b) => a.score - b.score);
-      
+
       setScores(calculatedScores);
       setLoading(false);
     };
@@ -108,20 +70,26 @@ export default function SEOTools() {
     fetchContent();
   }, []);
 
-  const averageScore = scores.length > 0 
+  const averageScore = scores.length > 0
     ? Math.round(scores.reduce((acc, s) => acc + s.score, 0) / scores.length)
     : 0;
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return 'text-green-600 bg-green-100';
-    if (score >= 40) return 'text-amber-600 bg-amber-100';
+    if (score >= 80) return 'text-green-600 bg-green-100';
+    if (score >= 60) return 'text-amber-600 bg-amber-100';
     return 'text-red-600 bg-red-100';
   };
 
   const getProgressColor = (score: number) => {
-    if (score >= 70) return 'bg-green-500';
-    if (score >= 40) return 'bg-amber-500';
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-amber-500';
     return 'bg-red-500';
+  };
+
+  const getLinkPath = (item: ContentItem) => {
+    if (item.type === 'blog') return `/visage/blogs/${item.id}`;
+    if (item.type === 'page') return `/visage/pages/${item.id}`;
+    return `/visage/services`;
   };
 
   if (loading) {
@@ -136,7 +104,7 @@ export default function SEOTools() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-heading font-bold">SEO Tools</h1>
-        <p className="text-muted-foreground">Monitor and improve your content's SEO</p>
+        <p className="text-muted-foreground">Monitor and improve your content's SEO (weighted 100-point system)</p>
       </div>
 
       {/* Overview Cards */}
@@ -146,7 +114,7 @@ export default function SEOTools() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Average SEO Score</p>
-                <p className="text-3xl font-bold">{averageScore}%</p>
+                <p className="text-3xl font-bold">{averageScore}/100</p>
               </div>
               <div className={cn('w-12 h-12 rounded-full flex items-center justify-center', getScoreColor(averageScore))}>
                 <TrendingUp className="w-6 h-6" />
@@ -167,7 +135,7 @@ export default function SEOTools() {
                 <Search className="w-6 h-6 text-primary" />
               </div>
             </div>
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-4 flex-wrap">
               <Badge variant="secondary">
                 <FileText className="w-3 h-3 mr-1" />
                 {scores.filter(s => s.item.type === 'blog').length} Blogs
@@ -175,6 +143,10 @@ export default function SEOTools() {
               <Badge variant="secondary">
                 <Files className="w-3 h-3 mr-1" />
                 {scores.filter(s => s.item.type === 'page').length} Pages
+              </Badge>
+              <Badge variant="secondary">
+                <Wrench className="w-3 h-3 mr-1" />
+                {scores.filter(s => s.item.type === 'service').length} Services
               </Badge>
             </div>
           </CardContent>
@@ -185,14 +157,14 @@ export default function SEOTools() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Needs Attention</p>
-                <p className="text-3xl font-bold">{scores.filter(s => s.score < 70).length}</p>
+                <p className="text-3xl font-bold">{scores.filter(s => s.score < 60).length}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-amber-600" />
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              Content with score below 70%
+              Content with score below 60/100
             </p>
           </CardContent>
         </Card>
@@ -202,21 +174,21 @@ export default function SEOTools() {
       <Card>
         <CardHeader>
           <CardTitle>Content SEO Analysis</CardTitle>
-          <CardDescription>Click on any item to edit and improve its SEO</CardDescription>
+          <CardDescription>Weighted scoring: click any item to edit and improve its SEO</CardDescription>
         </CardHeader>
         <CardContent>
           {scores.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No content to analyze yet.</p>
-              <p className="text-sm">Create some blog posts or pages to see their SEO scores.</p>
+              <p className="text-sm">Create some blog posts, pages, or services to see their SEO scores.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {scores.map((item) => (
                 <Link
                   key={`${item.item.type}-${item.item.id}`}
-                  to={item.item.type === 'blog' ? `/visage/blogs/${item.item.id}` : `/visage/pages/${item.item.id}`}
+                  to={getLinkPath(item.item)}
                   className="block"
                 >
                   <div className="flex items-center gap-4 p-4 rounded-lg border hover:bg-secondary/50 transition-colors">
@@ -229,7 +201,7 @@ export default function SEOTools() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-medium truncate">{item.item.title}</p>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs capitalize">
                           {item.item.type}
                         </Badge>
                       </div>
@@ -252,10 +224,12 @@ export default function SEOTools() {
                     <div className="hidden md:block w-32">
                       <Progress value={item.score} className={cn('h-2', getProgressColor(item.score))} />
                     </div>
-                    {item.score >= 70 ? (
+                    {item.score >= 80 ? (
                       <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
+                    ) : item.score >= 60 ? (
                       <AlertTriangle className="w-5 h-5 text-amber-600" />
+                    ) : (
+                      <X className="w-5 h-5 text-red-600" />
                     )}
                   </div>
                 </Link>
