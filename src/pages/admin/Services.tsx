@@ -71,6 +71,7 @@ export default function ServicesAdmin() {
     meta_title: '',
     meta_description: '',
     canonical_url: '',
+    focus_keyword: '',
     is_active: true,
     is_featured: false,
   });
@@ -126,7 +127,7 @@ export default function ServicesAdmin() {
       metaTitle: formData.meta_title,
       metaDescription: formData.meta_description,
       content: formData.content,
-      focusKeyword: '',
+      focusKeyword: formData.focus_keyword,
     });
 
     const serviceData = {
@@ -146,6 +147,7 @@ export default function ServicesAdmin() {
       is_featured: formData.is_featured,
       sort_order: editingService ? editingService.sort_order : services.length,
       seo_score: seoResult.score,
+      focus_keyword: formData.focus_keyword || null,
     };
 
     if (editingService) {
@@ -203,6 +205,7 @@ export default function ServicesAdmin() {
       meta_title: service.meta_title || '',
       meta_description: service.meta_description || '',
       canonical_url: (service as any).canonical_url || '',
+      focus_keyword: (service as any).focus_keyword || '',
       is_active: service.is_active,
       is_featured: service.is_featured,
     });
@@ -224,6 +227,7 @@ export default function ServicesAdmin() {
       meta_title: '',
       meta_description: '',
       canonical_url: '',
+      focus_keyword: '',
       is_active: true,
       is_featured: false,
     });
@@ -621,6 +625,16 @@ export default function ServicesAdmin() {
                     <p className="text-xs text-muted-foreground">{formData.meta_description.length}/160 characters</p>
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="focus_keyword">Focus Keyword</Label>
+                    <Input
+                      id="focus_keyword"
+                      value={formData.focus_keyword}
+                      onChange={(e) => setFormData({ ...formData, focus_keyword: e.target.value })}
+                      placeholder="e.g., web design UK"
+                    />
+                    <p className="text-xs text-muted-foreground">The primary keyword you want this page to rank for.</p>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="canonical_url">Canonical URL <span className="text-xs text-muted-foreground">(optional override)</span></Label>
                     <Input
                       id="canonical_url"
@@ -638,7 +652,7 @@ export default function ServicesAdmin() {
                     metaTitle={formData.meta_title}
                     metaDescription={formData.meta_description}
                     content={formData.content}
-                    focusKeyword=""
+                    focusKeyword={formData.focus_keyword}
                   />
                 </AccordionContent>
               </AccordionItem>
