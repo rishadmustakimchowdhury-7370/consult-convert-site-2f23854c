@@ -86,6 +86,7 @@ const ServicePage = () => {
           .select('*')
           .eq('slug', slug)
           .eq('is_active', true)
+          .eq('status', 'published')
           .maybeSingle(),
         supabase
           .from('testimonials')

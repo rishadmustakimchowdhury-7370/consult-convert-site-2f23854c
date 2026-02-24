@@ -152,11 +152,11 @@ export default function BlogEditor() {
     }
   }, [title, slug, content, excerpt, coverImage, coverImageAlt, categoryId, authorName, status, focusKeyword, metaTitle, metaDescription, blogId]);
 
-  // Setup autosave interval (30 seconds)
+  // Setup autosave interval (15 seconds)
   useEffect(() => {
     autoSaveTimerRef.current = setInterval(() => {
       performAutoSave();
-    }, 30000);
+    }, 15000);
 
     return () => {
       if (autoSaveTimerRef.current) {

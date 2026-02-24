@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import SEOAnalyzer from '@/components/admin/SEOAnalyzer';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Clock, CheckCircle } from 'lucide-react';
 
 export default function PageEditor() {
   const { id } = useParams();
@@ -20,19 +20,25 @@ export default function PageEditor() {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
-  const [isPublished, setIsPublished] = useState(false);
+  const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [seoScore, setSeoScore] = useState(0);
   const [focusKeyword, setFocusKeyword] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
+  const [pageId, setPageId] = useState<string | null>(id || null);
+
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const contentChangedRef = useRef(false);
 
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && id) {
       setLoading(true);
       supabase
         .from('pages')
@@ -47,11 +53,12 @@ export default function PageEditor() {
             setTitle(data.title || '');
             setSlug(data.slug || '');
             setContent(data.content || '');
-            setIsPublished(data.status === 'published');
+            setStatus((data.status as 'draft' | 'published') || 'draft');
             setFocusKeyword(data.focus_keyword || '');
             setMetaTitle(data.meta_title || '');
             setMetaDescription(data.meta_description || '');
             setCanonicalUrl((data as any).canonical_url || '');
+            setPageId(data.id);
           }
           setLoading(false);
         });
@@ -65,9 +72,14 @@ export default function PageEditor() {
       .replace(/(^-|-$)/g, '');
   };
 
+  const markChanged = useCallback(() => {
+    contentChangedRef.current = true;
+  }, []);
+
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
+    markChanged();
     if (!isEditing || !slug) {
       setSlug(generateSlug(newTitle));
     }
@@ -76,18 +88,68 @@ export default function PageEditor() {
     }
   };
 
-  const handleSave = async () => {
+  // Auto-save logic
+  const performAutoSave = useCallback(async () => {
+    if (!contentChangedRef.current || !title.trim()) return;
+
+    setAutoSaving(true);
+    const pageData = {
+      title,
+      slug: slug || generateSlug(title),
+      content,
+      status: status as 'draft' | 'published',
+      focus_keyword: focusKeyword,
+      meta_title: metaTitle,
+      meta_description: metaDescription,
+      canonical_url: canonicalUrl || null,
+      seo_score: seoScore,
+    };
+
+    try {
+      if (pageId) {
+        await supabase.from('pages').update(pageData).eq('id', pageId);
+      } else {
+        const { data } = await supabase.from('pages').insert(pageData).select('id').single();
+        if (data) {
+          setPageId(data.id);
+          window.history.replaceState(null, '', `/visage/pages/${data.id}`);
+        }
+      }
+      setLastSaved(new Date());
+      contentChangedRef.current = false;
+    } catch (error) {
+      console.error('Autosave failed:', error);
+    } finally {
+      setAutoSaving(false);
+    }
+  }, [title, slug, content, status, focusKeyword, metaTitle, metaDescription, canonicalUrl, seoScore, pageId]);
+
+  // Setup autosave interval (15 seconds)
+  useEffect(() => {
+    autoSaveTimerRef.current = setInterval(() => {
+      performAutoSave();
+    }, 15000);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+      }
+    };
+  }, [performAutoSave]);
+
+  const handleSave = async (newStatus?: 'draft' | 'published') => {
     if (!title.trim()) {
       toast({ title: 'Error', description: 'Title is required.', variant: 'destructive' });
       return;
     }
 
     setSaving(true);
+    const finalStatus = newStatus || status;
     const pageData = {
       title,
       slug: slug || generateSlug(title),
       content,
-      status: (isPublished ? 'published' : 'draft') as 'published' | 'draft',
+      status: finalStatus as 'draft' | 'published',
       focus_keyword: focusKeyword,
       meta_title: metaTitle,
       meta_description: metaDescription,
@@ -96,19 +158,29 @@ export default function PageEditor() {
     };
 
     let error;
-    if (isEditing) {
-      ({ error } = await supabase.from('pages').update(pageData).eq('id', id));
+    if (pageId) {
+      ({ error } = await supabase.from('pages').update(pageData).eq('id', pageId));
     } else {
-      ({ error } = await supabase.from('pages').insert(pageData));
+      const result = await supabase.from('pages').insert(pageData).select('id').single();
+      error = result.error;
+      if (result.data) setPageId(result.data.id);
     }
 
     setSaving(false);
+    contentChangedRef.current = false;
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'Saved', description: 'Page saved successfully.' });
-      navigate('/visage/pages');
+      toast({
+        title: finalStatus === 'published' ? 'Published!' : 'Saved!',
+        description: finalStatus === 'published' ? 'Page published successfully.' : 'Page saved as draft.',
+      });
+      if (finalStatus === 'published') {
+        navigate('/visage/pages');
+      } else {
+        setLastSaved(new Date());
+      }
     }
   };
 
@@ -121,154 +193,165 @@ export default function PageEditor() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="min-h-screen bg-secondary/10">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/visage/pages')}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-heading font-bold">
-              {isEditing ? 'Edit Page' : 'New Page'}
-            </h1>
-            <p className="text-muted-foreground">
-              {isEditing ? 'Update your page' : 'Create a new page'}
-            </p>
+      <div className="sticky top-0 z-50 bg-background border-b px-6 py-3">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/visage/pages')}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-heading font-bold">
+                {isEditing ? 'Edit Page' : 'New Page'}
+              </h1>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Badge variant={status === 'published' ? 'default' : 'secondary'} className="text-xs">
+                  {status === 'published' ? (
+                    <><CheckCircle className="w-3 h-3 mr-1" /> Published</>
+                  ) : (
+                    <><Clock className="w-3 h-3 mr-1" /> Draft</>
+                  )}
+                </Badge>
+                {autoSaving && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+                  </span>
+                )}
+                {lastSaved && !autoSaving && (
+                  <span className="text-xs">
+                    Last saved: {lastSaved.toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Switch
-              checked={isPublished}
-              onCheckedChange={setIsPublished}
-              id="publish-toggle"
-            />
-            <Label htmlFor="publish-toggle" className="text-sm">
-              {isPublished ? 'Published' : 'Draft'}
-            </Label>
+            <Button variant="outline" onClick={() => handleSave('draft')} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Save Draft
+            </Button>
+            <Button onClick={() => handleSave('published')} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+              Publish
+            </Button>
           </div>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
-            )}
-            Save
-          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Page Content</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="Enter page title"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="slug">URL Slug</Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-sm">/</span>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Editor Column */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Page Content</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
                   <Input
-                    id="slug"
-                    value={slug}
-                    onChange={(e) => setSlug(generateSlug(e.target.value))}
-                    placeholder="page-url-slug"
+                    id="title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Enter page title"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Content</Label>
-                <RichTextEditor content={content} onChange={setContent} />
-              </div>
-            </CardContent>
-          </Card>
+                <div className="space-y-2">
+                  <Label htmlFor="slug">URL Slug</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground text-sm">/page/</span>
+                    <Input
+                      id="slug"
+                      value={slug}
+                      onChange={(e) => { setSlug(generateSlug(e.target.value)); markChanged(); }}
+                      placeholder="page-url-slug"
+                    />
+                  </div>
+                </div>
 
-          {/* SEO Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="focus-keyword">Focus Keyword</Label>
-                <Input
-                  id="focus-keyword"
-                  value={focusKeyword}
-                  onChange={(e) => setFocusKeyword(e.target.value)}
-                  placeholder="Enter focus keyword for SEO"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label>Content</Label>
+                  <RichTextEditor content={content} onChange={(val) => { setContent(val); markChanged(); }} />
+                </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="meta-title">
-                  Meta Title <span className="text-muted-foreground">({metaTitle.length}/60)</span>
-                </Label>
-                <Input
-                  id="meta-title"
-                  value={metaTitle}
-                  onChange={(e) => setMetaTitle(e.target.value)}
-                  placeholder="SEO title (50-60 characters)"
-                  maxLength={70}
-                />
-              </div>
+            {/* SEO Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>SEO Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="focus-keyword">Focus Keyword</Label>
+                  <Input
+                    id="focus-keyword"
+                    value={focusKeyword}
+                    onChange={(e) => { setFocusKeyword(e.target.value); markChanged(); }}
+                    placeholder="Enter focus keyword for SEO"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="meta-description">
-                  Meta Description <span className="text-muted-foreground">({metaDescription.length}/160)</span>
-                </Label>
-                <Textarea
-                  id="meta-description"
-                  value={metaDescription}
-                  onChange={(e) => setMetaDescription(e.target.value)}
-                  placeholder="SEO description (120-160 characters)"
-                  maxLength={170}
-                  rows={3}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="meta-title">
+                    Meta Title <span className="text-muted-foreground">({metaTitle.length}/60)</span>
+                  </Label>
+                  <Input
+                    id="meta-title"
+                    value={metaTitle}
+                    onChange={(e) => { setMetaTitle(e.target.value); markChanged(); }}
+                    placeholder="SEO title (50-60 characters)"
+                    maxLength={70}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="canonical-url">
-                  Canonical URL <span className="text-muted-foreground">(optional override)</span>
-                </Label>
-                <Input
-                  id="canonical-url"
-                  value={canonicalUrl}
-                  onChange={(e) => setCanonicalUrl(e.target.value)}
-                  placeholder="https://manhateck.com/your-page-slug"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Leave empty to auto-generate. Use only if this content exists at another URL.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                <div className="space-y-2">
+                  <Label htmlFor="meta-description">
+                    Meta Description <span className="text-muted-foreground">({metaDescription.length}/160)</span>
+                  </Label>
+                  <Textarea
+                    id="meta-description"
+                    value={metaDescription}
+                    onChange={(e) => { setMetaDescription(e.target.value); markChanged(); }}
+                    placeholder="SEO description (120-160 characters)"
+                    maxLength={170}
+                    rows={3}
+                  />
+                </div>
 
-        {/* SEO Analyzer Sidebar */}
-        <div>
-          <SEOAnalyzer
-            title={title}
-            slug={slug}
-            metaTitle={metaTitle}
-            metaDescription={metaDescription}
-            content={content}
-            focusKeyword={focusKeyword}
-            onScoreChange={setSeoScore}
-          />
+                <div className="space-y-2">
+                  <Label htmlFor="canonical-url">
+                    Canonical URL <span className="text-muted-foreground">(optional override)</span>
+                  </Label>
+                  <Input
+                    id="canonical-url"
+                    value={canonicalUrl}
+                    onChange={(e) => { setCanonicalUrl(e.target.value); markChanged(); }}
+                    placeholder="https://manhateck.com/your-page-slug"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to auto-generate. Use only if this content exists at another URL.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* SEO Analyzer Sidebar */}
+          <div>
+            <SEOAnalyzer
+              title={title}
+              slug={slug}
+              metaTitle={metaTitle}
+              metaDescription={metaDescription}
+              content={content}
+              focusKeyword={focusKeyword}
+              onScoreChange={setSeoScore}
+            />
+          </div>
         </div>
       </div>
     </div>

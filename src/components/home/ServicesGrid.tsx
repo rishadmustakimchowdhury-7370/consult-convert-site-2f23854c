@@ -72,6 +72,7 @@ export const ServicesGrid = () => {
         .from("services")
         .select("id, title, slug, short_description, icon_name, is_featured")
         .eq("is_active", true)
+        .eq("status", "published")
         .order("sort_order", { ascending: true });
       if (data) setServices(data);
     };
