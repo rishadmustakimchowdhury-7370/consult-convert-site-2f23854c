@@ -137,6 +137,33 @@ export default function PageEditor() {
     };
   }, [performAutoSave]);
 
+  // Save and navigate away
+  const saveAndGoBack = useCallback(async () => {
+    if (contentChangedRef.current && title.trim()) {
+      const pageData = {
+        title,
+        slug: slug || generateSlug(title),
+        content,
+        status: status as 'draft' | 'published',
+        focus_keyword: focusKeyword,
+        meta_title: metaTitle,
+        meta_description: metaDescription,
+        canonical_url: canonicalUrl || null,
+        seo_score: seoScore,
+      };
+      try {
+        if (pageId) {
+          await supabase.from('pages').update(pageData).eq('id', pageId);
+        } else {
+          await supabase.from('pages').insert(pageData);
+        }
+      } catch (error) {
+        console.error('Save on close failed:', error);
+      }
+    }
+    navigate('/visage/pages');
+  }, [title, slug, content, status, focusKeyword, metaTitle, metaDescription, canonicalUrl, seoScore, pageId, navigate]);
+
   const handleSave = async (newStatus?: 'draft' | 'published') => {
     if (!title.trim()) {
       toast({ title: 'Error', description: 'Title is required.', variant: 'destructive' });
@@ -198,7 +225,7 @@ export default function PageEditor() {
       <div className="sticky top-0 z-50 bg-background border-b px-6 py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/visage/pages')}>
+            <Button variant="ghost" size="icon" onClick={saveAndGoBack}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
