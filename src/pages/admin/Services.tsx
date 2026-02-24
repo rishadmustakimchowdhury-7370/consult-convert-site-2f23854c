@@ -325,7 +325,7 @@ export default function ServicesAdmin() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="icon" asChild>
-                    <a href={`/${service.slug}`} target="_blank" rel="noopener noreferrer">
+                    <a href={`/service/${service.slug}`} target="_blank" rel="noopener noreferrer">
                       <Eye className="w-4 h-4" />
                     </a>
                   </Button>
