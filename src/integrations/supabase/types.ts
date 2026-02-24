@@ -564,6 +564,7 @@ export type Database = {
           created_at: string | null
           faqs: Json | null
           features: Json | null
+          focus_keyword: string | null
           icon_name: string | null
           id: string
           is_active: boolean | null
@@ -585,6 +586,7 @@ export type Database = {
           created_at?: string | null
           faqs?: Json | null
           features?: Json | null
+          focus_keyword?: string | null
           icon_name?: string | null
           id?: string
           is_active?: boolean | null
@@ -606,6 +608,7 @@ export type Database = {
           created_at?: string | null
           faqs?: Json | null
           features?: Json | null
+          focus_keyword?: string | null
           icon_name?: string | null
           id?: string
           is_active?: boolean | null
