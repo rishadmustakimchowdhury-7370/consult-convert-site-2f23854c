@@ -63,6 +63,7 @@ export default function BlogEditor() {
   const [metaDescription, setMetaDescription] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
   const [blogId, setBlogId] = useState<string | null>(id || null);
+  const [seoScore, setSeoScore] = useState(0);
 
   // Autosave timer ref
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -128,6 +129,7 @@ export default function BlogEditor() {
       meta_title: metaTitle,
       meta_description: metaDescription,
       canonical_url: canonicalUrl || null,
+      seo_score: seoScore,
     };
 
     try {
@@ -209,6 +211,7 @@ export default function BlogEditor() {
       meta_title: metaTitle,
       meta_description: metaDescription,
       canonical_url: canonicalUrl || null,
+      seo_score: seoScore,
       published_at: finalStatus === 'published' ? new Date().toISOString() : null,
     };
 
@@ -459,6 +462,7 @@ export default function BlogEditor() {
                   metaDescription={metaDescription}
                   content={content}
                   focusKeyword={focusKeyword}
+                  onScoreChange={setSeoScore}
                 />
               </TabsContent>
             </Tabs>

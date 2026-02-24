@@ -25,6 +25,7 @@ export default function PageEditor() {
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
   const [isPublished, setIsPublished] = useState(false);
+  const [seoScore, setSeoScore] = useState(0);
   const [focusKeyword, setFocusKeyword] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
@@ -91,6 +92,7 @@ export default function PageEditor() {
       meta_title: metaTitle,
       meta_description: metaDescription,
       canonical_url: canonicalUrl || null,
+      seo_score: seoScore,
     };
 
     let error;
@@ -265,6 +267,7 @@ export default function PageEditor() {
             metaDescription={metaDescription}
             content={content}
             focusKeyword={focusKeyword}
+            onScoreChange={setSeoScore}
           />
         </div>
       </div>

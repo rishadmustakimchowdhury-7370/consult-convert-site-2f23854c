@@ -29,6 +29,7 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           published_at: string | null
+          seo_score: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"] | null
           title: string
@@ -48,6 +49,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
+          seo_score?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"] | null
           title: string
@@ -67,6 +69,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
+          seo_score?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"] | null
           title?: string
@@ -395,6 +398,7 @@ export type Database = {
           id: string
           meta_description: string | null
           meta_title: string | null
+          seo_score: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"] | null
           title: string
@@ -408,6 +412,7 @@ export type Database = {
           id?: string
           meta_description?: string | null
           meta_title?: string | null
+          seo_score?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"] | null
           title: string
@@ -421,6 +426,7 @@ export type Database = {
           id?: string
           meta_description?: string | null
           meta_title?: string | null
+          seo_score?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"] | null
           title?: string
@@ -565,6 +571,7 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           process_steps: Json | null
+          seo_score: number | null
           short_description: string | null
           slug: string
           sort_order: number | null
@@ -585,6 +592,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           process_steps?: Json | null
+          seo_score?: number | null
           short_description?: string | null
           slug: string
           sort_order?: number | null
@@ -605,6 +613,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           process_steps?: Json | null
+          seo_score?: number | null
           short_description?: string | null
           slug?: string
           sort_order?: number | null
