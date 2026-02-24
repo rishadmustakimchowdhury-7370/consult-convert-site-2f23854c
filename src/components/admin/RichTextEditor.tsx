@@ -54,7 +54,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:mb-2 [&_h5]:text-base [&_h5]:font-medium [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-medium [&_h6]:mb-1 [&_h6]:uppercase',
+        class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-a:text-primary prose-blockquote:border-primary/40 prose-blockquote:text-muted-foreground prose-code:text-foreground prose-pre:bg-muted [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:mb-2 [&_h5]:text-base [&_h5]:font-medium [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-medium [&_h6]:mb-1 [&_h6]:uppercase',
       },
     },
   });

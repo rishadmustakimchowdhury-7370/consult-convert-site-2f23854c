@@ -162,7 +162,7 @@ export default function BlogPost() {
 
             {/* Content */}
             <div 
-              className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-blockquote:border-primary prose-blockquote:text-muted-foreground"
+              className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90 prose-ul:text-foreground/90 prose-ol:text-foreground/90 prose-a:text-primary prose-strong:text-foreground prose-blockquote:border-primary/40 prose-blockquote:text-muted-foreground prose-code:text-foreground prose-pre:bg-muted"
               dangerouslySetInnerHTML={{ __html: blog.content || '' }}
             />
           </div>
