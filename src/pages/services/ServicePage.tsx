@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
@@ -135,6 +136,10 @@ const ServicePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={service.meta_title || `${service.title} | Manha Teck`}
+        description={service.meta_description || service.short_description || undefined}
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}

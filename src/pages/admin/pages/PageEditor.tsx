@@ -28,6 +28,7 @@ export default function PageEditor() {
   const [focusKeyword, setFocusKeyword] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
+  const [canonicalUrl, setCanonicalUrl] = useState('');
 
   useEffect(() => {
     if (isEditing) {
@@ -49,6 +50,7 @@ export default function PageEditor() {
             setFocusKeyword(data.focus_keyword || '');
             setMetaTitle(data.meta_title || '');
             setMetaDescription(data.meta_description || '');
+            setCanonicalUrl((data as any).canonical_url || '');
           }
           setLoading(false);
         });
@@ -88,6 +90,7 @@ export default function PageEditor() {
       focus_keyword: focusKeyword,
       meta_title: metaTitle,
       meta_description: metaDescription,
+      canonical_url: canonicalUrl || null,
     };
 
     let error;
@@ -233,6 +236,21 @@ export default function PageEditor() {
                   maxLength={170}
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="canonical-url">
+                  Canonical URL <span className="text-muted-foreground">(optional override)</span>
+                </Label>
+                <Input
+                  id="canonical-url"
+                  value={canonicalUrl}
+                  onChange={(e) => setCanonicalUrl(e.target.value)}
+                  placeholder="https://manhateck.com/your-page-slug"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave empty to auto-generate. Use only if this content exists at another URL.
+                </p>
               </div>
             </CardContent>
           </Card>

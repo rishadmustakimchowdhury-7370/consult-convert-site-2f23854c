@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ConsultationDialog } from '@/components/ConsultationDialog';
+import { SEOHead } from '@/components/SEOHead';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, User, ArrowLeft, Clock } from 'lucide-react';
@@ -20,6 +21,7 @@ interface Blog {
   published_at: string | null;
   meta_title: string | null;
   meta_description: string | null;
+  canonical_url: string | null;
   categories?: { name: string; slug: string } | null;
 }
 
@@ -96,6 +98,11 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={blog.meta_title || blog.title}
+        description={blog.meta_description || blog.excerpt || undefined}
+        canonicalOverride={blog.canonical_url}
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
       
       <article className="py-12">
