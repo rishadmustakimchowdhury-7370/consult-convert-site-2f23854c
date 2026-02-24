@@ -104,8 +104,8 @@ const App = () => (
                 <Route path="settings" element={<Settings />} />
               </Route>
 
-              {/* Service pages with top-level slugs - must be before catch-all */}
-              <Route path="/:slug" element={<ServicePage />} />
+              {/* Service detail pages */}
+              <Route path="/service/:slug" element={<ServicePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CookieConsent />
