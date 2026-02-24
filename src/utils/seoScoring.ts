@@ -125,20 +125,20 @@ export function calculateSEOScore(params: {
     message: !keyword ? 'Set a focus keyword first.' : kwInFirst ? 'Focus keyword appears early in content.' : 'Use focus keyword in the first paragraph.',
   });
 
-  // 5. Content length → 10 pts (300-600) or 15 pts (600+)
+  // 5. Content length → 15 pts (300+ full, 150-299 partial)
   let contentPts = 0;
   let contentPassed = false;
   let contentPartial = false;
   let contentMsg: string;
-  if (wordCount >= 600) {
+  if (wordCount >= 300) {
     contentPts = 15;
     contentPassed = true;
-    contentMsg = `Content has ${wordCount} words. Excellent length!`;
-  } else if (wordCount >= 300) {
+    contentMsg = `Content has ${wordCount} words. Great length!`;
+  } else if (wordCount >= 150) {
     contentPts = 10;
     contentPassed = true;
     contentPartial = true;
-    contentMsg = `Content has ${wordCount} words. Good, but 600+ is better.`;
+    contentMsg = `Content has ${wordCount} words. Good, but 300+ is better.`;
   } else {
     contentPts = 0;
     contentMsg = `Content has ${wordCount} words. Aim for 300+.`;
@@ -195,9 +195,9 @@ export function calculateSEOScore(params: {
     message: hasExternal ? 'External links found.' : 'Consider adding relevant external links.',
   });
 
-  // 11. Readability score → 10 pts
-  const readOk = readability.score >= 60;
-  const readPartial = readability.score >= 40 && readability.score < 60;
+  // 11. Readability score → 10 pts (lenient for AI content)
+  const readOk = readability.score >= 40;
+  const readPartial = readability.score >= 25 && readability.score < 40;
   checks.push({
     label: 'Readability score',
     points: readOk ? 10 : readPartial ? 5 : 0,
@@ -205,10 +205,10 @@ export function calculateSEOScore(params: {
     passed: readOk,
     partial: readPartial,
     message: readOk
-      ? `Content is easy to read (${readability.label}).`
+      ? `Content readability is acceptable (${readability.label}).`
       : readPartial
-      ? 'Content is fairly difficult to read. Simplify sentences.'
-      : 'Content is hard to read. Use shorter sentences and simpler words.',
+      ? 'Content is fairly difficult to read. Consider simplifying some sentences.'
+      : 'Content is very hard to read. Use shorter sentences and simpler words.',
   });
 
   const totalPoints = checks.reduce((sum, c) => sum + c.points, 0);
