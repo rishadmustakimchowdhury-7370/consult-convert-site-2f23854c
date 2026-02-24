@@ -312,7 +312,7 @@ export default function ServicesAdmin() {
                   </div>
                   <div>
                     <h3 className="font-semibold">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground">/{service.slug}</p>
+                    <p className="text-sm text-muted-foreground">/service/{service.slug}</p>
                   </div>
                   <div className="flex gap-2">
                     {service.is_featured && (
@@ -656,7 +656,7 @@ export default function ServicesAdmin() {
                       id="canonical_url"
                       value={formData.canonical_url}
                       onChange={(e) => setFormData({ ...formData, canonical_url: e.target.value })}
-                      placeholder="https://manhateck.com/your-service-slug"
+                      placeholder="https://manhateck.com/service/your-service-slug"
                     />
                     <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
                   </div>

@@ -103,7 +103,7 @@ export default function SEOAnalyzer({
             {metaTitle || title || 'Page Title'}
           </p>
           <p className="text-green-700 text-sm truncate">
-            manhateck.com/{slug || 'page-url'}
+            manhateck.com/service/{slug || 'page-url'}
           </p>
           <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
             {metaDescription || 'Add a meta description to preview how it will appear in search results.'}
