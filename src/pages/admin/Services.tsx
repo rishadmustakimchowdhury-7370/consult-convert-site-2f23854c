@@ -799,7 +799,7 @@ export default function ServicesAdmin() {
                       id="canonical_url"
                       value={formData.canonical_url}
                       onChange={(e) => updateFormField('canonical_url', e.target.value)}
-                      placeholder="https://manhateck.com/service/your-service-slug"
+                      placeholder="https://manhateck.com/services/your-service-slug"
                     />
                     <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
                   </div>
