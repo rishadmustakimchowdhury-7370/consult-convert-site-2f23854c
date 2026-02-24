@@ -243,10 +243,10 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
-              <li><Link to="/services/web-development" className="text-sm text-muted-foreground hover:text-primary transition-colors">Web Development</Link></li>
-              <li><Link to="/services/digital-marketing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Digital Marketing</Link></li>
-              <li><Link to="/services/uiux-design" className="text-sm text-muted-foreground hover:text-primary transition-colors">UI/UX Design</Link></li>
-              <li><Link to="/services/seo-services" className="text-sm text-muted-foreground hover:text-primary transition-colors">SEO Services</Link></li>
+              <li><Link to="/web-development" className="text-sm text-muted-foreground hover:text-primary transition-colors">Web Development</Link></li>
+              <li><Link to="/digital-marketing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Digital Marketing</Link></li>
+              <li><Link to="/uiux-design" className="text-sm text-muted-foreground hover:text-primary transition-colors">UI/UX Design</Link></li>
+              <li><Link to="/seo-services" className="text-sm text-muted-foreground hover:text-primary transition-colors">SEO Services</Link></li>
             </ul>
           </div>
 

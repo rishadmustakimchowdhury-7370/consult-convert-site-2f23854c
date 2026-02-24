@@ -110,7 +110,7 @@ export const ServicesGrid = () => {
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
                   >
                     <Link
-                      to={`/services/${service.slug}`}
+                      to={`/${service.slug}`}
                       className="glass-card-hover group block p-8 h-full"
                     >
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:from-primary/40 group-hover:to-accent/40 transition-all duration-500">
@@ -140,7 +140,7 @@ export const ServicesGrid = () => {
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
                   >
                     <Link
-                      to={`/services/${service.slug}`}
+                      to={`/${service.slug}`}
                       className="glass-card-hover group block p-8 h-full"
                     >
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:from-primary/40 group-hover:to-accent/40 transition-all duration-500">
