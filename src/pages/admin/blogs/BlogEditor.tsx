@@ -61,6 +61,7 @@ export default function BlogEditor() {
   const [focusKeyword, setFocusKeyword] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
+  const [canonicalUrl, setCanonicalUrl] = useState('');
   const [blogId, setBlogId] = useState<string | null>(id || null);
 
   // Autosave timer ref
@@ -100,6 +101,7 @@ export default function BlogEditor() {
             setFocusKeyword(data.focus_keyword || '');
             setMetaTitle(data.meta_title || '');
             setMetaDescription(data.meta_description || '');
+            setCanonicalUrl((data as any).canonical_url || '');
             setBlogId(data.id);
           }
           setLoading(false);
@@ -125,6 +127,7 @@ export default function BlogEditor() {
       focus_keyword: focusKeyword,
       meta_title: metaTitle,
       meta_description: metaDescription,
+      canonical_url: canonicalUrl || null,
     };
 
     try {
@@ -205,6 +208,7 @@ export default function BlogEditor() {
       focus_keyword: focusKeyword,
       meta_title: metaTitle,
       meta_description: metaDescription,
+      canonical_url: canonicalUrl || null,
       published_at: finalStatus === 'published' ? new Date().toISOString() : null,
     };
 
@@ -427,6 +431,22 @@ export default function BlogEditor() {
                         maxLength={170}
                         rows={3}
                       />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="canonical-url">
+                        Canonical URL
+                        <span className="ml-2 text-xs text-muted-foreground">(optional override)</span>
+                      </Label>
+                      <Input
+                        id="canonical-url"
+                        value={canonicalUrl}
+                        onChange={(e) => handleFieldChange(setCanonicalUrl, e.target.value)}
+                        placeholder="https://manhateck.com/blog/your-post-slug"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Leave empty to auto-generate. Use only if this content exists at another URL.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

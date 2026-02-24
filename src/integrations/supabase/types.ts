@@ -17,6 +17,7 @@ export type Database = {
       blogs: {
         Row: {
           author_name: string | null
+          canonical_url: string | null
           category_id: string | null
           content: string | null
           cover_image: string | null
@@ -35,6 +36,7 @@ export type Database = {
         }
         Insert: {
           author_name?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content?: string | null
           cover_image?: string | null
@@ -53,6 +55,7 @@ export type Database = {
         }
         Update: {
           author_name?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content?: string | null
           cover_image?: string | null
@@ -385,6 +388,7 @@ export type Database = {
       }
       pages: {
         Row: {
+          canonical_url: string | null
           content: string | null
           created_at: string | null
           focus_keyword: string | null
@@ -397,6 +401,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          canonical_url?: string | null
           content?: string | null
           created_at?: string | null
           focus_keyword?: string | null
@@ -409,6 +414,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          canonical_url?: string | null
           content?: string | null
           created_at?: string | null
           focus_keyword?: string | null

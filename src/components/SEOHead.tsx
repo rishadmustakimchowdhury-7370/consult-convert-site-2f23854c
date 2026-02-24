@@ -1,13 +1,16 @@
 import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSEOSettings } from '@/hooks/useSEOSettings';
+import { useCanonicalUrl } from '@/hooks/useCanonicalUrl';
 
 interface SEOHeadProps {
   title?: string;
   description?: string;
+  canonicalOverride?: string | null;
 }
 
-export function SEOHead({ title, description }: SEOHeadProps) {
+export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps) {
+  const canonicalUrl = useCanonicalUrl(canonicalOverride);
   const { settings, loading } = useSEOSettings();
 
   // Dynamically update favicon via DOM for reliability
@@ -49,6 +52,7 @@ export function SEOHead({ title, description }: SEOHeadProps) {
       )}
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      <link rel="canonical" href={canonicalUrl} />
     </Helmet>
   );
 }

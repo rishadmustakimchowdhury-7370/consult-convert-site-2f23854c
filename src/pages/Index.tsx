@@ -22,7 +22,6 @@ const Index = () => {
         <title>AI Agent Development, SaaS & Cybersecurity Solutions | Manha Teck</title>
         <meta name="description" content="Manha Teck delivers AI-powered automation, custom SaaS development, full-stack engineering, WordPress & Shopify development, technical SEO, and penetration testing services." />
         <meta name="keywords" content="AI Agent Development, Custom SaaS Development, Full-Stack Development Agency, WordPress Development Agency, Shopify Development Expert, Webflow Design Agency, Technical SEO Services, SEO Optimization Agency, Penetration Testing Company, Vulnerability Assessment Services, Network Security Scanning" />
-        <link rel="canonical" href="https://manhateck.com" />
       </Helmet>
 
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
