@@ -24,6 +24,7 @@ const Services = () => {
         .from('services')
         .select('title, slug, short_description, icon_name, cover_image')
         .eq('is_active', true)
+        .eq('status', 'published')
         .order('sort_order', { ascending: true });
       if (error) throw error;
       return data || [];

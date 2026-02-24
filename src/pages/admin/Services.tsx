@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,9 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, HelpCircle, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, HelpCircle, Search, Clock, CheckCircle, Loader2, Save } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
@@ -48,6 +49,7 @@ interface Service {
   is_active: boolean;
   is_featured: boolean;
   sort_order: number;
+  status: 'draft' | 'published';
 }
 
 const iconOptions = [
@@ -61,6 +63,13 @@ export default function ServicesAdmin() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [serviceId, setServiceId] = useState<string | null>(null);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saving, setSaving] = useState(false);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const contentChangedRef = useRef(false);
+
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -75,6 +84,7 @@ export default function ServicesAdmin() {
     focus_keyword: '',
     is_active: true,
     is_featured: false,
+    status: 'draft' as 'draft' | 'published',
   });
   const [features, setFeatures] = useState<Feature[]>([]);
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>([]);
@@ -83,6 +93,21 @@ export default function ServicesAdmin() {
   useEffect(() => {
     fetchServices();
   }, []);
+
+  // Cleanup autosave timer on unmount or dialog close
+  useEffect(() => {
+    if (!isDialogOpen) {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+      }
+    };
+  }, [isDialogOpen]);
 
   const fetchServices = async () => {
     const { data, error } = await supabase
@@ -98,6 +123,7 @@ export default function ServicesAdmin() {
         features: Array.isArray(s.features) ? (s.features as unknown as Feature[]) : [],
         process_steps: Array.isArray(s.process_steps) ? (s.process_steps as unknown as ProcessStep[]) : [],
         faqs: Array.isArray(s.faqs) ? (s.faqs as unknown as FAQ[]) : [],
+        status: ((s as any).status || 'draft') as 'draft' | 'published',
       }));
       setServices(mappedServices);
     }
@@ -112,16 +138,20 @@ export default function ServicesAdmin() {
   };
 
   const handleTitleChange = (title: string) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       title,
       slug: generateSlug(title),
-    });
+    }));
+    contentChangedRef.current = true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const updateFormField = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    contentChangedRef.current = true;
+  };
 
+  const buildServiceData = (statusOverride?: 'draft' | 'published') => {
     const seoResult = calculateSEOScore({
       title: formData.title,
       slug: formData.slug,
@@ -132,7 +162,7 @@ export default function ServicesAdmin() {
       coverImageAlt: formData.cover_image_alt,
     });
 
-    const serviceData = {
+    return {
       title: formData.title,
       slug: formData.slug,
       short_description: formData.short_description || null,
@@ -151,33 +181,83 @@ export default function ServicesAdmin() {
       sort_order: editingService ? editingService.sort_order : services.length,
       seo_score: seoResult.score,
       focus_keyword: formData.focus_keyword || null,
+      status: statusOverride || formData.status,
     };
+  };
 
-    if (editingService) {
-      const { error } = await supabase
-        .from('services')
-        .update(serviceData)
-        .eq('id', editingService.id);
+  // Auto-save logic
+  const performAutoSave = useCallback(async () => {
+    if (!contentChangedRef.current || !formData.title.trim()) return;
 
-      if (error) {
-        toast({ title: 'Error updating service', variant: 'destructive' });
+    setAutoSaving(true);
+    const serviceData = buildServiceData();
+
+    try {
+      if (serviceId) {
+        await supabase.from('services').update(serviceData).eq('id', serviceId);
       } else {
-        toast({ title: 'Service updated successfully' });
+        const { data } = await supabase.from('services').insert(serviceData).select('id').single();
+        if (data) {
+          setServiceId(data.id);
+        }
       }
-    } else {
-      const { error } = await supabase
-        .from('services')
-        .insert(serviceData);
+      setLastSaved(new Date());
+      contentChangedRef.current = false;
+    } catch (error) {
+      console.error('Autosave failed:', error);
+    } finally {
+      setAutoSaving(false);
+    }
+  }, [formData, features, processSteps, faqs, serviceId, editingService, services.length]);
 
-      if (error) {
-        toast({ title: 'Error creating service', variant: 'destructive' });
-      } else {
-        toast({ title: 'Service created successfully' });
+  // Setup autosave interval (15 seconds) when dialog is open
+  useEffect(() => {
+    if (isDialogOpen) {
+      autoSaveTimerRef.current = setInterval(() => {
+        performAutoSave();
+      }, 15000);
+    }
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
       }
+    };
+  }, [isDialogOpen, performAutoSave]);
+
+  const handleSave = async (statusOverride?: 'draft' | 'published') => {
+    if (!formData.title.trim()) {
+      toast({ title: 'Title is required', variant: 'destructive' });
+      return;
     }
 
-    resetForm();
-    fetchServices();
+    setSaving(true);
+    const serviceData = buildServiceData(statusOverride);
+
+    let error;
+    if (serviceId) {
+      ({ error } = await supabase.from('services').update(serviceData).eq('id', serviceId));
+    } else {
+      const result = await supabase.from('services').insert(serviceData).select('id').single();
+      error = result.error;
+      if (result.data) setServiceId(result.data.id);
+    }
+
+    setSaving(false);
+    contentChangedRef.current = false;
+
+    if (error) {
+      toast({ title: 'Error saving service', variant: 'destructive' });
+    } else {
+      const action = statusOverride === 'published' ? 'Published' : 'Saved as draft';
+      toast({ title: `Service ${action} successfully` });
+      if (statusOverride === 'published') {
+        resetForm();
+        fetchServices();
+      } else {
+        setLastSaved(new Date());
+      }
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -198,6 +278,7 @@ export default function ServicesAdmin() {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
+    setServiceId(service.id);
     setFormData({
       title: service.title,
       slug: service.slug,
@@ -212,15 +293,21 @@ export default function ServicesAdmin() {
       focus_keyword: (service as any).focus_keyword || '',
       is_active: service.is_active,
       is_featured: service.is_featured,
+      status: service.status || 'draft',
     });
     setFeatures(service.features || []);
     setProcessSteps(service.process_steps || []);
     setFaqs(service.faqs || []);
+    setLastSaved(null);
+    contentChangedRef.current = false;
     setIsDialogOpen(true);
   };
 
   const resetForm = () => {
     setEditingService(null);
+    setServiceId(null);
+    setLastSaved(null);
+    contentChangedRef.current = false;
     setFormData({
       title: '',
       slug: '',
@@ -235,6 +322,7 @@ export default function ServicesAdmin() {
       focus_keyword: '',
       is_active: true,
       is_featured: false,
+      status: 'draft',
     });
     setFeatures([]);
     setProcessSteps([]);
@@ -244,44 +332,53 @@ export default function ServicesAdmin() {
 
   const addFeature = () => {
     setFeatures([...features, { icon: 'Code', title: '', description: '' }]);
+    contentChangedRef.current = true;
   };
 
   const updateFeature = (index: number, field: keyof Feature, value: string) => {
     const updated = [...features];
     updated[index] = { ...updated[index], [field]: value };
     setFeatures(updated);
+    contentChangedRef.current = true;
   };
 
   const removeFeature = (index: number) => {
     setFeatures(features.filter((_, i) => i !== index));
+    contentChangedRef.current = true;
   };
 
   const addProcessStep = () => {
     setProcessSteps([...processSteps, { step: String(processSteps.length + 1), title: '', description: '' }]);
+    contentChangedRef.current = true;
   };
 
   const updateProcessStep = (index: number, field: keyof ProcessStep, value: string) => {
     const updated = [...processSteps];
     updated[index] = { ...updated[index], [field]: value };
     setProcessSteps(updated);
+    contentChangedRef.current = true;
   };
 
   const removeProcessStep = (index: number) => {
     setProcessSteps(processSteps.filter((_, i) => i !== index));
+    contentChangedRef.current = true;
   };
 
   const addFaq = () => {
     setFaqs([...faqs, { question: '', answer: '' }]);
+    contentChangedRef.current = true;
   };
 
   const updateFaq = (index: number, field: keyof FAQ, value: string) => {
     const updated = [...faqs];
     updated[index] = { ...updated[index], [field]: value };
     setFaqs(updated);
+    contentChangedRef.current = true;
   };
 
   const removeFaq = (index: number) => {
     setFaqs(faqs.filter((_, i) => i !== index));
+    contentChangedRef.current = true;
   };
 
   if (isLoading) {
@@ -315,6 +412,13 @@ export default function ServicesAdmin() {
                     <p className="text-sm text-muted-foreground">/service/{service.slug}</p>
                   </div>
                   <div className="flex gap-2">
+                    <Badge variant={service.status === 'published' ? 'default' : 'secondary'} className="text-xs">
+                      {service.status === 'published' ? (
+                        <><CheckCircle className="w-3 h-3 mr-1" /> Published</>
+                      ) : (
+                        <><Clock className="w-3 h-3 mr-1" /> Draft</>
+                      )}
+                    </Badge>
                     {service.is_featured && (
                       <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">Featured</span>
                     )}
@@ -349,12 +453,33 @@ export default function ServicesAdmin() {
         )}
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setIsDialogOpen(true); }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingService ? 'Edit Service' : 'Add New Service'}</DialogTitle>
+            <DialogTitle className="flex items-center justify-between pr-8">
+              <span>{editingService ? 'Edit Service' : 'Add New Service'}</span>
+              <div className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+                <Badge variant={formData.status === 'published' ? 'default' : 'secondary'} className="text-xs">
+                  {formData.status === 'published' ? (
+                    <><CheckCircle className="w-3 h-3 mr-1" /> Published</>
+                  ) : (
+                    <><Clock className="w-3 h-3 mr-1" /> Draft</>
+                  )}
+                </Badge>
+                {autoSaving && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+                  </span>
+                )}
+                {lastSaved && !autoSaving && (
+                  <span className="text-xs">
+                    Last saved: {lastSaved.toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+            </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
             <Accordion type="multiple" defaultValue={['basic']} className="w-full">
               {/* Basic Information */}
               <AccordionItem value="basic">
@@ -381,7 +506,7 @@ export default function ServicesAdmin() {
                       <Input
                         id="slug"
                         value={formData.slug}
-                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                        onChange={(e) => updateFormField('slug', e.target.value)}
                         placeholder="wordpress-web-design"
                         required
                       />
@@ -393,7 +518,7 @@ export default function ServicesAdmin() {
                     <select
                       id="icon"
                       value={formData.icon_name}
-                      onChange={(e) => setFormData({ ...formData, icon_name: e.target.value })}
+                      onChange={(e) => updateFormField('icon_name', e.target.value)}
                       className="w-full px-3 py-2 border border-input rounded-md bg-background"
                     >
                       {iconOptions.map((icon) => (
@@ -407,7 +532,7 @@ export default function ServicesAdmin() {
                     <Textarea
                       id="short_description"
                       value={formData.short_description}
-                      onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                      onChange={(e) => updateFormField('short_description', e.target.value)}
                       placeholder="Brief description shown on homepage..."
                       rows={2}
                     />
@@ -420,7 +545,7 @@ export default function ServicesAdmin() {
                     </p>
                     <RichTextEditor
                       content={formData.content}
-                      onChange={(content) => setFormData({ ...formData, content })}
+                      onChange={(content) => updateFormField('content', content)}
                     />
                   </div>
 
@@ -428,7 +553,7 @@ export default function ServicesAdmin() {
                     <Label>Cover Image</Label>
                     <ImageUpload
                       value={formData.cover_image}
-                      onChange={(url) => setFormData({ ...formData, cover_image: url })}
+                      onChange={(url) => updateFormField('cover_image', url)}
                     />
                   </div>
 
@@ -437,7 +562,7 @@ export default function ServicesAdmin() {
                     <Input
                       id="cover_image_alt"
                       value={formData.cover_image_alt}
-                      onChange={(e) => setFormData({ ...formData, cover_image_alt: e.target.value })}
+                      onChange={(e) => updateFormField('cover_image_alt', e.target.value)}
                       placeholder="Describe the image for SEO and accessibility"
                     />
                     <p className="text-xs text-muted-foreground">Improves SEO and accessibility for screen readers.</p>
@@ -448,7 +573,7 @@ export default function ServicesAdmin() {
                       <Switch
                         id="is_active"
                         checked={formData.is_active}
-                        onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                        onCheckedChange={(checked) => updateFormField('is_active', checked)}
                       />
                       <Label htmlFor="is_active">Active</Label>
                     </div>
@@ -456,7 +581,7 @@ export default function ServicesAdmin() {
                       <Switch
                         id="is_featured"
                         checked={formData.is_featured}
-                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                        onCheckedChange={(checked) => updateFormField('is_featured', checked)}
                       />
                       <Label htmlFor="is_featured">Featured on Homepage</Label>
                     </div>
@@ -624,7 +749,7 @@ export default function ServicesAdmin() {
                     <Input
                       id="meta_title"
                       value={formData.meta_title}
-                      onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                      onChange={(e) => updateFormField('meta_title', e.target.value)}
                       placeholder="SEO title (50-60 characters)"
                     />
                     <p className="text-xs text-muted-foreground">{formData.meta_title.length}/60 characters</p>
@@ -634,7 +759,7 @@ export default function ServicesAdmin() {
                     <Textarea
                       id="meta_description"
                       value={formData.meta_description}
-                      onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                      onChange={(e) => updateFormField('meta_description', e.target.value)}
                       placeholder="SEO description (120-160 characters)"
                       rows={3}
                     />
@@ -645,7 +770,7 @@ export default function ServicesAdmin() {
                     <Input
                       id="focus_keyword"
                       value={formData.focus_keyword}
-                      onChange={(e) => setFormData({ ...formData, focus_keyword: e.target.value })}
+                      onChange={(e) => updateFormField('focus_keyword', e.target.value)}
                       placeholder="e.g., web design UK"
                     />
                     <p className="text-xs text-muted-foreground">The primary keyword you want this page to rank for.</p>
@@ -655,7 +780,7 @@ export default function ServicesAdmin() {
                     <Input
                       id="canonical_url"
                       value={formData.canonical_url}
-                      onChange={(e) => setFormData({ ...formData, canonical_url: e.target.value })}
+                      onChange={(e) => updateFormField('canonical_url', e.target.value)}
                       placeholder="https://manhateck.com/service/your-service-slug"
                     />
                     <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
@@ -679,11 +804,16 @@ export default function ServicesAdmin() {
               <Button type="button" variant="outline" onClick={resetForm}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {editingService ? 'Update Service' : 'Create Service'}
+              <Button type="button" variant="outline" onClick={() => handleSave('draft')} disabled={saving}>
+                {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                Save Draft
+              </Button>
+              <Button type="button" onClick={() => handleSave('published')} disabled={saving}>
+                {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                Publish
               </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -577,6 +577,7 @@ export type Database = {
           short_description: string | null
           slug: string
           sort_order: number | null
+          status: Database["public"]["Enums"]["content_status"] | null
           title: string
           updated_at: string | null
         }
@@ -600,6 +601,7 @@ export type Database = {
           short_description?: string | null
           slug: string
           sort_order?: number | null
+          status?: Database["public"]["Enums"]["content_status"] | null
           title: string
           updated_at?: string | null
         }
@@ -623,6 +625,7 @@ export type Database = {
           short_description?: string | null
           slug?: string
           sort_order?: number | null
+          status?: Database["public"]["Enums"]["content_status"] | null
           title?: string
           updated_at?: string | null
         }
