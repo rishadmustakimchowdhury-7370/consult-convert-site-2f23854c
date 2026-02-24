@@ -67,7 +67,7 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/services/:slug" element={<ServicePage />} />
+              
               <Route path="/thank-you" element={<ThankYou />} />
               <Route path="/projects" element={<PublicProjects />} />
               <Route path="/projects/:id" element={<ProjectDetails />} />
@@ -104,7 +104,8 @@ const App = () => (
                 <Route path="settings" element={<Settings />} />
               </Route>
 
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              {/* Service pages with top-level slugs - must be before catch-all */}
+              <Route path="/:slug" element={<ServicePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CookieConsent />

@@ -312,7 +312,7 @@ export default function ServicesAdmin() {
                   </div>
                   <div>
                     <h3 className="font-semibold">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground">/services/{service.slug}</p>
+                    <p className="text-sm text-muted-foreground">/{service.slug}</p>
                   </div>
                   <div className="flex gap-2">
                     {service.is_featured && (
@@ -325,7 +325,7 @@ export default function ServicesAdmin() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="icon" asChild>
-                    <a href={`/services/${service.slug}`} target="_blank" rel="noopener noreferrer">
+                    <a href={`/${service.slug}`} target="_blank" rel="noopener noreferrer">
                       <Eye className="w-4 h-4" />
                     </a>
                   </Button>
@@ -656,7 +656,7 @@ export default function ServicesAdmin() {
                       id="canonical_url"
                       value={formData.canonical_url}
                       onChange={(e) => setFormData({ ...formData, canonical_url: e.target.value })}
-                      placeholder="https://manhateck.com/services/your-service-slug"
+                      placeholder="https://manhateck.com/your-service-slug"
                     />
                     <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
                   </div>

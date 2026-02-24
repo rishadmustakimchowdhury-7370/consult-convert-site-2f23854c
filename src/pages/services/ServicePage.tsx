@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import NotFound from "@/pages/NotFound";
 import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -71,6 +72,7 @@ const ServicePage = () => {
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [service, setService] = useState<Service | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -93,7 +95,8 @@ const ServicePage = () => {
       ]);
 
       if (serviceRes.error || !serviceRes.data) {
-        navigate('/services');
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
@@ -130,8 +133,8 @@ const ServicePage = () => {
     );
   }
 
-  if (!service) {
-    return null;
+  if (!service || notFound) {
+    return <NotFound />;
   }
 
   const ServiceIcon = iconMap[service.icon_name || 'Code'] || Code;
