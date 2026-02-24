@@ -2,7 +2,9 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Bot, Code, Globe, Search, Shield, Layers,
-  ArrowRight
+  ArrowRight, ShoppingCart, Palette, Youtube, Megaphone, Video,
+  Gauge, ShieldCheck, Pin, Mail, MessageCircle, Smartphone, Zap,
+  Award, Star, TrendingUp, Users, Clock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -17,7 +19,9 @@ interface Service {
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Bot, Code, Globe, Search, Shield, Layers,
+  Bot, Code, Globe, Search, Shield, Layers, ShoppingCart, Palette, Youtube,
+  Megaphone, Video, Gauge, ShieldCheck, Pin, Mail, MessageCircle, Smartphone,
+  Zap, Award, Star, TrendingUp, Users, Clock,
 };
 
 const fallbackServices = [
