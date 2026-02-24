@@ -8,8 +8,12 @@ import {
   Italic, 
   List, 
   ListOrdered,
+  Heading1,
   Heading2,
   Heading3,
+  Heading4,
+  Heading5,
+  Heading6,
   Quote,
   Link as LinkIcon,
   Image as ImageIcon,
@@ -29,7 +33,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [2, 3],
+          levels: [1, 2, 3, 4, 5, 6],
         },
       }),
       Link.configure({
@@ -50,7 +54,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none',
+        class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:mb-2 [&_h5]:text-base [&_h5]:font-medium [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-medium [&_h6]:mb-1 [&_h6]:uppercase',
       },
     },
   });
@@ -120,6 +124,13 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         <div className="w-px h-6 bg-border mx-1" />
         
         <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          isActive={editor.isActive('heading', { level: 1 })}
+          title="Heading 1"
+        >
+          <Heading1 className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           isActive={editor.isActive('heading', { level: 2 })}
           title="Heading 2"
@@ -132,6 +143,27 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           title="Heading 3"
         >
           <Heading3 className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+          isActive={editor.isActive('heading', { level: 4 })}
+          title="Heading 4"
+        >
+          <Heading4 className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
+          isActive={editor.isActive('heading', { level: 5 })}
+          title="Heading 5"
+        >
+          <Heading5 className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+          isActive={editor.isActive('heading', { level: 6 })}
+          title="Heading 6"
+        >
+          <Heading6 className="w-4 h-4" />
         </ToolbarButton>
         
         <div className="w-px h-6 bg-border mx-1" />
