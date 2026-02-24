@@ -13,6 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { calculateSEOScore } from '@/utils/seoScoring';
+import SEOAnalyzer from '@/components/admin/SEOAnalyzer';
 
 interface Feature {
   icon: string;
@@ -629,6 +630,16 @@ export default function ServicesAdmin() {
                     />
                     <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
                   </div>
+
+                  {/* SEO Analyzer */}
+                  <SEOAnalyzer
+                    title={formData.title}
+                    slug={formData.slug}
+                    metaTitle={formData.meta_title}
+                    metaDescription={formData.meta_description}
+                    content={formData.content}
+                    focusKeyword=""
+                  />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
