@@ -67,6 +67,7 @@ export default function ServicesAdmin() {
     short_description: '',
     content: '',
     cover_image: '',
+    cover_image_alt: '',
     icon_name: 'Code',
     meta_title: '',
     meta_description: '',
@@ -136,6 +137,7 @@ export default function ServicesAdmin() {
       short_description: formData.short_description || null,
       content: formData.content || null,
       cover_image: formData.cover_image || null,
+      cover_image_alt: formData.cover_image_alt || null,
       icon_name: formData.icon_name,
       features: JSON.parse(JSON.stringify(features)),
       process_steps: JSON.parse(JSON.stringify(processSteps)),
@@ -201,6 +203,7 @@ export default function ServicesAdmin() {
       short_description: service.short_description || '',
       content: service.content || '',
       cover_image: service.cover_image || '',
+      cover_image_alt: (service as any).cover_image_alt || '',
       icon_name: service.icon_name || 'Code',
       meta_title: service.meta_title || '',
       meta_description: service.meta_description || '',
@@ -223,6 +226,7 @@ export default function ServicesAdmin() {
       short_description: '',
       content: '',
       cover_image: '',
+      cover_image_alt: '',
       icon_name: 'Code',
       meta_title: '',
       meta_description: '',
@@ -425,6 +429,17 @@ export default function ServicesAdmin() {
                       value={formData.cover_image}
                       onChange={(url) => setFormData({ ...formData, cover_image: url })}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cover_image_alt">Cover Image Alt Text</Label>
+                    <Input
+                      id="cover_image_alt"
+                      value={formData.cover_image_alt}
+                      onChange={(e) => setFormData({ ...formData, cover_image_alt: e.target.value })}
+                      placeholder="Describe the image for SEO and accessibility"
+                    />
+                    <p className="text-xs text-muted-foreground">Improves SEO and accessibility for screen readers.</p>
                   </div>
 
                   <div className="flex items-center gap-6">

@@ -561,6 +561,7 @@ export type Database = {
           canonical_url: string | null
           content: string | null
           cover_image: string | null
+          cover_image_alt: string | null
           created_at: string | null
           faqs: Json | null
           features: Json | null
@@ -583,6 +584,7 @@ export type Database = {
           canonical_url?: string | null
           content?: string | null
           cover_image?: string | null
+          cover_image_alt?: string | null
           created_at?: string | null
           faqs?: Json | null
           features?: Json | null
@@ -605,6 +607,7 @@ export type Database = {
           canonical_url?: string | null
           content?: string | null
           cover_image?: string | null
+          cover_image_alt?: string | null
           created_at?: string | null
           faqs?: Json | null
           features?: Json | null
