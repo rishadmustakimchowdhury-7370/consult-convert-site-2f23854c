@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import PublicProjects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import Landing from "./pages/Landing";
+import DynamicPage from "./pages/DynamicPage";
 
 // Admin Pages
 import AdminAuth from "./pages/admin/AdminAuth";
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/projects" element={<PublicProjects />} />
               <Route path="/projects/:id" element={<ProjectDetails />} />
               <Route path="/landing" element={<Landing />} />
+              <Route path="/page/:slug" element={<DynamicPage />} />
 
               {/* Admin Auth */}
               <Route path="/visage/login" element={<AdminAuth />} />
