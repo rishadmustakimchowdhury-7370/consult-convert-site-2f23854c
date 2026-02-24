@@ -462,6 +462,7 @@ export default function BlogEditor() {
                   metaDescription={metaDescription}
                   content={content}
                   focusKeyword={focusKeyword}
+                  coverImageAlt={coverImageAlt}
                   onScoreChange={setSeoScore}
                 />
               </TabsContent>

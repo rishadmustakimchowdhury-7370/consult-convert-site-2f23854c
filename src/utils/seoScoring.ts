@@ -72,8 +72,9 @@ export function calculateSEOScore(params: {
   metaDescription: string;
   content: string;
   focusKeyword: string;
+  coverImageAlt?: string;
 }): SEOScoreResult {
-  const { title, slug, metaTitle, metaDescription, content, focusKeyword } = params;
+  const { title, slug, metaTitle, metaDescription, content, focusKeyword, coverImageAlt } = params;
 
   const plainContent = stripHtml(content);
   const wordCount = plainContent.split(/\s+/).filter(Boolean).length;
@@ -165,14 +166,16 @@ export function calculateSEOScore(params: {
     message: descOk ? `Meta description is ${metaDescription.length} chars. Perfect!` : `Meta description is ${metaDescription.length} chars. Aim for 120-160.`,
   });
 
-  // 8. Image alt tags present → 10 pts
-  const hasAlt = content.includes('alt=');
+  // 8. Image alt tags present → 10 pts (checks content alt= OR cover image alt)
+  const hasAltInContent = content.includes('alt=');
+  const hasCoverAlt = !!(coverImageAlt && coverImageAlt.trim().length > 0);
+  const hasAlt = hasAltInContent || hasCoverAlt;
   checks.push({
     label: 'Image alt tags present',
     points: hasAlt ? 10 : 0,
     maxPoints: 10,
     passed: hasAlt,
-    message: hasAlt ? 'Images have alt attributes.' : 'Add alt attributes to images.',
+    message: hasAlt ? 'Images have alt attributes.' : 'Add alt attributes to images or cover image.',
   });
 
   // 9. Internal links present → 10 pts

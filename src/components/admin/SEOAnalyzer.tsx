@@ -13,6 +13,7 @@ interface SEOAnalyzerProps {
   metaDescription: string;
   content: string;
   focusKeyword: string;
+  coverImageAlt?: string;
   onScoreChange?: (score: number) => void;
 }
 
@@ -23,11 +24,12 @@ export default function SEOAnalyzer({
   metaDescription,
   content,
   focusKeyword,
+  coverImageAlt,
   onScoreChange,
 }: SEOAnalyzerProps) {
   const result: SEOScoreResult = useMemo(
-    () => calculateSEOScore({ title, slug, metaTitle, metaDescription, content, focusKeyword }),
-    [title, slug, metaTitle, metaDescription, content, focusKeyword]
+    () => calculateSEOScore({ title, slug, metaTitle, metaDescription, content, focusKeyword, coverImageAlt }),
+    [title, slug, metaTitle, metaDescription, content, focusKeyword, coverImageAlt]
   );
 
   useEffect(() => {

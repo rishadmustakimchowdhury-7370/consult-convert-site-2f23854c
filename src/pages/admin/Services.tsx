@@ -129,6 +129,7 @@ export default function ServicesAdmin() {
       metaDescription: formData.meta_description,
       content: formData.content,
       focusKeyword: formData.focus_keyword,
+      coverImageAlt: formData.cover_image_alt,
     });
 
     const serviceData = {
@@ -668,6 +669,7 @@ export default function ServicesAdmin() {
                     metaDescription={formData.meta_description}
                     content={formData.content}
                     focusKeyword={formData.focus_keyword}
+                    coverImageAlt={formData.cover_image_alt}
                   />
                 </AccordionContent>
               </AccordionItem>
