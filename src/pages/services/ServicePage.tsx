@@ -47,6 +47,7 @@ interface Service {
   faqs: FAQ[];
   meta_title: string | null;
   meta_description: string | null;
+  canonical_url: string | null;
 }
 
 interface Testimonial {
@@ -101,6 +102,7 @@ const ServicePage = () => {
         features: Array.isArray(serviceRes.data.features) ? (serviceRes.data.features as unknown as Feature[]) : [],
         process_steps: Array.isArray(serviceRes.data.process_steps) ? (serviceRes.data.process_steps as unknown as ProcessStep[]) : [],
         faqs: Array.isArray(serviceRes.data.faqs) ? (serviceRes.data.faqs as unknown as FAQ[]) : [],
+        canonical_url: (serviceRes.data as any).canonical_url || null,
       });
       
       if (testimonialsRes.data) {
@@ -139,6 +141,7 @@ const ServicePage = () => {
       <SEOHead
         title={service.meta_title || `${service.title} | Manha Teck`}
         description={service.meta_description || service.short_description || undefined}
+        canonicalOverride={service.canonical_url}
       />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 

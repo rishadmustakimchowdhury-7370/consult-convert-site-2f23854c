@@ -68,6 +68,7 @@ export default function ServicesAdmin() {
     icon_name: 'Code',
     meta_title: '',
     meta_description: '',
+    canonical_url: '',
     is_active: true,
     is_featured: false,
   });
@@ -129,6 +130,7 @@ export default function ServicesAdmin() {
       faqs: JSON.parse(JSON.stringify(faqs)),
       meta_title: formData.meta_title || null,
       meta_description: formData.meta_description || null,
+      canonical_url: formData.canonical_url || null,
       is_active: formData.is_active,
       is_featured: formData.is_featured,
       sort_order: editingService ? editingService.sort_order : services.length,
@@ -188,6 +190,7 @@ export default function ServicesAdmin() {
       icon_name: service.icon_name || 'Code',
       meta_title: service.meta_title || '',
       meta_description: service.meta_description || '',
+      canonical_url: (service as any).canonical_url || '',
       is_active: service.is_active,
       is_featured: service.is_featured,
     });
@@ -208,6 +211,7 @@ export default function ServicesAdmin() {
       icon_name: 'Code',
       meta_title: '',
       meta_description: '',
+      canonical_url: '',
       is_active: true,
       is_featured: false,
     });
@@ -603,6 +607,16 @@ export default function ServicesAdmin() {
                       rows={3}
                     />
                     <p className="text-xs text-muted-foreground">{formData.meta_description.length}/160 characters</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="canonical_url">Canonical URL <span className="text-xs text-muted-foreground">(optional override)</span></Label>
+                    <Input
+                      id="canonical_url"
+                      value={formData.canonical_url}
+                      onChange={(e) => setFormData({ ...formData, canonical_url: e.target.value })}
+                      placeholder="https://manhateck.com/services/your-service-slug"
+                    />
+                    <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
                   </div>
                 </AccordionContent>
               </AccordionItem>
