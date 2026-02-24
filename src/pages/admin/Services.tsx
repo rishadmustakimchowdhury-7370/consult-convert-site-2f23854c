@@ -303,6 +303,24 @@ export default function ServicesAdmin() {
     setIsDialogOpen(true);
   };
 
+  // Save on close if there are unsaved changes
+  const saveAndClose = useCallback(async () => {
+    if (contentChangedRef.current && formData.title.trim()) {
+      const serviceData = buildServiceData();
+      try {
+        if (serviceId) {
+          await supabase.from('services').update(serviceData).eq('id', serviceId);
+        } else {
+          await supabase.from('services').insert(serviceData);
+        }
+      } catch (error) {
+        console.error('Save on close failed:', error);
+      }
+    }
+    resetForm();
+    fetchServices();
+  }, [formData, features, processSteps, faqs, serviceId, editingService, services.length]);
+
   const resetForm = () => {
     setEditingService(null);
     setServiceId(null);
@@ -453,7 +471,7 @@ export default function ServicesAdmin() {
         )}
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setIsDialogOpen(true); }}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) saveAndClose(); else setIsDialogOpen(true); }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between pr-8">
