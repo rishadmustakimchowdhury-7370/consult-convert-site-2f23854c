@@ -290,14 +290,21 @@ export default function ServicesAdmin() {
     updated.sort((a, b) => a.sort_order - b.sort_order);
     setServices(updated);
 
+    // Update services table
     const { error: e1 } = await supabase.from('services').update({ sort_order: swap.sort_order }).eq('id', current.id);
     const { error: e2 } = await supabase.from('services').update({ sort_order: current.sort_order }).eq('id', swap.id);
+
+    // Also sync navigation_menu items that link to these services
+    const currentLink = `/services/${current.slug}`;
+    const swapLink = `/services/${swap.slug}`;
+    await supabase.from('navigation_menu').update({ sort_order: swap.sort_order }).eq('link', currentLink);
+    await supabase.from('navigation_menu').update({ sort_order: current.sort_order }).eq('link', swapLink);
 
     if (e1 || e2) {
       toast({ title: 'Error reordering', variant: 'destructive' });
       fetchServices();
     } else {
-      toast({ title: 'Order updated' });
+      toast({ title: 'Order updated across all pages' });
     }
   };
 
