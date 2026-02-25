@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, HelpCircle, Search, Clock, CheckCircle, Loader2, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, Code, X, FileText, Sparkles, ListOrdered, HelpCircle, Search, Clock, CheckCircle, Loader2, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
@@ -276,6 +276,31 @@ export default function ServicesAdmin() {
     }
   };
 
+  const handleMoveService = async (index: number, direction: 'up' | 'down') => {
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= services.length) return;
+
+    const current = services[index];
+    const swap = services[swapIndex];
+
+    // Optimistic update
+    const updated = [...services];
+    updated[index] = { ...swap, sort_order: current.sort_order };
+    updated[swapIndex] = { ...current, sort_order: swap.sort_order };
+    updated.sort((a, b) => a.sort_order - b.sort_order);
+    setServices(updated);
+
+    const { error: e1 } = await supabase.from('services').update({ sort_order: swap.sort_order }).eq('id', current.id);
+    const { error: e2 } = await supabase.from('services').update({ sort_order: current.sort_order }).eq('id', swap.id);
+
+    if (e1 || e2) {
+      toast({ title: 'Error reordering', variant: 'destructive' });
+      fetchServices();
+    } else {
+      toast({ title: 'Order updated' });
+    }
+  };
+
   const handleEdit = (service: Service) => {
     setEditingService(service);
     setServiceId(service.id);
@@ -417,11 +442,31 @@ export default function ServicesAdmin() {
       </div>
 
       <div className="grid gap-4">
-        {services.map((service) => (
+        {services.map((service, index) => (
           <Card key={service.id}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-0.5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      disabled={index === 0}
+                      onClick={() => handleMoveService(index, 'up')}
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      disabled={index === services.length - 1}
+                      onClick={() => handleMoveService(index, 'down')}
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </div>
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Code className="w-6 h-6 text-primary" />
                   </div>
