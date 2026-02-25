@@ -26,6 +26,19 @@ interface SiteSettings {
   updated_at?: string | null;
 }
 
+// Convert absolute site URLs to relative paths for client-side routing
+const toRelativeLink = (link: string): string => {
+  try {
+    const url = new URL(link);
+    if (url.hostname === window.location.hostname || url.hostname === 'manhateck.com' || url.hostname === 'www.manhateck.com') {
+      return url.pathname + url.search + url.hash;
+    }
+  } catch {
+    // Already a relative path
+  }
+  return link;
+};
+
 const withCacheBuster = (url: string, version?: string | null) => {
   const v = (version || "").trim();
   if (!v) return url;
@@ -64,7 +77,7 @@ const NestedDropdown = ({
     // Leaf node
     return (
       <Link
-        to={item.link}
+        to={toRelativeLink(item.link)}
         className="block px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
       >
         {item.title}
@@ -81,7 +94,7 @@ const NestedDropdown = ({
       onMouseLeave={handleMouseLeave}
     >
       <div className="flex items-center justify-between px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer whitespace-nowrap">
-        <Link to={item.link} className="flex-1">
+        <Link to={toRelativeLink(item.link)} className="flex-1">
           {item.title}
         </Link>
         <ChevronRight className="w-3.5 h-3.5 ml-2 shrink-0" />
@@ -138,7 +151,7 @@ const TopLevelDropdown = ({
       onMouseLeave={handleMouseLeave}
     >
       <button className="flex items-center space-x-1 text-sm font-medium text-foreground hover:text-primary transition-colors outline-none">
-        <Link to={item.link}>{item.title}</Link>
+        <Link to={toRelativeLink(item.link)}>{item.title}</Link>
         <ChevronDown className="w-4 h-4" />
       </button>
       {isOpen && (
@@ -179,11 +192,11 @@ const MobileMenuItem = ({
     <div>
       <div className="flex items-center" style={{ paddingLeft: `${depth * 16}px` }}>
         <Link
-          to={item.link}
+          to={toRelativeLink(item.link)}
           onClick={onClose}
           className={cn(
             "flex-1 py-2 text-sm font-medium transition-colors hover:text-primary",
-            location.pathname === item.link ? "text-primary" : "text-foreground"
+            location.pathname === toRelativeLink(item.link) ? "text-primary" : "text-foreground"
           )}
         >
           {item.title}
@@ -334,10 +347,10 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
               return (
                 <Link
                   key={item.id}
-                  to={item.link}
+                  to={toRelativeLink(item.link)}
                   className={cn(
                     "text-sm font-medium transition-colors hover:text-primary",
-                    isActive(item.link) ? "text-primary" : "text-foreground"
+                    isActive(toRelativeLink(item.link)) ? "text-primary" : "text-foreground"
                   )}
                 >
                   {item.title}
