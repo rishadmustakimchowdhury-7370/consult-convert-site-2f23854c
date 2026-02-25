@@ -41,6 +41,39 @@ const toWhatsAppHref = (_value?: string | null, fallbackPhone?: string | null) =
   return `https://wa.me/${phone}`;
 };
 
+const FooterServices = () => {
+  const [services, setServices] = useState<{ title: string; slug: string }[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("services")
+        .select("title, slug")
+        .eq("is_active", true)
+        .eq("status", "published")
+        .order("sort_order", { ascending: true })
+        .limit(6);
+      if (data) setServices(data);
+    };
+    fetch();
+  }, []);
+
+  return (
+    <div>
+      <h3 className="text-lg font-semibold mb-4">Services</h3>
+      <ul className="space-y-2">
+        {services.map((s) => (
+          <li key={s.slug}>
+            <Link to={`/service/${s.slug}`} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              {s.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -240,15 +273,7 @@ export const Footer = () => {
           </div>
 
           {/* Services */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
-            <ul className="space-y-2">
-              <li><Link to="/web-development" className="text-sm text-muted-foreground hover:text-primary transition-colors">Web Development</Link></li>
-              <li><Link to="/digital-marketing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Digital Marketing</Link></li>
-              <li><Link to="/uiux-design" className="text-sm text-muted-foreground hover:text-primary transition-colors">UI/UX Design</Link></li>
-              <li><Link to="/seo-services" className="text-sm text-muted-foreground hover:text-primary transition-colors">SEO Services</Link></li>
-            </ul>
-          </div>
+          <FooterServices />
 
           {/* Contact Info */}
           <div>
