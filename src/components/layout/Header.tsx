@@ -246,7 +246,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
   }, []);
 
   const fetchData = async () => {
-    const [menuRes, settingsRes] = await Promise.all([
+    const [menuRes, settingsRes, servicesRes] = await Promise.all([
       supabase
         .from("navigation_menu")
         .select("*")
@@ -257,9 +257,44 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
         .select("logo_url, site_title, site_description, updated_at")
         .limit(1)
         .maybeSingle(),
+      supabase
+        .from("services")
+        .select("title, slug, sort_order")
+        .eq("is_active", true)
+        .eq("status", "published")
+        .order("sort_order", { ascending: true }),
     ]);
 
-    if (menuRes.data) setMenuItems(menuRes.data);
+    if (menuRes.data && servicesRes.data) {
+      // Find the "Services" parent menu item
+      const servicesParent = menuRes.data.find(
+        (item) => !item.parent_id && (item.link === '/services' || item.title.toLowerCase().includes('service'))
+      );
+
+      if (servicesParent) {
+        // Remove old navigation_menu children of the services parent
+        const nonServiceChildren = menuRes.data.filter(
+          (item) => item.parent_id !== servicesParent.id
+        );
+
+        // Generate dynamic children from the services table
+        const dynamicServiceItems: MenuItem[] = servicesRes.data.map((service, idx) => ({
+          id: `dynamic-service-${service.slug}`,
+          title: service.title,
+          link: `/services/${service.slug}`,
+          location: servicesParent.location || 'header',
+          parent_id: servicesParent.id,
+          sort_order: service.sort_order ?? idx,
+          is_active: true,
+        }));
+
+        setMenuItems([...nonServiceChildren, ...dynamicServiceItems]);
+      } else {
+        setMenuItems(menuRes.data);
+      }
+    } else if (menuRes.data) {
+      setMenuItems(menuRes.data);
+    }
 
     if (settingsRes.data) {
       const nextSettings = settingsRes.data;
