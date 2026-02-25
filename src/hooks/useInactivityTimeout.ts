@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -7,6 +8,7 @@ const WARNING_BEFORE_LOGOUT = 60 * 1000; // Show warning 1 minute before logout
 
 export function useInactivityTimeout(enabled: boolean = true) {
   const { signOut, user } = useAuth();
+  const navigate = useNavigate();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
@@ -14,8 +16,8 @@ export function useInactivityTimeout(enabled: boolean = true) {
   const handleLogout = useCallback(async () => {
     toast.error("You have been logged out due to inactivity");
     await signOut();
-    window.location.href = '/visage/login';
-  }, [signOut]);
+    navigate('/visage/login');
+  }, [signOut, navigate]);
 
   const showWarning = useCallback(() => {
     toast.warning("You will be logged out in 1 minute due to inactivity. Move your mouse or press a key to stay logged in.");

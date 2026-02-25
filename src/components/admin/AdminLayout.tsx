@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import AdminSidebar from './AdminSidebar';
@@ -10,6 +10,7 @@ export default function AdminLayout() {
   const { user, isAdmin, loading } = useAuth();
   const { role, loading: roleLoading, canAccess } = useUserRole();
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Enable 10-minute inactivity timeout for admin users
   useInactivityTimeout(!!user && isAdmin);
@@ -59,7 +60,7 @@ export default function AdminLayout() {
               <p className="text-muted-foreground mb-6">
                 Your role <span className="font-medium text-foreground">({role?.replace('_', ' ')})</span> doesn't have permission to access this section.
               </p>
-              <Button onClick={() => window.location.href = '/visage'}>
+              <Button onClick={() => navigate('/visage')}>
                 Go to Dashboard
               </Button>
             </div>
