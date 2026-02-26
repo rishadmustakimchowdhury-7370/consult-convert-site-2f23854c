@@ -93,7 +93,7 @@ export default function ProjectDetails() {
           <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
           <p className="text-muted-foreground mb-6">The project you're looking for doesn't exist or is not public.</p>
           <Button asChild>
-            <Link to="/projects">
+            <Link to="/projects/">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Projects
             </Link>
@@ -113,7 +113,7 @@ export default function ProjectDetails() {
       <section className="relative py-12 md:py-20">
         <div className="container mx-auto px-4">
           <Link
-            to="/projects"
+            to="/projects/"
             className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
