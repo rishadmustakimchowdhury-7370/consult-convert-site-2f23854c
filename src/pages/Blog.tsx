@@ -83,7 +83,7 @@ export default function Blog() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {blogs.map((blog) => (
-                <Link key={blog.id} to={`/blog/${blog.slug}`}>
+                <Link key={blog.id} to={`/blog/${blog.slug}/`}>
                   <Card className="group h-full overflow-hidden hover:shadow-xl transition-all duration-300 border-border/50">
                     <div className="relative aspect-video overflow-hidden bg-muted">
                       {blog.cover_image ? (

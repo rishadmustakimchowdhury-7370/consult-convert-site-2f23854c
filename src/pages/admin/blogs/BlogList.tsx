@@ -290,7 +290,7 @@ export default function BlogList() {
                             {blog.status === 'published' && (
                               <DropdownMenuItem asChild>
                                 <a
-                                  href={`/blog/${blog.slug}`}
+                                  href={`/blog/${blog.slug}/`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
