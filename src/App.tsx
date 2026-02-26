@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { TrailingSlashRedirect } from "@/components/TrailingSlashRedirect";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
 import { SEOHead } from "@/components/SEOHead";
@@ -57,24 +58,26 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <SEOHead />
+            <TrailingSlashRedirect />
             <ScrollToTop />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/about/" element={<About />} />
+              <Route path="/services/" element={<Services />} />
+              <Route path="/contact/" element={<Contact />} />
+              <Route path="/blog/" element={<Blog />} />
+              <Route path="/blog/:slug/" element={<BlogPost />} />
+              <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
               
-              <Route path="/thank-you" element={<ThankYou />} />
-              <Route path="/projects" element={<PublicProjects />} />
-              <Route path="/projects/:id" element={<ProjectDetails />} />
-              <Route path="/landing" element={<Landing />} />
-              <Route path="/page/:slug" element={<DynamicPage />} />
+              <Route path="/thank-you/" element={<ThankYou />} />
+              <Route path="/projects/" element={<PublicProjects />} />
+              <Route path="/projects/:id/" element={<ProjectDetails />} />
+              <Route path="/landing/" element={<Landing />} />
+              <Route path="/page/:slug/" element={<DynamicPage />} />
 
               {/* Admin Auth */}
+              <Route path="/visage/login/" element={<AdminAuth />} />
               <Route path="/visage/login" element={<AdminAuth />} />
 
               {/* Admin Routes */}
@@ -105,8 +108,8 @@ const App = () => (
               </Route>
 
               {/* Service detail pages - support both /service/ and /services/ */}
-              <Route path="/service/:slug" element={<ServicePage />} />
-              <Route path="/services/:slug" element={<ServicePage />} />
+              <Route path="/service/:slug/" element={<ServicePage />} />
+              <Route path="/services/:slug/" element={<ServicePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CookieConsent />

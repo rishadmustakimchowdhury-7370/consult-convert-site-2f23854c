@@ -25,8 +25,10 @@ export function useCanonicalUrl(manualOverride?: string | null): string {
   }
 
   const cleanSearch = stripIgnoredParams(location.search);
-  // Normalize: no trailing slash except for root
-  let path = location.pathname.replace(/\/+$/, '') || '/';
+  // Normalize: always include trailing slash
+  let path = location.pathname.replace(/\/+$/, '') || '';
+  // Ensure trailing slash on all paths
+  path = path === '' ? '/' : `${path}/`;
   
   return `${BASE_URL}${path}${cleanSearch}`;
 }
