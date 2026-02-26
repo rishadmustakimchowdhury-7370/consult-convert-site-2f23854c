@@ -26,17 +26,22 @@ interface SiteSettings {
   updated_at?: string | null;
 }
 
-// Convert absolute site URLs to relative paths for client-side routing
+// Convert absolute site URLs to relative paths for client-side routing, ensure trailing slash
 const toRelativeLink = (link: string): string => {
+  let relative = link;
   try {
     const url = new URL(link);
     if (url.hostname === window.location.hostname || url.hostname === 'manhateck.com' || url.hostname === 'www.manhateck.com') {
-      return url.pathname + url.search + url.hash;
+      relative = url.pathname + url.search + url.hash;
     }
   } catch {
     // Already a relative path
   }
-  return link;
+  // Ensure trailing slash (skip root and links with hash/query already)
+  if (relative !== '/' && !relative.endsWith('/') && !relative.includes('?') && !relative.includes('#')) {
+    relative = `${relative}/`;
+  }
+  return relative;
 };
 
 const withCacheBuster = (url: string, version?: string | null) => {
@@ -281,7 +286,7 @@ export const Header = ({ onConsultationClick }: HeaderProps) => {
         const dynamicServiceItems: MenuItem[] = servicesRes.data.map((service, idx) => ({
           id: `dynamic-service-${service.slug}`,
           title: service.title,
-          link: `/services/${service.slug}`,
+          link: `/services/${service.slug}/`,
           location: servicesParent.location || 'header',
           parent_id: servicesParent.id,
           sort_order: service.sort_order ?? idx,
