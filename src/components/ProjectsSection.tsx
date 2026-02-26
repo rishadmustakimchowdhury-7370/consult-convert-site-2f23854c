@@ -100,7 +100,7 @@ export function ProjectsSection() {
 
         <div className="mt-12 text-center">
           <Button asChild size="lg" variant="outline" className="group">
-            <Link to="/projects">
+            <Link to="/projects/">
               View All Projects
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>

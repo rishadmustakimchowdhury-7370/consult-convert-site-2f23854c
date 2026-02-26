@@ -31,7 +31,7 @@ const ThankYou = () => {
                 <Link to="/">Return to Home</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link to="/services">Explore Our Services</Link>
+                <Link to="/services/">Explore Our Services</Link>
               </Button>
             </div>
           </div>

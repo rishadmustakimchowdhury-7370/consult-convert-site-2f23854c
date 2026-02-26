@@ -85,7 +85,7 @@ export default function BlogPost() {
           <h1 className="text-3xl font-bold text-foreground mb-4">Blog Post Not Found</h1>
           <p className="text-muted-foreground mb-8">The blog post you're looking for doesn't exist.</p>
           <Button asChild>
-            <Link to="/blog">
+            <Link to="/blog/">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Blog
             </Link>
@@ -110,7 +110,7 @@ export default function BlogPost() {
           <div className="max-w-3xl mx-auto">
             {/* Back Button */}
             <Link 
-              to="/blog" 
+              to="/blog/" 
               className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors mb-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />

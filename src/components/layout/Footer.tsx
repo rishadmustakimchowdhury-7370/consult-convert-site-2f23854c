@@ -263,10 +263,10 @@ export const Footer = () => {
               ) : (
                 <>
                   <li><Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home</Link></li>
-                  <li><Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-                  <li><Link to="/services" className="text-sm text-muted-foreground hover:text-primary transition-colors">Services</Link></li>
-                  <li><Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
-                  <li><Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
+                   <li><Link to="/about/" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
+                   <li><Link to="/services/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Services</Link></li>
+                   <li><Link to="/blog/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
+                   <li><Link to="/contact/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
                 </>
               )}
             </ul>
@@ -340,7 +340,7 @@ export const Footer = () => {
             © {currentYear} {settings?.site_title || 'Manha Teck'}. All rights reserved.
           </p>
           <Link
-            to="/privacy-policy"
+            to="/privacy-policy/"
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             Privacy Policy
