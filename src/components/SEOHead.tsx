@@ -44,10 +44,15 @@ export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps)
 
   return (
     <Helmet>
-      {discourageIndexing && (
+      {discourageIndexing ? (
         <>
           <meta name="robots" content="noindex, nofollow" />
           <meta name="googlebot" content="noindex, nofollow" />
+        </>
+      ) : (
+        <>
+          <meta name="robots" content="index, follow" />
+          <meta name="googlebot" content="index, follow" />
         </>
       )}
       {title && <title>{title}</title>}
