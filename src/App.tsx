@@ -13,7 +13,6 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { TrailingSlashRedirect } from "@/components/TrailingSlashRedirect";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
-import { SEOHead } from "@/components/SEOHead";
 import { CookieConsent } from "@/components/CookieConsent";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -63,7 +62,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <SEOHead />
             <TrailingSlashRedirect />
             <ScrollToTop />
             <Routes>

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
+import { SEOHead } from "@/components/SEOHead";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
@@ -18,11 +18,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>AI Agent Development, SaaS & Cybersecurity Solutions | Manha Teck</title>
-        <meta name="description" content="Manha Teck delivers AI-powered automation, custom SaaS development, full-stack engineering, WordPress & Shopify development, technical SEO, and penetration testing services." />
-        <meta name="keywords" content="AI Agent Development, Custom SaaS Development, Full-Stack Development Agency, WordPress Development Agency, Shopify Development Expert, Webflow Design Agency, Technical SEO Services, SEO Optimization Agency, Penetration Testing Company, Vulnerability Assessment Services, Network Security Scanning" />
-      </Helmet>
+      <SEOHead
+        title="AI Agent Development, SaaS & Cybersecurity Solutions | Manha Teck"
+        description="Manha Teck delivers AI-powered automation, custom SaaS development, full-stack engineering, WordPress & Shopify development, technical SEO, and penetration testing services."
+      />
 
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
