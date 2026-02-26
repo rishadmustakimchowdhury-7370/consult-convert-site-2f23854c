@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { SEOHead } from "@/components/SEOHead";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +85,10 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Contact Us | Manha Teck"
+        description="Get in touch with Manha Teck for AI development, web solutions, SEO services, and cybersecurity consulting. Request a free consultation today."
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}

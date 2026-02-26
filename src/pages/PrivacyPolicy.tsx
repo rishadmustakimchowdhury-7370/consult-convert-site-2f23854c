@@ -2,12 +2,17 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { SEOHead } from "@/components/SEOHead";
 
 const PrivacyPolicy = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Privacy Policy | Manha Teck"
+        description="Read Manha Teck's privacy policy to understand how we collect, use, and protect your personal information."
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       <section className="py-20">

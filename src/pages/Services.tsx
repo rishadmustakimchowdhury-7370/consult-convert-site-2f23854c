@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowRight, Code, ShoppingCart, Palette, Globe, Search, Youtube, Megaphone, Video, Gauge, ShieldCheck, Pin, Mail, Bot, MessageCircle, Smartphone, Zap, Award, Star, TrendingUp, Users, Clock, Shield, Loader2 } from "lucide-react";
@@ -33,6 +34,10 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Our Services | Manha Teck"
+        description="Explore Manha Teck's professional services including AI development, web development, SEO, digital marketing, UI/UX design, and cybersecurity solutions."
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}

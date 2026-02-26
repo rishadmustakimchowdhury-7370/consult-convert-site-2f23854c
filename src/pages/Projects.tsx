@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ConsultationDialog } from '@/components/ConsultationDialog';
+import { SEOHead } from '@/components/SEOHead';
 import { WhatsAppChat } from '@/components/WhatsAppChat';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,6 +42,10 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Our Projects | Manha Teck"
+        description="Explore Manha Teck's portfolio of completed projects including web development, AI solutions, and digital marketing campaigns."
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}
