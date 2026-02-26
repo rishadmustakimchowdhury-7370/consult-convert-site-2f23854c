@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Target, Eye, Award } from "lucide-react";
 import aboutBg from "@/assets/about-bg.jpg";
@@ -18,6 +19,10 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="About Us | Manha Teck"
+        description="Learn about Manha Teck — a leading digital agency delivering AI-powered automation, custom web development, SEO, and cybersecurity solutions worldwide."
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       {/* Hero Section */}

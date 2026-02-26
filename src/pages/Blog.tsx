@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ConsultationDialog } from '@/components/ConsultationDialog';
+import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, User, ArrowRight } from 'lucide-react';
@@ -45,6 +46,10 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Blog | Manha Teck"
+        description="Read the latest insights, tips, and strategies from Manha Teck on AI development, web solutions, SEO, and digital marketing."
+      />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
       
       {/* Hero Section */}

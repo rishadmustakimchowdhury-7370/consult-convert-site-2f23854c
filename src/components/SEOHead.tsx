@@ -19,7 +19,6 @@ export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps)
 
     const faviconUrl = `${settings.favicon_url}${settings.favicon_url.includes('?') ? '&' : '?'}v=${Date.now()}`;
 
-    // Update or create standard favicon
     const updateLink = (rel: string, type?: string) => {
       let link = document.querySelector(`link[rel='${rel}']`) as HTMLLinkElement | null;
       if (!link) {
@@ -33,14 +32,16 @@ export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps)
 
     updateLink('icon', 'image/png');
     updateLink('apple-touch-icon');
-
-    // Also update shortcut icon for legacy browsers
     updateLink('shortcut icon', 'image/png');
   }, [settings?.favicon_url]);
 
   if (loading) return null;
 
   const discourageIndexing = settings?.discourage_search_engines ?? false;
+
+  // Fallback: use global settings if no page-specific values provided
+  const finalTitle = title || settings?.global_meta_title || 'Manha Teck';
+  const finalDescription = description || settings?.global_meta_description || '';
 
   return (
     <Helmet>
@@ -55,8 +56,8 @@ export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps)
           <meta name="googlebot" content="index, follow" />
         </>
       )}
-      {title && <title>{title}</title>}
-      {description && <meta name="description" content={description} />}
+      <title>{finalTitle}</title>
+      {finalDescription && <meta name="description" content={finalDescription} />}
       <link rel="canonical" href={canonicalUrl} />
     </Helmet>
   );

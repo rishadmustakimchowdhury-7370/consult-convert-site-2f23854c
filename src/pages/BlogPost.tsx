@@ -44,8 +44,6 @@ export default function BlogPost() {
 
       if (!error && data) {
         setBlog(data as Blog);
-        // Update page title
-        document.title = data.meta_title || data.title;
       }
       setLoading(false);
     };
