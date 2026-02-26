@@ -2,7 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+
+// Redirect /service/:slug → /services/:slug/
+const ServiceRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/services/${slug}/`} replace />;
+};
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { TrailingSlashRedirect } from "@/components/TrailingSlashRedirect";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -107,8 +113,9 @@ const App = () => (
                 <Route path="settings" element={<Settings />} />
               </Route>
 
-              {/* Service detail pages - support both /service/ and /services/ */}
-              <Route path="/service/:slug/" element={<ServicePage />} />
+              {/* Redirect old /service/ to /services/ */}
+              <Route path="/service/:slug" element={<ServiceRedirect />} />
+              <Route path="/service/:slug/" element={<ServiceRedirect />} />
               <Route path="/services/:slug/" element={<ServicePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
