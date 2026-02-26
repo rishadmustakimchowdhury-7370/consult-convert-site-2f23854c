@@ -479,7 +479,7 @@ export default function ServicesAdmin() {
                   </div>
                   <div>
                     <h3 className="font-semibold">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground">/service/{service.slug}</p>
+                    <p className="text-sm text-muted-foreground">/services/{service.slug}/</p>
                   </div>
                   <div className="flex gap-2">
                     <Badge variant={service.status === 'published' ? 'default' : 'secondary'} className="text-xs">

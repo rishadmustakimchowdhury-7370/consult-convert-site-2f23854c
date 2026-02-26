@@ -61,7 +61,7 @@ const Services = () => {
                 return (
                   <Link
                     key={service.slug}
-                    to={`/service/${service.slug}`}
+                    to={`/services/${service.slug}/`}
                     className="block group animate-fade-in-up"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
