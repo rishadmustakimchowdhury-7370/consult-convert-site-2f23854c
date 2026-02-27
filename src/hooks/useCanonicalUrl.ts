@@ -23,7 +23,7 @@ export function useCanonicalUrl(manualOverride?: string | null): string {
     return manualOverride.trim();
   }
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://manhateck.com';
+  const origin = 'https://manhateck.com';
   const cleanSearch = stripIgnoredParams(location.search);
   // Normalize: always include trailing slash
   let path = location.pathname.replace(/\/+$/, '') || '';
