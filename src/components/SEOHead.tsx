@@ -6,7 +6,6 @@ import { useCanonicalUrl } from '@/hooks/useCanonicalUrl';
 interface SEOHeadProps {
   title?: string;
   description?: string;
-  canonicalOverride?: string | null;
   ogImage?: string | null;
   ogType?: string;
 }
@@ -21,8 +20,8 @@ function extractMetaContent(tag: string | null): string | null {
   return match?.[1] || null;
 }
 
-export function SEOHead({ title, description, canonicalOverride, ogImage, ogType = 'website' }: SEOHeadProps) {
-  const canonicalUrl = useCanonicalUrl(canonicalOverride);
+export function SEOHead({ title, description, ogImage, ogType = 'website' }: SEOHeadProps) {
+  const canonicalUrl = useCanonicalUrl();
   const { settings, loading } = useSEOSettings();
 
   // Dynamically update favicon via DOM for reliability

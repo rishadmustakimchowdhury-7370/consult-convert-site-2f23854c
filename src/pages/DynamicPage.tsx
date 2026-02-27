@@ -60,7 +60,6 @@ export default function DynamicPage() {
       <SEOHead
         title={page.meta_title || page.title}
         description={page.meta_description || undefined}
-        canonicalOverride={page.canonical_url}
       />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
