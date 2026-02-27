@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { useState } from "react";
@@ -11,8 +12,8 @@ const ThankYou = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Thank You | Manha Teck" description="Thank you for contacting Manha Teck. We will get back to you within 24 hours." />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
-
       <section className="py-32">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center space-y-8 animate-fade-in-up">
