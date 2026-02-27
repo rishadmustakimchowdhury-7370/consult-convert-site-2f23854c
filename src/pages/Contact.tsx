@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTrackConversion } from "@/hooks/useConversionTracking";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -37,6 +38,7 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const navigate = useNavigate();
+  const fireConversion = useTrackConversion();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,6 +73,7 @@ const Contact = () => {
 
       if (error) throw error;
 
+      fireConversion('contact_form_submit');
       toast.success("Message sent successfully!");
       form.reset();
       setIsVerified(false);
