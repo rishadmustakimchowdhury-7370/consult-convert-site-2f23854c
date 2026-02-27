@@ -13,15 +13,11 @@ function stripIgnoredParams(search: string): string {
 
 /**
  * Returns the canonical URL for the current page.
- * Uses window.location.origin for domain-agnostic behavior.
- * If a manual override is provided, it takes precedence.
+ * Always uses https://manhateck.com as the production domain.
+ * Trailing slash is always enforced.
  */
-export function useCanonicalUrl(manualOverride?: string | null): string {
+export function useCanonicalUrl(): string {
   const location = useLocation();
-
-  if (manualOverride?.trim()) {
-    return manualOverride.trim();
-  }
 
   const origin = 'https://manhateck.com';
   const cleanSearch = stripIgnoredParams(location.search);

@@ -99,7 +99,6 @@ export default function BlogPost() {
       <SEOHead
         title={blog.meta_title || blog.title}
         description={blog.meta_description || blog.excerpt || undefined}
-        canonicalOverride={blog.canonical_url}
         ogImage={blog.cover_image}
         ogType="article"
       />
