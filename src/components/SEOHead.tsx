@@ -7,9 +7,11 @@ interface SEOHeadProps {
   title?: string;
   description?: string;
   canonicalOverride?: string | null;
+  ogImage?: string | null;
+  ogType?: string;
 }
 
-export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps) {
+export function SEOHead({ title, description, canonicalOverride, ogImage, ogType = 'website' }: SEOHeadProps) {
   const canonicalUrl = useCanonicalUrl(canonicalOverride);
   const { settings, loading } = useSEOSettings();
 
@@ -39,12 +41,14 @@ export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps)
 
   const discourageIndexing = settings?.discourage_search_engines ?? false;
 
-  // Fallback: use global settings if no page-specific values provided
   const finalTitle = title || settings?.global_meta_title || 'Manha Teck';
   const finalDescription = description || settings?.global_meta_description || '';
+  const finalImage = ogImage || settings?.logo_url || '';
+  const siteName = settings?.site_title || 'Manha Teck';
 
   return (
     <Helmet>
+      {/* Robots */}
       {discourageIndexing ? (
         <>
           <meta name="robots" content="noindex, nofollow" />
@@ -56,9 +60,27 @@ export function SEOHead({ title, description, canonicalOverride }: SEOHeadProps)
           <meta name="googlebot" content="index, follow" />
         </>
       )}
+
+      {/* Title & Description */}
       <title>{finalTitle}</title>
       {finalDescription && <meta name="description" content={finalDescription} />}
+
+      {/* Canonical */}
       <link rel="canonical" href={canonicalUrl} />
+
+      {/* Open Graph */}
+      <meta property="og:title" content={finalTitle} />
+      {finalDescription && <meta property="og:description" content={finalDescription} />}
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:type" content={ogType} />
+      <meta property="og:site_name" content={siteName} />
+      {finalImage && <meta property="og:image" content={finalImage} />}
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content={finalImage ? 'summary_large_image' : 'summary'} />
+      <meta name="twitter:title" content={finalTitle} />
+      {finalDescription && <meta name="twitter:description" content={finalDescription} />}
+      {finalImage && <meta name="twitter:image" content={finalImage} />}
     </Helmet>
   );
 }
