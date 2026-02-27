@@ -1,13 +1,15 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const SITE_URL = "https://manhateck.com";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req: Request): Promise<Response> => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,8 +18,6 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
-
-    console.log("Fetching site settings for robots.txt");
 
     const { data: settings, error } = await supabase
       .from("site_settings")
@@ -30,53 +30,42 @@ serve(async (req: Request): Promise<Response> => {
       throw error;
     }
 
-    const discourageSearchEngines = settings?.discourage_search_engines ?? false;
-    console.log("Discourage search engines:", discourageSearchEngines);
+    const discourage = settings?.discourage_search_engines ?? false;
 
     let robotsTxt: string;
 
-    if (discourageSearchEngines) {
-      // Block all crawlers
+    if (discourage) {
       robotsTxt = `User-agent: *
 Disallow: /
 
-# This site is currently set to discourage search engine indexing.
-# To allow crawling, disable this setting in the admin dashboard.
+# Search engine indexing is currently discouraged.
+# Change this in admin settings to allow crawling.
 `;
     } else {
-      // Allow all crawlers
-      robotsTxt = `User-agent: Googlebot
+      robotsTxt = `User-agent: *
 Allow: /
 
-User-agent: Bingbot
-Allow: /
+# Block admin area
+Disallow: /visage/
 
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: *
-Allow: /
-
-Sitemap: ${supabaseUrl.replace('.supabase.co', '.lovable.app')}/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap.xml
 `;
     }
 
     return new Response(robotsTxt, {
       status: 200,
       headers: {
-        "Content-Type": "text/plain",
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=3600",
         ...corsHeaders,
       },
     });
   } catch (error: any) {
     console.error("Error generating robots.txt:", error);
-    return new Response(`User-agent: *\nAllow: /`, {
+    return new Response(`User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, {
       status: 200,
       headers: {
-        "Content-Type": "text/plain",
+        "Content-Type": "text/plain; charset=utf-8",
         ...corsHeaders,
       },
     });

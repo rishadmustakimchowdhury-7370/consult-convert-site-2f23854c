@@ -139,6 +139,7 @@ const ServicePage = () => {
         title={service.meta_title || `${service.title} | Manha Teck`}
         description={service.meta_description || service.short_description || undefined}
         canonicalOverride={service.canonical_url}
+        ogImage={service.cover_image}
       />
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
