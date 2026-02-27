@@ -157,6 +157,48 @@ export type Database = {
         }
         Relationships: []
       }
+      conversion_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          gclid: string | null
+          id: string
+          landing_page: string | null
+          page_url: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          gclid?: string | null
+          id?: string
+          landing_page?: string | null
+          page_url?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          gclid?: string | null
+          id?: string
+          landing_page?: string | null
+          page_url?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
+      }
       homepage_content: {
         Row: {
           button_link: string | null
@@ -645,6 +687,9 @@ export type Database = {
           favicon_url: string | null
           global_meta_description: string | null
           global_meta_title: string | null
+          google_ads_conversion_id: string | null
+          google_ads_conversion_label: string | null
+          google_ads_enabled: boolean | null
           google_analytics_script: string | null
           google_verification_file: string | null
           google_verification_meta: string | null
@@ -673,6 +718,9 @@ export type Database = {
           favicon_url?: string | null
           global_meta_description?: string | null
           global_meta_title?: string | null
+          google_ads_conversion_id?: string | null
+          google_ads_conversion_label?: string | null
+          google_ads_enabled?: boolean | null
           google_analytics_script?: string | null
           google_verification_file?: string | null
           google_verification_meta?: string | null
@@ -701,6 +749,9 @@ export type Database = {
           favicon_url?: string | null
           global_meta_description?: string | null
           global_meta_title?: string | null
+          google_ads_conversion_id?: string | null
+          google_ads_conversion_label?: string | null
+          google_ads_enabled?: boolean | null
           google_analytics_script?: string | null
           google_verification_file?: string | null
           google_verification_meta?: string | null

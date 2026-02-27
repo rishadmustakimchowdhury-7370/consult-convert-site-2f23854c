@@ -14,6 +14,7 @@ import { TrailingSlashRedirect } from "@/components/TrailingSlashRedirect";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
 import { CookieConsent } from "@/components/CookieConsent";
+import { ConversionTrackingProvider } from "@/components/ConversionTrackingProvider";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -64,6 +65,7 @@ const App = () => (
           <BrowserRouter>
             <TrailingSlashRedirect />
             <ScrollToTop />
+            <ConversionTrackingProvider />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />

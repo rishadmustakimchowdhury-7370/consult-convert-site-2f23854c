@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTrackConversion } from '@/hooks/useConversionTracking';
 import { SEOHead } from '@/components/SEOHead';
 import { motion, useInView } from "framer-motion";
 import { Button } from '@/components/ui/button';
@@ -174,6 +175,7 @@ export default function Landing() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const fireConversion = useTrackConversion();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -260,6 +262,7 @@ export default function Landing() {
 
     setIsSubmitting(false);
     setIsDialogOpen(false);
+    fireConversion('landing_form_submit');
     navigate('/thank-you');
   };
 

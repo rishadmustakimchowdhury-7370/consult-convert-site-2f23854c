@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTrackConversion } from "@/hooks/useConversionTracking";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -57,6 +58,7 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
   const [isVerified, setIsVerified] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
   const navigate = useNavigate();
+  const fireConversion = useTrackConversion();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -109,6 +111,7 @@ export const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogPro
 
       if (error) throw error;
 
+      fireConversion('consultation_form_submit');
       toast.success("Thank you! We will contact you shortly.");
       form.reset();
       setIsVerified(false);

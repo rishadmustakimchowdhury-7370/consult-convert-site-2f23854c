@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Globe, Share2, Code, Mail, Image, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Save, Loader2, Globe, Share2, Code, Mail, Image, AlertTriangle, CheckCircle, Target } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -34,6 +34,9 @@ interface SiteSettings {
   contact_address: string | null;
   admin_email: string | null;
   discourage_search_engines: boolean | null;
+  google_ads_conversion_id: string | null;
+  google_ads_conversion_label: string | null;
+  google_ads_enabled: boolean | null;
 }
 
 export default function Settings() {
@@ -139,6 +142,10 @@ export default function Settings() {
           <TabsTrigger value="social" className="gap-2">
             <Share2 className="w-4 h-4" />
             Social Media
+          </TabsTrigger>
+          <TabsTrigger value="google-ads" className="gap-2">
+            <Target className="w-4 h-4" />
+            Google Ads
           </TabsTrigger>
         </TabsList>
 
@@ -449,6 +456,81 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="google-ads">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Google Ads Conversion Tracking
+                </CardTitle>
+                <CardDescription>
+                  Configure Google Ads conversion tracking to measure form submissions and CTA clicks.
+                  The tracking script loads only on the production domain (manhateck.com).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-1">
+                    <Label htmlFor="google-ads-enabled" className="text-base font-medium">
+                      Enable Google Ads Conversion Tracking
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      When enabled, the global site tag (gtag.js) will be loaded on production and conversion events will fire.
+                    </p>
+                  </div>
+                  <Switch
+                    id="google-ads-enabled"
+                    checked={settings.google_ads_enabled || false}
+                    onCheckedChange={(checked) => updateField('google_ads_enabled', checked)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="conversion-id">Google Ads Conversion ID</Label>
+                  <Input
+                    id="conversion-id"
+                    value={settings.google_ads_conversion_id || ''}
+                    onChange={(e) => updateField('google_ads_conversion_id', e.target.value)}
+                    placeholder="AW-XXXXXXXXXX"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Find this in Google Ads → Tools → Conversions → Your conversion action → Tag setup.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="conversion-label">Google Ads Conversion Label</Label>
+                  <Input
+                    id="conversion-label"
+                    value={settings.google_ads_conversion_label || ''}
+                    onChange={(e) => updateField('google_ads_conversion_label', e.target.value)}
+                    placeholder="AbCdEfGhIjKlMnO"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    The conversion label from your Google Ads conversion action.
+                  </p>
+                </div>
+
+                <Alert className="border-primary/30 bg-primary/5">
+                  <Target className="w-4 h-4" />
+                  <AlertTitle>Conversion Events</AlertTitle>
+                  <AlertDescription className="space-y-1">
+                    <p>Conversions are automatically tracked when:</p>
+                    <ul className="list-disc list-inside text-sm space-y-0.5 mt-1">
+                      <li>Contact form is submitted</li>
+                      <li>Landing page form is submitted</li>
+                      <li>"Book a Free Consultation" dialog form is submitted</li>
+                      <li>CTA buttons are clicked (configurable)</li>
+                    </ul>
+                    <p className="mt-2 text-xs">UTM parameters, gclid, landing page URL, and timestamps are captured automatically.</p>
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
