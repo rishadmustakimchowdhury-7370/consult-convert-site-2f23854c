@@ -469,18 +469,17 @@ export default function BlogEditor() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="canonical-url">
+                      <Label>
                         Canonical URL
-                        <span className="ml-2 text-xs text-muted-foreground">(optional override)</span>
+                        <span className="ml-2 text-xs text-muted-foreground">(auto-generated)</span>
                       </Label>
                       <Input
-                        id="canonical-url"
-                        value={canonicalUrl}
-                        onChange={(e) => handleFieldChange(setCanonicalUrl, e.target.value)}
-                        placeholder="https://manhateck.com/blog/your-post-slug"
+                        readOnly
+                        value={slug ? `https://manhateck.com/blog/${slug}/` : 'https://manhateck.com/blog/your-post-slug/'}
+                        className="bg-muted text-muted-foreground cursor-default"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Leave empty to auto-generate. Use only if this content exists at another URL.
+                      <p className="text-xs text-green-500">
+                        ✓ Auto-generated with trailing slash from page URL.
                       </p>
                     </div>
                   </CardContent>

@@ -350,17 +350,16 @@ export default function PageEditor() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="canonical-url">
-                    Canonical URL <span className="text-muted-foreground">(optional override)</span>
+                  <Label>
+                    Canonical URL <span className="text-muted-foreground">(auto-generated)</span>
                   </Label>
                   <Input
-                    id="canonical-url"
-                    value={canonicalUrl}
-                    onChange={(e) => { setCanonicalUrl(e.target.value); markChanged(); }}
-                    placeholder="https://manhateck.com/your-page-slug"
+                    readOnly
+                    value={slug ? `https://manhateck.com/page/${slug}/` : 'https://manhateck.com/page/your-page-slug/'}
+                    className="bg-muted text-muted-foreground cursor-default"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Leave empty to auto-generate. Use only if this content exists at another URL.
+                  <p className="text-xs text-green-500">
+                    ✓ Auto-generated with trailing slash from page URL.
                   </p>
                 </div>
               </CardContent>

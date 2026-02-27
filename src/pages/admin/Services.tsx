@@ -846,14 +846,13 @@ export default function ServicesAdmin() {
                     <p className="text-xs text-muted-foreground">The primary keyword you want this page to rank for.</p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="canonical_url">Canonical URL <span className="text-xs text-muted-foreground">(optional override)</span></Label>
+                    <Label>Canonical URL <span className="text-xs text-muted-foreground">(auto-generated)</span></Label>
                     <Input
-                      id="canonical_url"
-                      value={formData.canonical_url}
-                      onChange={(e) => updateFormField('canonical_url', e.target.value)}
-                      placeholder="https://manhateck.com/services/your-service-slug"
+                      readOnly
+                      value={formData.slug ? `https://manhateck.com/services/${formData.slug}/` : 'https://manhateck.com/services/your-service-slug/'}
+                      className="bg-muted text-muted-foreground cursor-default"
                     />
-                    <p className="text-xs text-muted-foreground">Leave empty to auto-generate based on page URL.</p>
+                    <p className="text-xs text-green-500">✓ Auto-generated with trailing slash from page URL.</p>
                   </div>
 
                   {/* SEO Analyzer */}
