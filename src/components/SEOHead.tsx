@@ -11,6 +11,16 @@ interface SEOHeadProps {
   ogType?: string;
 }
 
+/**
+ * Extracts the content attribute value from a meta tag string.
+ * e.g. '<meta name="google-site-verification" content="abc123" />' → 'abc123'
+ */
+function extractMetaContent(tag: string | null): string | null {
+  if (!tag) return null;
+  const match = tag.match(/content\s*=\s*["']([^"']+)["']/i);
+  return match?.[1] || null;
+}
+
 export function SEOHead({ title, description, canonicalOverride, ogImage, ogType = 'website' }: SEOHeadProps) {
   const canonicalUrl = useCanonicalUrl(canonicalOverride);
   const { settings, loading } = useSEOSettings();
@@ -37,6 +47,24 @@ export function SEOHead({ title, description, canonicalOverride, ogImage, ogType
     updateLink('shortcut icon', 'image/png');
   }, [settings?.favicon_url]);
 
+  // Inject Google Analytics script
+  useEffect(() => {
+    if (!settings?.google_analytics_script) return;
+    
+    const existingScript = document.getElementById('ga-script');
+    if (existingScript) return;
+
+    const script = document.createElement('script');
+    script.id = 'ga-script';
+    script.innerHTML = settings.google_analytics_script;
+    document.head.appendChild(script);
+
+    return () => {
+      const el = document.getElementById('ga-script');
+      if (el) el.remove();
+    };
+  }, [settings?.google_analytics_script]);
+
   if (loading) return null;
 
   const discourageIndexing = settings?.discourage_search_engines ?? false;
@@ -45,6 +73,10 @@ export function SEOHead({ title, description, canonicalOverride, ogImage, ogType
   const finalDescription = description || settings?.global_meta_description || '';
   const finalImage = ogImage || settings?.logo_url || '';
   const siteName = settings?.site_title || 'Manha Teck';
+
+  // Extract verification codes
+  const googleVerification = extractMetaContent(settings?.google_verification_meta ?? null);
+  const bingVerification = extractMetaContent(settings?.bing_verification_meta ?? null);
 
   return (
     <Helmet>
@@ -81,6 +113,14 @@ export function SEOHead({ title, description, canonicalOverride, ogImage, ogType
       <meta name="twitter:title" content={finalTitle} />
       {finalDescription && <meta name="twitter:description" content={finalDescription} />}
       {finalImage && <meta name="twitter:image" content={finalImage} />}
+
+      {/* Search Engine Verification */}
+      {googleVerification && (
+        <meta name="google-site-verification" content={googleVerification} />
+      )}
+      {bingVerification && (
+        <meta name="msvalidate.01" content={bingVerification} />
+      )}
     </Helmet>
   );
 }
