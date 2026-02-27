@@ -114,13 +114,6 @@ const ServicePage = () => {
       }
       
       setIsLoading(false);
-
-      // Update page title and meta
-      if (serviceRes.data.meta_title) {
-        document.title = serviceRes.data.meta_title;
-      } else {
-        document.title = `${serviceRes.data.title} | Manha Tech`;
-      }
     };
 
     fetchData();

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { SEOHead } from '@/components/SEOHead';
 import { motion, useInView } from "framer-motion";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -310,6 +311,10 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title="AI Agent Development, SaaS & Cybersecurity Solutions | Manha Teck"
+        description="Manha Teck builds AI-powered automation, custom SaaS development, enterprise cybersecurity solutions, and data-driven SEO strategies for modern businesses."
+      />
       {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
