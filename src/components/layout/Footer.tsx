@@ -280,66 +280,58 @@ export const Footer = () => {
           <FooterCertifications />
         </div>
 
-        {/* Contact row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
-          <div className="lg:col-start-4">
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start space-x-3">
-                <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href={`mailto:${settings?.contact_email || 'info@manhateck.com'}`} className="hover:text-primary transition-colors">
-                  {settings?.contact_email || 'info@manhateck.com'}
+        {/* Contact Info */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+          <ul className="flex flex-wrap gap-x-10 gap-y-3 text-sm text-muted-foreground">
+            <li className="flex items-start space-x-3">
+              <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <a href={`mailto:${settings?.contact_email || 'info@manhateck.com'}`} className="hover:text-primary transition-colors">
+                {settings?.contact_email || 'info@manhateck.com'}
+              </a>
+            </li>
+            <li className="flex items-start space-x-3">
+              <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <div>
+                <a href={`tel:${settings?.contact_phone || '+447426468550'}`} className="hover:text-primary transition-colors block">
+                  {settings?.contact_phone || '+44 742 646 8550'}
                 </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <div>
-                  <a href={`tel:${settings?.contact_phone || '+447426468550'}`} className="hover:text-primary transition-colors block">
-                    {settings?.contact_phone || '+44 742 646 8550'}
+                {(settings?.contact_phone_secondary || !settings) && (
+                  <a href={`tel:${settings?.contact_phone_secondary || '+8801839697370'}`} className="hover:text-primary transition-colors block">
+                    {settings?.contact_phone_secondary || '+880 183 969 7370'}
                   </a>
-                  {(settings?.contact_phone_secondary || !settings) && (
-                    <a href={`tel:${settings?.contact_phone_secondary || '+8801839697370'}`} className="hover:text-primary transition-colors block">
-                      {settings?.contact_phone_secondary || '+880 183 969 7370'}
-                    </a>
-                  )}
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a
-                  href={toWhatsAppHref(null, settings?.contact_phone)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const opener: Window | null = window.top ?? window;
-                    opener.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
-                  }}
-                  className="hover:text-primary transition-colors"
-                >
-                  WhatsApp: {settings?.contact_phone || "+44 742 646 8550"}
-                </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>
-                  {settings?.contact_address ? (
-                    settings.contact_address.split(',').map((part, idx) => (
-                      <span key={idx}>{part.trim()}{idx < settings.contact_address!.split(',').length - 1 && <br />}</span>
-                    ))
-                  ) : (
-                    <>
-                      Suite A, 82 James Carter Road<br />
-                      Mildenhall, Bury St. Edmunds<br />
-                      United Kingdom, IP28 7DE
-                    </>
-                  )}
-                </span>
-              </li>
-            </ul>
-          </div>
+                )}
+              </div>
+            </li>
+            <li className="flex items-start space-x-3">
+              <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <a
+                href={toWhatsAppHref(null, settings?.contact_phone)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const opener: Window | null = window.top ?? window;
+                  opener.open(toWhatsAppHref(null, settings?.contact_phone), "_blank", "noopener,noreferrer");
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                WhatsApp: {settings?.contact_phone || "+44 742 646 8550"}
+              </a>
+            </li>
+            <li className="flex items-start space-x-3">
+              <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>
+                {settings?.contact_address ? (
+                  settings.contact_address.split(',').map((part, idx) => (
+                    <span key={idx}>{part.trim()}{idx < settings.contact_address!.split(',').length - 1 && ', '}</span>
+                  ))
+                ) : (
+                  <>Suite A, 82 James Carter Road, Mildenhall, Bury St. Edmunds, United Kingdom, IP28 7DE</>
+                )}
+              </span>
+            </li>
+          </ul>
         </div>
 
         {/* Bottom Bar */}
