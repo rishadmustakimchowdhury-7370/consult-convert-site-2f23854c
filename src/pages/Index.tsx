@@ -6,6 +6,7 @@ import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustSection } from "@/components/home/TrustSection";
+import { CertificationsSection } from "@/components/home/CertificationsSection";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
 import { FeatureHighlight } from "@/components/home/FeatureHighlight";
 import { PerformanceStats } from "@/components/home/PerformanceStats";
@@ -26,6 +27,7 @@ const Index = () => {
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       <HeroSection onConsultationClick={() => setIsDialogOpen(true)} />
+      <CertificationsSection />
       <TrustSection />
       <ServicesGrid />
       <FeatureHighlight />
