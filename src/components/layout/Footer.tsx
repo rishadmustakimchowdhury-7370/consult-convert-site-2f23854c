@@ -276,6 +276,13 @@ export const Footer = () => {
           {/* Services */}
           <FooterServices />
 
+          {/* Certifications */}
+          <FooterCertifications />
+        </div>
+
+        {/* Contact row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
+          <div className="lg:col-start-4">
           {/* Contact Info */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>

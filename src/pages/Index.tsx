@@ -27,6 +27,7 @@ const Index = () => {
       <Header onConsultationClick={() => setIsDialogOpen(true)} />
 
       <HeroSection onConsultationClick={() => setIsDialogOpen(true)} />
+      <CertificationsSection />
       <TrustSection />
       <ServicesGrid />
       <FeatureHighlight />
