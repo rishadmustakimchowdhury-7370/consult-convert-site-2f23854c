@@ -138,6 +138,39 @@ export default function SEOVerification() {
     }
   };
 
+  /** Auto-extracts the verification code from a pasted full meta tag. */
+  const handleMetaPaste = (
+    field: 'google_verification_meta' | 'bing_verification_meta',
+    value: string,
+  ) => {
+    const cleaned = extractVerificationCode(value);
+    updateField(field, cleaned);
+  };
+
+  /** Checks the live site to confirm the verification meta tag is rendered. */
+  const testVerification = async (type: 'google' | 'bing') => {
+    const code = extractVerificationCode(
+      (type === 'google'
+        ? settings?.google_verification_meta
+        : settings?.bing_verification_meta) || '',
+    );
+    if (!code) {
+      toast({ title: 'No code', description: 'Save a verification code first.', variant: 'destructive' });
+      return;
+    }
+    const name = type === 'google' ? 'google-site-verification' : 'msvalidate.01';
+    const found = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+    if (found && found.content === code) {
+      toast({ title: 'Verified ✓', description: `${name} renders correctly in <head>.` });
+    } else {
+      toast({
+        title: 'Not detected',
+        description: `Meta tag missing or mismatched. Reload the public site after saving.`,
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
