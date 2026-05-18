@@ -6,7 +6,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Upload, Trash2, Globe, FileCode, Link as LinkIcon } from 'lucide-react';
+import { Save, Loader2, Upload, Trash2, Globe, FileCode, Link as LinkIcon, CheckCircle2, XCircle } from 'lucide-react';
+
+/**
+ * Extracts a verification code from a full meta tag string.
+ * Accepts either '<meta name="..." content="CODE" />' or just 'CODE'.
+ */
+function extractVerificationCode(raw: string): string {
+  if (!raw) return '';
+  const match = raw.match(/content\s*=\s*["']([^"']+)["']/i);
+  return (match?.[1] ?? raw).trim();
+}
 
 interface VerificationSettings {
   id: string;
@@ -128,6 +138,39 @@ export default function SEOVerification() {
     }
   };
 
+  /** Auto-extracts the verification code from a pasted full meta tag. */
+  const handleMetaPaste = (
+    field: 'google_verification_meta' | 'bing_verification_meta',
+    value: string,
+  ) => {
+    const cleaned = extractVerificationCode(value);
+    updateField(field, cleaned);
+  };
+
+  /** Checks the live site to confirm the verification meta tag is rendered. */
+  const testVerification = async (type: 'google' | 'bing') => {
+    const code = extractVerificationCode(
+      (type === 'google'
+        ? settings?.google_verification_meta
+        : settings?.bing_verification_meta) || '',
+    );
+    if (!code) {
+      toast({ title: 'No code', description: 'Save a verification code first.', variant: 'destructive' });
+      return;
+    }
+    const name = type === 'google' ? 'google-site-verification' : 'msvalidate.01';
+    const found = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+    if (found && found.content === code) {
+      toast({ title: 'Verified ✓', description: `${name} renders correctly in <head>.` });
+    } else {
+      toast({
+        title: 'Not detected',
+        description: `Meta tag missing or mismatched. Reload the public site after saving.`,
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -177,19 +220,32 @@ export default function SEOVerification() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="google-meta">Meta Tag Verification</Label>
+              <Label htmlFor="google-meta">Paste Google Meta Tag Here</Label>
               <Textarea
                 id="google-meta"
                 value={settings.google_verification_meta || ''}
                 onChange={(e) => updateField('google_verification_meta', e.target.value)}
-                placeholder='<meta name="google-site-verification" content="YOUR_CODE" />'
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData('text');
+                  if (/<meta\s/i.test(pasted)) {
+                    e.preventDefault();
+                    handleMetaPaste('google_verification_meta', pasted);
+                  }
+                }}
+                placeholder='<meta name="google-site-verification" content="YOUR_CODE" /> or just the code'
                 rows={2}
                 className="font-mono text-sm"
               />
-              <p className="text-xs text-muted-foreground">
-                Paste the complete meta tag from Google Search Console
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Paste the full meta tag — we auto-extract the code.
+                </p>
+                <Button variant="outline" size="sm" onClick={() => testVerification('google')}>
+                  <CheckCircle2 className="w-3 h-3 mr-1" /> Test Verification
+                </Button>
+              </div>
             </div>
+
 
             <div className="space-y-2">
               <Label>File Verification</Label>
@@ -250,19 +306,32 @@ export default function SEOVerification() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="bing-meta">Meta Tag Verification</Label>
+              <Label htmlFor="bing-meta">Paste Bing Meta Tag Here</Label>
               <Textarea
                 id="bing-meta"
                 value={settings.bing_verification_meta || ''}
                 onChange={(e) => updateField('bing_verification_meta', e.target.value)}
-                placeholder='<meta name="msvalidate.01" content="YOUR_CODE" />'
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData('text');
+                  if (/<meta\s/i.test(pasted)) {
+                    e.preventDefault();
+                    handleMetaPaste('bing_verification_meta', pasted);
+                  }
+                }}
+                placeholder='<meta name="msvalidate.01" content="YOUR_CODE" /> or just the code'
                 rows={2}
                 className="font-mono text-sm"
               />
-              <p className="text-xs text-muted-foreground">
-                Paste the complete meta tag from Bing Webmaster Tools
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Paste the full meta tag — we auto-extract the code.
+                </p>
+                <Button variant="outline" size="sm" onClick={() => testVerification('bing')}>
+                  <CheckCircle2 className="w-3 h-3 mr-1" /> Test Verification
+                </Button>
+              </div>
             </div>
+
 
             <div className="space-y-2">
               <Label>File Verification</Label>

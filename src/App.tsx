@@ -15,6 +15,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ConversionTrackingProvider } from "@/components/ConversionTrackingProvider";
+import { SEOVerificationTags } from "@/components/SEOVerificationTags";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -66,6 +67,7 @@ const App = () => (
             <TrailingSlashRedirect />
             <ScrollToTop />
             <ConversionTrackingProvider />
+            <SEOVerificationTags />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />

@@ -34,7 +34,7 @@ export default function PageEditor() {
   const [canonicalUrl, setCanonicalUrl] = useState('');
   const [pageId, setPageId] = useState<string | null>(id || null);
 
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentChangedRef = useRef(false);
 
   useEffect(() => {
