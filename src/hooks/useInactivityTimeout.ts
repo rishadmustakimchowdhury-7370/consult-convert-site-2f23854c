@@ -9,8 +9,8 @@ const WARNING_BEFORE_LOGOUT = 60 * 1000; // Show warning 1 minute before logout
 export function useInactivityTimeout(enabled: boolean = true) {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const warningRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warningRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
   const handleLogout = useCallback(async () => {
@@ -61,7 +61,7 @@ export function useInactivityTimeout(enabled: boolean = true) {
     ];
 
     // Throttle the reset to avoid too many calls
-    let throttleTimer: NodeJS.Timeout | null = null;
+    let throttleTimer: ReturnType<typeof setTimeout> | null = null;
     const throttledReset = () => {
       if (throttleTimer) return;
       throttleTimer = setTimeout(() => {

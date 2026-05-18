@@ -62,7 +62,7 @@ const NestedDropdown = ({
   depth?: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const children = menuItems
@@ -134,7 +134,7 @@ const TopLevelDropdown = ({
   menuItems: MenuItem[];
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const children = menuItems
     .filter((i) => i.parent_id === item.id)

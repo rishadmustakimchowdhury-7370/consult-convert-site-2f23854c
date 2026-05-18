@@ -66,7 +66,7 @@ export default function BlogEditor() {
   const [seoScore, setSeoScore] = useState(0);
 
   // Autosave timer ref
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentChangedRef = useRef(false);
 
   useEffect(() => {
