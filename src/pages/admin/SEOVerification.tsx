@@ -6,7 +6,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Upload, Trash2, Globe, FileCode, Link as LinkIcon } from 'lucide-react';
+import { Save, Loader2, Upload, Trash2, Globe, FileCode, Link as LinkIcon, CheckCircle2, XCircle } from 'lucide-react';
+
+/**
+ * Extracts a verification code from a full meta tag string.
+ * Accepts either '<meta name="..." content="CODE" />' or just 'CODE'.
+ */
+function extractVerificationCode(raw: string): string {
+  if (!raw) return '';
+  const match = raw.match(/content\s*=\s*["']([^"']+)["']/i);
+  return (match?.[1] ?? raw).trim();
+}
 
 interface VerificationSettings {
   id: string;
