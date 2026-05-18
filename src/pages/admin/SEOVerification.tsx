@@ -306,19 +306,32 @@ export default function SEOVerification() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="bing-meta">Meta Tag Verification</Label>
+              <Label htmlFor="bing-meta">Paste Bing Meta Tag Here</Label>
               <Textarea
                 id="bing-meta"
                 value={settings.bing_verification_meta || ''}
                 onChange={(e) => updateField('bing_verification_meta', e.target.value)}
-                placeholder='<meta name="msvalidate.01" content="YOUR_CODE" />'
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData('text');
+                  if (/<meta\s/i.test(pasted)) {
+                    e.preventDefault();
+                    handleMetaPaste('bing_verification_meta', pasted);
+                  }
+                }}
+                placeholder='<meta name="msvalidate.01" content="YOUR_CODE" /> or just the code'
                 rows={2}
                 className="font-mono text-sm"
               />
-              <p className="text-xs text-muted-foreground">
-                Paste the complete meta tag from Bing Webmaster Tools
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Paste the full meta tag — we auto-extract the code.
+                </p>
+                <Button variant="outline" size="sm" onClick={() => testVerification('bing')}>
+                  <CheckCircle2 className="w-3 h-3 mr-1" /> Test Verification
+                </Button>
+              </div>
             </div>
+
 
             <div className="space-y-2">
               <Label>File Verification</Label>
