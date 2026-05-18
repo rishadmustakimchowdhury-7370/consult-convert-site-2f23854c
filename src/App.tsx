@@ -67,6 +67,7 @@ const App = () => (
             <TrailingSlashRedirect />
             <ScrollToTop />
             <ConversionTrackingProvider />
+            <SEOVerificationTags />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />
