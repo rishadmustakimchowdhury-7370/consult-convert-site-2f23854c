@@ -102,9 +102,13 @@ function VerificationFileStatus({
   );
 }
 
+/** Extracts a verification code from a full meta tag string. */
+function extractVerificationCode(raw: string): string {
+  if (!raw) return '';
   const match = raw.match(/content\s*=\s*["']([^"']+)["']/i);
   return (match?.[1] ?? raw).trim();
 }
+
 
 interface VerificationSettings {
   id: string;
