@@ -260,38 +260,21 @@ export default function SEOVerification() {
                 {uploading === 'google' && <Loader2 className="w-4 h-4 animate-spin" />}
               </div>
               {settings.google_verification_file && (
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg mt-2">
-                  <div className="flex items-center gap-3">
-                    <FileCode className="w-5 h-5 text-blue-500" />
-                    <div>
-                      <p className="text-sm font-medium">Verification file uploaded</p>
-                      <a
-                        href={settings.google_verification_file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline flex items-center gap-1"
-                      >
-                        <LinkIcon className="w-3 h-3" />
-                        View file
-                      </a>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteFile('google')}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <VerificationFileStatus
+                  storageUrl={settings.google_verification_file}
+                  onDelete={() => handleDeleteFile('google')}
+                  accent="text-blue-500"
+                />
               )}
               <p className="text-xs text-muted-foreground">
-                Upload the HTML verification file from Google Search Console (e.g., google1234567890.html)
+                Upload the HTML verification file from Google Search Console (e.g., google1234567890.html).
+                <br />
+                <strong>After uploading, click Publish</strong> — the file is written into the site root at build time.
               </p>
             </div>
           </CardContent>
         </Card>
+
 
         {/* Bing Verification */}
         <Card>
