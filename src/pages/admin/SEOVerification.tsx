@@ -6,17 +6,109 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Upload, Trash2, Globe, FileCode, Link as LinkIcon, CheckCircle2, XCircle } from 'lucide-react';
+import { Save, Loader2, Upload, Trash2, Globe, FileCode, Link as LinkIcon, CheckCircle2, XCircle, ExternalLink, RefreshCw } from 'lucide-react';
 
 /**
- * Extracts a verification code from a full meta tag string.
- * Accepts either '<meta name="..." content="CODE" />' or just 'CODE'.
+ * Live status panel for an uploaded verification file.
+ * Shows the public URL the file WILL be served at (domain root after
+ * publish) and pings it to confirm it is actually reachable with 200.
  */
+function VerificationFileStatus({
+  storageUrl,
+  onDelete,
+  accent,
+}: {
+  storageUrl: string;
+  onDelete: () => void;
+  accent: string;
+}) {
+  const fileName = storageUrl.split('/').pop()?.split('?')[0] ?? '';
+  const publicUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/${fileName}`
+      : `/${fileName}`;
+  const [status, setStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
+  const [statusCode, setStatusCode] = useState<number | null>(null);
+
+  const check = async () => {
+    setStatus('checking');
+    try {
+      const res = await fetch(publicUrl, { cache: 'no-store' });
+      setStatusCode(res.status);
+      setStatus(res.ok ? 'ok' : 'fail');
+    } catch {
+      setStatus('fail');
+      setStatusCode(null);
+    }
+  };
+
+  return (
+    <div className="p-3 bg-muted rounded-lg mt-2 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <FileCode className={`w-5 h-5 shrink-0 ${accent}`} />
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{fileName}</p>
+            <a
+              href={publicUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:underline flex items-center gap-1 truncate"
+            >
+              <LinkIcon className="w-3 h-3 shrink-0" />
+              <span className="truncate">{publicUrl}</span>
+            </a>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button variant="ghost" size="icon" asChild>
+            <a href={publicUrl} target="_blank" rel="noopener noreferrer" aria-label="Open file">
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:text-destructive"
+            onClick={onDelete}
+            aria-label="Delete file"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={check} disabled={status === 'checking'}>
+          {status === 'checking' ? (
+            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+          ) : (
+            <RefreshCw className="w-3 h-3 mr-1" />
+          )}
+          Test HTTP accessibility
+        </Button>
+        {status === 'ok' && (
+          <span className="text-xs text-green-600 flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" /> HTTP {statusCode} — file is live
+          </span>
+        )}
+        {status === 'fail' && (
+          <span className="text-xs text-destructive flex items-center gap-1">
+            <XCircle className="w-3 h-3" />
+            {statusCode ? `HTTP ${statusCode}` : 'Unreachable'} — republish required
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Extracts a verification code from a full meta tag string. */
 function extractVerificationCode(raw: string): string {
   if (!raw) return '';
   const match = raw.match(/content\s*=\s*["']([^"']+)["']/i);
   return (match?.[1] ?? raw).trim();
 }
+
 
 interface VerificationSettings {
   id: string;
@@ -260,38 +352,21 @@ export default function SEOVerification() {
                 {uploading === 'google' && <Loader2 className="w-4 h-4 animate-spin" />}
               </div>
               {settings.google_verification_file && (
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg mt-2">
-                  <div className="flex items-center gap-3">
-                    <FileCode className="w-5 h-5 text-blue-500" />
-                    <div>
-                      <p className="text-sm font-medium">Verification file uploaded</p>
-                      <a
-                        href={settings.google_verification_file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline flex items-center gap-1"
-                      >
-                        <LinkIcon className="w-3 h-3" />
-                        View file
-                      </a>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteFile('google')}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <VerificationFileStatus
+                  storageUrl={settings.google_verification_file}
+                  onDelete={() => handleDeleteFile('google')}
+                  accent="text-blue-500"
+                />
               )}
               <p className="text-xs text-muted-foreground">
-                Upload the HTML verification file from Google Search Console (e.g., google1234567890.html)
+                Upload the HTML verification file from Google Search Console (e.g., google1234567890.html).
+                <br />
+                <strong>After uploading, click Publish</strong> — the file is written into the site root at build time.
               </p>
             </div>
           </CardContent>
         </Card>
+
 
         {/* Bing Verification */}
         <Card>
@@ -346,35 +421,18 @@ export default function SEOVerification() {
                 {uploading === 'bing' && <Loader2 className="w-4 h-4 animate-spin" />}
               </div>
               {settings.bing_verification_file && (
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg mt-2">
-                  <div className="flex items-center gap-3">
-                    <FileCode className="w-5 h-5 text-cyan-500" />
-                    <div>
-                      <p className="text-sm font-medium">Verification file uploaded</p>
-                      <a
-                        href={settings.bing_verification_file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline flex items-center gap-1"
-                      >
-                        <LinkIcon className="w-3 h-3" />
-                        View file
-                      </a>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteFile('bing')}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <VerificationFileStatus
+                  storageUrl={settings.bing_verification_file}
+                  onDelete={() => handleDeleteFile('bing')}
+                  accent="text-cyan-500"
+                />
               )}
               <p className="text-xs text-muted-foreground">
-                Upload the XML verification file from Bing Webmaster Tools
+                Upload the XML verification file from Bing Webmaster Tools.
+                <br />
+                <strong>After uploading, click Publish</strong> — the file is written into the site root at build time.
               </p>
+
             </div>
           </CardContent>
         </Card>
